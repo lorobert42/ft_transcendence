@@ -1,0 +1,53 @@
+services:
+  frontend:
+    image: ft_transcendence/frontend
+    container_name: ft_transcendence_frontend
+    build:
+      context: frontend/
+      dockerfile: Dockerfile
+    ports:
+      - ${FRONTEND_PORT}:443
+    networks:
+      - ft_transcendence_network
+    depends_on:
+      - backend
+  
+  backend:
+    image: ft_transcendence/backend
+    container_name: ft_transcendence_backend
+    build:
+      context: backend/
+      dockerfile: Dockerfile
+    ports:
+      - ${BACKEND_PORT}:443
+    networks:
+      - ft_transcendence_network
+    depends_on:
+      database:
+        condition: service_healthy
+
+  database:
+    image: postgres:alpine
+    container_name: ft_transcendence_database
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_DB=${DB_NAME}
+    expose:
+      - 5432
+    networks:
+      - ft_transcendence_network
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${DB_USER}", "-d", "${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+networks:
+  ft_transcendence_network:
+
+volumes:
+  database-data:
