@@ -1,1 +1,3 @@
-FROM debian:latest
+FROM nginx:latest
+
+CMD [ "nginx", "-g", "daemon off;" ]
