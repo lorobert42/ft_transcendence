@@ -42,14 +42,15 @@ services:
       - backend
 
   database:
-    image: postgres:alpine
+    image: ft_transcendence/database
     container_name: ft_transcendence_database
+    build:
+      context: database
+      dockerfile: Dockerfile
     environment:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_DB=${DB_NAME}
-    expose:
-      - 5432
     networks:
       - ft_transcendence_network
     volumes:
@@ -61,8 +62,35 @@ services:
       retries: 5
       start_period: 5s
 
+  prometheus:
+    image: ft_transcendence/prometheus
+    container_name: ft_transcendence_prometheus
+    build:
+      context: prometheus
+      dockerfile: Dockerfile
+    ports:
+      - 9090:9090
+    networks:
+      - ft_transcendence_network
+    volumes:
+      - prometheus-data:/prometheus
+    depends_on:
+      - grafana
+  
+  grafana:
+    image: grafana/grafana-oss
+    container_name: ft_transcendence_grafana
+    ports:
+      - 3000:3000
+    networks:
+      - ft_transcendence_network
+    volumes:
+      - grafana-data:/var/lib/grafana
+
 networks:
   ft_transcendence_network:
 
 volumes:
   database-data:
+  grafana-data:
+  prometheus-data:
