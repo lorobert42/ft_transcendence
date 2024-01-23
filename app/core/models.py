@@ -46,21 +46,22 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Room(models.Model):
     name = models.CharField(max_length=128)
-    online = models.ManyToManyField(to=User, blank=True)
+    participants = models.ManyToManyField(User, related_name='chat_rooms')
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    def get_online_count(self):
-        return self.online.count()
+    def get_participants_count(self):
+        return self.participants.count()
 
     def join(self, user):
-        self.online.add(user)
+        self.participants.add(user)
         self.save()
 
     def leave(self, user):
-        self.online.remove(user)
+        self.participants.remove(user)
         self.save()
 
     def __str__(self):
-        return f'{self.name} ({self.get_online_count()})'
+        return f'{self.name} ({self.get_participants_count()})'
 
 
 class Message(models.Model):
@@ -70,4 +71,4 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.user.username}: {self.content} [{self.timestamp}]'
+        return f'{self.user.email}: {self.content} [{self.timestamp}]'

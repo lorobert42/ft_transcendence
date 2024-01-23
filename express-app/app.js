@@ -1,22 +1,25 @@
 // app.js
-const app = require("express")();
-const ws = require("ws");
+const express = require("express");
+const app = express();
+const path = require("path");
+const cors = require("cors");
 const server = require("http").createServer(app);
-const io = require("socket.io")(server);
 const port = process.env.PORT || 8080;
-app.get("/", function (req, res) {
-  res.sendFile("index.html");
-});
-try {
-  const client = new ws("ws://localhost:8000/ws/chat/1/");
+var token = null;
 
-  client.on("open", () => {
-    // Causes the server to print "Hello"
-    console.log("Connected!");
-  });
-} catch (error) {
-  console.log(error);
-}
+const corsOptions = {
+  origin: "http://localhost:8000", // Replace with your Django server's address
+  optionsSuccessStatus: 200, // For legacy browser support
+};
+app.use(cors(corsOptions));
+
+app.use(express.static("public"));
+// app.get("/", function (req, res) {
+//   res.sendFile(path.join(__dirname, "./public", "index.html"));
+// });
+// app.get("/login", function (req, res) {
+//   res.sendFile(path.join(__dirname, "./public", "login.html"));
+// });
 
 server.listen(port, function () {
   console.log(`Listening on port ${port}`);

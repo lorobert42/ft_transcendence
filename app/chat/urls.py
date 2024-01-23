@@ -19,7 +19,8 @@ from rest_framework.routers import DefaultRouter
 from chat import views
 
 router = DefaultRouter()
-router.register('chat', views.RoomViewSet)
+router.register('room', views.RoomViewSet)
+router.register('message', views.MessageViewSet)
 app_name = 'chat'
 
 
