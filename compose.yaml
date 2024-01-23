@@ -5,8 +5,8 @@ services:
     build:
       context: frontend/
       dockerfile: Dockerfile
-    ports:
-      - ${FRONTEND_PORT}:443
+    expose:
+      - 80
     networks:
       - ft_transcendence_network
     depends_on:
@@ -18,13 +18,28 @@ services:
     build:
       context: backend/
       dockerfile: Dockerfile
-    ports:
-      - ${BACKEND_PORT}:443
+    expose:
+      - 8000
     networks:
       - ft_transcendence_network
     depends_on:
       database:
         condition: service_healthy
+    
+  nginx:
+    image: ft_transcendence/reverse_proxy
+    container_name: ft_transcendence_reverse_proxy
+    build:
+      context: reverse_proxy
+      dockerfile: Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    networks:
+      - ft_transcendence_network
+    depends_on:
+      - backend
 
   database:
     image: postgres:alpine
