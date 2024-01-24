@@ -62,9 +62,23 @@ services:
       retries: 5
       start_period: 5s
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: devops_cadvisor
+    ports:
+      - 9092:8080
+    networks:
+      - ft_transcendence_network
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+
   prometheus:
     image: ft_transcendence/prometheus
-    container_name: ft_transcendence_prometheus
+    container_name: devops_prometheus
     build:
       context: prometheus
       dockerfile: Dockerfile
@@ -79,7 +93,7 @@ services:
   
   grafana:
     image: grafana/grafana-oss
-    container_name: ft_transcendence_grafana
+    container_name: devops_grafana
     ports:
       - 3000:3000
     networks:
