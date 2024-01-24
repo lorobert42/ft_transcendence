@@ -7,3 +7,6 @@ channels-redis>=3.3.0,<3.4
 daphne>=3.0.2,<3.1
 django-cors-headers>=3.7.0,<3.8
 redis==3.5.3
+asgiref==3.7.2
+sqlparse==0.4.4
+typing_extensions==4.9.0
