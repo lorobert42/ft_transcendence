@@ -11,7 +11,7 @@ services:
       - ft_transcendence_network
     depends_on:
       - backend
-  
+
   backend:
     image: ft_transcendence/backend
     container_name: ft_transcendence_backend
@@ -25,7 +25,7 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    
+
   nginx:
     image: ft_transcendence/reverse_proxy
     container_name: ft_transcendence_reverse_proxy
