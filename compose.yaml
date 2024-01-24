@@ -42,15 +42,14 @@ services:
       - backend
 
   database:
-    image: ft_transcendence/database
+    image: postgres:alpine
     container_name: ft_transcendence_database
-    build:
-      context: database
-      dockerfile: Dockerfile
     environment:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_DB=${DB_NAME}
+    expose:
+      - 5432
     networks:
       - ft_transcendence_network
     volumes:
@@ -64,7 +63,7 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
-    container_name: devops_cadvisor
+    container_name: ft_transcendence_devops_cadvisor
     ports:
       - 9092:8080
     networks:
@@ -78,7 +77,7 @@ services:
 
   prometheus:
     image: ft_transcendence/prometheus
-    container_name: devops_prometheus
+    container_name: ft_transcendence_devops_prometheus
     build:
       context: prometheus
       dockerfile: Dockerfile
@@ -93,7 +92,7 @@ services:
   
   grafana:
     image: grafana/grafana-oss
-    container_name: devops_grafana
+    container_name: ft_transcendence_devops_grafana
     ports:
       - 3000:3000
     networks:

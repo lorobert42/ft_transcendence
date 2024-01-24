@@ -9,4 +9,4 @@ scrape_configs:
   scrape_interval: 5s
   static_configs:
   - targets:
-    - devops_cadvisor:8080
+    - ft_transcendence_devops_cadvisor:8080
