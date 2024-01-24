@@ -85,14 +85,15 @@ class MessageViewSet(viewsets.ModelViewSet):
         async def send_message():
             print("message:", message.content)
             await channel_layer.group_send(
-            room_group_name,
+            "chat_3",
             {
-                'type': 'chatmessage',
+                'type': 'chat_message',
                 'message': message.content,
                 'user': message.user.id,
                 'timestamp': message.timestamp.strftime("%Y-%m-%d %H:%M:%S")
             }
-        )
+            )
+            print("message sent :", message.content)
         send_message()
 
 
