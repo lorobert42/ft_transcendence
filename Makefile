@@ -1,16 +1,16 @@
 up:
-	docker-compose up --build -d
+	docker compose up --build -d
 
 build:
-	docker-compose build
+	docker compose build
 
 down:
-	docker-compose down
+	docker compose down
 
 clean:
-	docker system prune -a -f
+	docker compose down --rmi all
 
 ls:
-	docker image ls
-	docker ps
+	docker compose images ls
+	docker compose ps
 	docker volume ls
