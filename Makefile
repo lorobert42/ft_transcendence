@@ -11,7 +11,7 @@ clean:
 	docker compose down --rmi all
 
 fclean: clean
-	docker volume rm ft_transcendence_database-data 
+	docker volume ls -q | grep database-data | xargs --no-run-if-empty docker volume rm
 
 ls:
 	docker compose images
