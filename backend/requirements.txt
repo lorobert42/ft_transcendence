@@ -1,4 +1,12 @@
+Django>=3.2.4,<3.3
+djangorestframework>=3.12.4,<3.13
+psycopg2>=2.8.6,<2.9
+drf-spectacular>=0.15.0,<0.16.0
+channels>=3.0.3,<3.1
+channels-redis>=3.3.0,<3.4
+daphne>=3.0.2,<3.1
+django-cors-headers>=3.7.0,<3.8
+redis==3.5.3
 asgiref==3.7.2
-Django==5.0.1
 sqlparse==0.4.4
 typing_extensions==4.9.0

@@ -18,13 +18,33 @@ services:
     build:
       context: backend/
       dockerfile: Dockerfile
+      args:
+        - DEV=true
     expose:
       - 8000
     networks:
       - ft_transcendence_network
+    volumes:
+      - ./backend/app:/app
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - DB_HOST=ft_transcendence_database
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASSWORD}
     depends_on:
       database:
         condition: service_healthy
+  
+  backend_redis:
+    image: redis
+    container_name: ft_transcendence_backend_redis
+    expose:
+      - 6379
+    networks:
+      - ft_transcendence_network
     
   nginx:
     image: ft_transcendence/reverse_proxy
