@@ -10,6 +10,9 @@ down:
 clean:
 	docker compose down --rmi all
 
+fclean: clean
+	docker volume rm transcendence_database-data 
+
 ls:
 	docker compose images ls
 	docker compose ps

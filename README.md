@@ -3,6 +3,10 @@
 2. Copy it as `.env`
 3. Start with `make`
 
-
-Board Miro
-https://miro.com/app/board/uXjVN3xjpxg=/
+# COMMAND 
+make        -> create container and start it
+make build  -> create the container
+make up     -> start the container
+make ls     -> show the container and the volume
+make clean  -> clean all the container
+make fclean -> clean all the container and remove the volume
