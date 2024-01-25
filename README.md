@@ -10,3 +10,6 @@
 4. make ls      -> show the container and the volume
 5. make clean   -> clean all the container
 6. make fclean  -> clean all the container and remove the volume
+
+# Board Miro
+https://miro.com/app/board/uXjVN3xjpxg=/
