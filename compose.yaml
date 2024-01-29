@@ -27,7 +27,7 @@ services:
     networks:
       - tr_network
     volumes:
-      - ./backend/app:/app
+      - backend-source-code:/app
     command: >
       sh -c "python manage.py migrate &&
              python manage.py runserver 0.0.0.0:8000"
@@ -88,3 +88,9 @@ networks:
 
 volumes:
   database-data:
+  backend-source-code:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./backend/app
+      o: bind
