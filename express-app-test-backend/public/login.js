@@ -12,6 +12,7 @@ function login() {
     }),
   );
   xhttp.onreadystatechange = function () {
+    console.log("readyState ", this.readyState);
     if (this.readyState == 4 && this.status == 200) {
       const objects = JSON.parse(this.responseText);
       console.log("response object ", objects);
