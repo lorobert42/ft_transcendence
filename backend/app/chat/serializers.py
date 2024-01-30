@@ -36,6 +36,22 @@ class RoomSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ('id', 'participants',)
 
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        print("instance:", instance)
+        print("instance participants:", instance.participants.all())
+        current_user = request.user
+        print("user:", current_user.id)
+        if current_user in instance.participants.all():
+            print("user in participants")
+        else:
+            raise serializer.ValidationError({'room': 'User does not have permission to view this room'})
+
+        serializer = self.get_serializer(instance)
+        print("serializer:", serializer.data)
+
+
     def create(self, validated_data):
 
         user_id = validated_data.pop('user_id')

@@ -1,4 +1,5 @@
 import json
+from django.forms import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.response import Response
@@ -46,6 +47,26 @@ class RoomViewSet(viewsets.ModelViewSet):
         Return objects for current authenticated user only
         """
         return self.queryset.all().order_by('-id')
+
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Custom retrieve method to return a single model instance.
+        """
+        try:
+            instance = self.get_object()  # Retrieve the Room instance based on the provided pk (id)
+
+            # You can include your custom logic here. For example:
+            current_user = request.user
+            if current_user not in instance.participants.all():
+                    # Returning a custom error message with a 403 Forbidden status code
+                return Response({'detail': 'User does not have permission to view this room.'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Serialize the instance
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+        except ValidationError as e:
+            # Handle other types of validation errors, if needed
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST) #
 
     def create(self, request, *args, **kwargs):
         print("Request Data:", request.data)
