@@ -79,13 +79,13 @@ class MessageViewSet(viewsets.ModelViewSet):
         message = serializer.save(user=self.request.user)
         channel_layer = get_channel_layer()
         room_group_name = f'chat_{message.room.id}'
-        print("room group name:", room_group_name)
 
         @async_to_sync
         async def send_message():
+            print("room group name:", room_group_name)
             print("message:", message.content)
             await channel_layer.group_send(
-            "chat_3",
+            room_group_name,
             {
                 'type': 'chat_message',
                 'message': message.content,

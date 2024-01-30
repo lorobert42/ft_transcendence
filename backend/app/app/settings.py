@@ -160,6 +160,7 @@ CHANNEL_LAYERS = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
+    "http://localhost:8081",
     "http://localhost",
     "http://localhost:8081",
 ]
