@@ -12,6 +12,7 @@ clean:
 
 fclean: clean
 	docker volume ls -q | grep database-data | xargs --no-run-if-empty docker volume rm
+	docker volume ls -q | grep backend-source-code | xargs --no-run-if-empty docker volume rm
 
 ls:
 	docker compose images
