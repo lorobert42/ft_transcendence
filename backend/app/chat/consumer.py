@@ -2,6 +2,9 @@ import json
 
 from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
+from core.models import Room
+from channels.db import database_sync_to_async
+
 
 
 
@@ -28,6 +31,20 @@ class ChatConsumer(WebsocketConsumer):
 
         self.accept()
 
+        # # Check if user is part of the room
+        # if self.user.is_authenticated:
+        #     room = self.get_room()
+        #     if room and self.user in room.participants.all():
+        #         # Join room group
+        #         async_to_sync(self.channel_layer.group_add)(
+        #             self.room_group_name, self.channel_name
+        #         )
+        #         self.accept()
+        #     else:
+        #         self.close()  # Close the connection if the user is not a participant
+        # else:
+        #     self.close()
+
 
     def disconnect(self, close_code):
         print("room name disconnect", self.room_group_name)
@@ -53,3 +70,11 @@ class ChatConsumer(WebsocketConsumer):
 
         # Send message to WebSocket
         self.send(text_data=json.dumps({"message": message}))
+
+     # Helper method to get the room
+    @database_sync_to_async
+    def get_room(self):
+        try:
+            return Room.objects.get(id=self.room_name)
+        except Room.DoesNotExist:
+            return None
