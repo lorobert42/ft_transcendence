@@ -1,4 +1,5 @@
 import json
+from django.forms import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework.response import Response
@@ -47,6 +48,26 @@ class RoomViewSet(viewsets.ModelViewSet):
         """
         return self.queryset.all().order_by('-id')
 
+    def retrieve(self, request, *args, **kwargs):
+        """
+        Custom retrieve method to return a single model instance.
+        """
+        try:
+            instance = self.get_object()  # Retrieve the Room instance based on the provided pk (id)
+
+            # You can include your custom logic here. For example:
+            current_user = request.user
+            if current_user not in instance.participants.all():
+                    # Returning a custom error message with a 403 Forbidden status code
+                return Response({'detail': 'User does not have permission to view this room.'}, status=status.HTTP_403_FORBIDDEN)
+
+            # Serialize the instance
+            serializer = self.get_serializer(instance)
+            return Response(serializer.data)
+        except ValidationError as e:
+            # Handle other types of validation errors, if needed
+            return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST) #
+
     def create(self, request, *args, **kwargs):
         print("Request Data:", request.data)
         print("headder:", request.headers)
@@ -79,13 +100,13 @@ class MessageViewSet(viewsets.ModelViewSet):
         message = serializer.save(user=self.request.user)
         channel_layer = get_channel_layer()
         room_group_name = f'chat_{message.room.id}'
-        print("room group name:", room_group_name)
 
         @async_to_sync
         async def send_message():
+            print("room group name:", room_group_name)
             print("message:", message.content)
             await channel_layer.group_send(
-            "chat_3",
+            room_group_name,
             {
                 'type': 'chat_message',
                 'message': message.content,
