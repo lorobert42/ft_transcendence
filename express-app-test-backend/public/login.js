@@ -3,7 +3,7 @@ function login() {
   const password = document.getElementById("password").value;
 
   const xhttp = new XMLHttpRequest();
-  xhttp.open("POST", "http://localhost:8000/api/user/token/", true);
+  xhttp.open("POST", "https://localhost:8080/api/user/token/", true);
   xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
   xhttp.send(
     JSON.stringify({
