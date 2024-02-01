@@ -14,8 +14,10 @@
       // const roomName = JSON.parse(
       //   document.getElementById("room-name").textContent,
       // );
-
-      const chatSocket = new WebSocket("ws://localhost:8000/ws/chat/1/");
+      let authToken = localStorage.getItem("authToken");
+      const chatSocket = new WebSocket(
+        `ws://localhost:8000/ws/chat/1/?token=${authToken}`,
+      );
 
       chatSocket.onopen = function (e) {
         console.log("connected");

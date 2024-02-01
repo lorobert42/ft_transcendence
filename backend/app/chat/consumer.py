@@ -4,12 +4,25 @@ from asgiref.sync import async_to_sync
 from channels.generic.websocket import WebsocketConsumer
 from core.models import Room
 from channels.db import database_sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer
 
 
+from django.contrib.auth.models import User
 
 
+@database_sync_to_async
+def get_room(room_id):
+    try:
+        return Room.objects.get(id=room_id)
+    except Room.DoesNotExist:
+        return None
 
-class ChatConsumer(WebsocketConsumer):
+@database_sync_to_async
+def is_user_in_room(user, room):
+    return user in room.participants.all() if room else False
+
+
+class ChatConsumer(AsyncWebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(args, kwargs)
@@ -17,41 +30,54 @@ class ChatConsumer(WebsocketConsumer):
         self.room_group_name = None
         self.room = None
 
-    def connect(self):
+    async def connect(self):
+        print("starting connect")
+        user = self.scope["user"]
+        print("user id within connect", user.id)
+
+        room_id = self.scope["url_route"]["kwargs"]["room_id"]
         self.room_name = self.scope["url_route"]["kwargs"]["room_id"]
         self.room_group_name = "chat_%s" % self.room_name
 
         print("room name connect", self.room_group_name)
         print("room name channel", self.channel_name)
+        self.user = self.scope["user"]
+        print("user", self.user)
 
-        # Join room group
-        async_to_sync(self.channel_layer.group_add)(
-            self.room_group_name, self.channel_name
-        )
 
-        self.accept()
+        if not user.is_authenticated:
+            await self.close()
+            return
 
-        # # Check if user is part of the room
-        # if self.user.is_authenticated:
-        #     room = self.get_room()
-        #     if room and self.user in room.participants.all():
-        #         # Join room group
-        #         async_to_sync(self.channel_layer.group_add)(
-        #             self.room_group_name, self.channel_name
-        #         )
-        #         self.accept()
-        #     else:
-        #         self.close()  # Close the connection if the user is not a participant
-        # else:
-        #     self.close()
+        room = await get_room(room_id)
+
+        if room and await is_user_in_room(user, room):
+            self.room_group_name = f'chat_{room_id}'
+            await self.channel_layer.group_add(
+                self.room_group_name,
+                self.channel_name
+            )
+            await self.accept()
+        else:
+            await self.close()
+
+        # # Join room group
+        # async_to_sync(self.channel_layer.group_add)(
+        #     self.room_group_name, self.channel_name
+        # )
+
+        # self.accept()
 
 
     def disconnect(self, close_code):
-        print("room name disconnect", self.room_group_name)
-        async_to_sync(self.channel_layer.group_discard)(
-            self.room_group_name,
-            self.channel_name,
-        )
+
+        if self.room_group_name:
+            async_to_sync(self.channel_layer.group_discard)(
+                self.room_group_name,
+                self.channel_name,
+            )
+        print("Disconnected from room", self.room_group_name)
+
 
      # Receive message from WebSocket
     def receive(self, text_data):
