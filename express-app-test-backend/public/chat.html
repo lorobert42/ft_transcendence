@@ -16,7 +16,7 @@
       // );
       let authToken = localStorage.getItem("authToken");
       const chatSocket = new WebSocket(
-        `ws://localhost:8000/ws/chat/1/?token=${authToken}`,
+        `wss://localhost:8080/ws/chat/1/?token=${authToken}`,
       );
 
       chatSocket.onopen = function (e) {

@@ -20,17 +20,10 @@ services:
       dockerfile: Dockerfile
       args:
         - DEV=true
-    ports:
-      - 8000:8000
     expose:
       - 8000
     networks:
       - tr_network
-    volumes:
-      - backend-source-code:/app
-    command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:8000"
     environment:
       - DB_HOST=tr_database
       - DB_NAME=${DB_NAME}
@@ -47,6 +40,8 @@ services:
       - 6379
     networks:
       - tr_network
+    volumes:
+      - redis-data:/data
     
   nginx:
     image: tr/reverse_proxy
@@ -55,8 +50,6 @@ services:
       context: reverse_proxy
       dockerfile: Dockerfile
     ports:
-      - 80:80
-      - 443:443
       - 8080:8080
     networks:
       - tr_network
@@ -88,9 +81,4 @@ networks:
 
 volumes:
   database-data:
-  backend-source-code:
-    driver: local
-    driver_opts:
-      type: none
-      device: ./backend/app
-      o: bind
+  redis-data:
