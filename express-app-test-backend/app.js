@@ -8,7 +8,7 @@ const port = process.env.PORT || 8081;
 var token = null;
 
 const corsOptions = {
-  origin: "http://localhost:8000", // Replace with your Django server's address
+  origin: "https://localhost:8080", // Replace with your Django server's address
   optionsSuccessStatus: 200, // For legacy browser support
 };
 app.use(cors(corsOptions));
