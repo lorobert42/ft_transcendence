@@ -25,7 +25,7 @@ def is_user_in_room(user, room):
 class ChatConsumer(AsyncWebsocketConsumer):
 
     def __init__(self, *args, **kwargs):
-        super().__init__(args, kwargs)
+        super().__init__(*args, **kwargs)  # Corrected this line
         self.room_name = None
         self.room_group_name = None
         self.room = None
@@ -69,38 +69,38 @@ class ChatConsumer(AsyncWebsocketConsumer):
         # self.accept()
 
 
-    def disconnect(self, close_code):
-
+    async def disconnect(self, close_code):
         if self.room_group_name:
-            async_to_sync(self.channel_layer.group_discard)(
+            # Leave room group
+            await self.channel_layer.group_discard(
                 self.room_group_name,
                 self.channel_name,
             )
         print("Disconnected from room", self.room_group_name)
 
 
-     # Receive message from WebSocket
-    def receive(self, text_data):
+    # Receive message from WebSocket
+    async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
         print("message in receive:", message)
 
         # Send message to room group
-        async_to_sync(self.channel_layer.group_send)(
+        await self.channel_layer.group_send(
             self.room_group_name, {"type": "chat_message", "message": message}
         )
 
-    def chat_message(self, event):
+    async def chat_message(self, event):
         message = event["message"]
         print("message in chat_message:", message)
 
         # Send message to WebSocket
-        self.send(text_data=json.dumps({"message": message}))
+        await self.send(text_data=json.dumps({"message": message}))
 
      # Helper method to get the room
     @database_sync_to_async
-    def get_room(self):
+    def get_room(self, room_id):  # Added room_id parameter
         try:
-            return Room.objects.get(id=self.room_name)
+            return Room.objects.get(id=room_id)
         except Room.DoesNotExist:
             return None
