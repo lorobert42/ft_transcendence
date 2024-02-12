@@ -34,3 +34,4 @@ class UserAdmin(BaseUserAdmin):
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.Room)
 admin.site.register(models.Message)
+admin.site.register(models.GameRoom)
