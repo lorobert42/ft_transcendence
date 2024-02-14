@@ -28,9 +28,6 @@ def room_view(request, room_name):
     })
 
 
-
-
-
 class RoomViewSet(viewsets.ModelViewSet):
     """
     View for manage chat APIs

@@ -13,6 +13,9 @@ test:
 migrate:
 	docker compose run --rm backend sh -c "python manage.py makemigrations"
 
+mig:
+	docker compose run --rm backend sh -c "python manage.py migrate"
+
 clean:
 	docker compose down --rmi all
 
