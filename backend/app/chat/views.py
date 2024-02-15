@@ -8,6 +8,7 @@ from rest_framework import viewsets, status, generics
 from rest_framework.authentication import TokenAuthentication  # noqa: F401
 from rest_framework.permissions import IsAuthenticated  # noqa: F401
 from asgiref.sync import async_to_sync
+from rest_framework.views import APIView
 
 from channels.layers import get_channel_layer
 
@@ -95,4 +96,8 @@ class MessageViewSet(viewsets.ModelViewSet):
 
 
 
-
+class RoomMessagesAPIView(APIView):
+    def get(self, request, room_id):
+        messages = Message.objects.filter(room_id=room_id).order_by('-timestamp')
+        serializer = serializers.MessageSerializer(messages, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

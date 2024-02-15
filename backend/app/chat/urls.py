@@ -17,6 +17,7 @@ from django.urls import (
 )
 from rest_framework.routers import DefaultRouter
 from chat import views
+from .views import RoomMessagesAPIView
 
 router = DefaultRouter()
 router.register('room', views.RoomViewSet)
@@ -26,4 +27,5 @@ app_name = 'chat'
 
 urlpatterns = [
     path('', include(router.urls)),
+	path('rooms/<int:room_id>/messages/', RoomMessagesAPIView.as_view(), name='room-messages'),
 ]

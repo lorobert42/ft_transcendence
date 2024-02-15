@@ -9,6 +9,7 @@ from django.contrib.auth.models import (
 )
 
 
+
 class UserManager(BaseUserManager):
     """ Manager for user profiles """
 
@@ -77,7 +78,7 @@ class Message(models.Model):
 class GameRoom(models.Model):
     """GameRoom info"""
     name = models.CharField(max_length=255)
-    players = models.ManyToManyField(User)
+    user = models.ManyToManyField(User)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -86,12 +87,12 @@ class GameRoom(models.Model):
 
 class Game(models.Model):
     name = models.CharField(max_length=255)
-    player = models.ManyToManyField(User, through='GameUser')
+    user = models.ManyToManyField(User, through="GameInfo")
     game_room = models.ForeignKey(to=GameRoom, on_delete=models.CASCADE)
 
 
-class GameUser(models.Model):
-    player = models.ForeignKey(to=User, on_delete=models.CASCADE)
+class GameInfo(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
     game = models.ForeignKey(to=Game, on_delete=models.CASCADE)
-    score = models.IntegerField(default='0')
-    has_won = models.BooleanField(default='False')
+    score = models.IntegerField(default=0)
+    has_won = models.BooleanField(default=False)
