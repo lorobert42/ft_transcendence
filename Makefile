@@ -1,6 +1,9 @@
 up:
 	docker compose up --build -d
 
+up_only:
+	docker compose up -d
+
 build:
 	docker compose build
 
