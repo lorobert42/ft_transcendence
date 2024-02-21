@@ -16,6 +16,9 @@ migrate:
 mig:
 	docker compose run --rm backend sh -c "python manage.py migrate"
 
+db:
+	docker compose run --rm backend sh -c "python manage.py dbshell"
+
 clean:
 	docker compose down --rmi all
 
