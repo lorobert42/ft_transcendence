@@ -1,9 +1,34 @@
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework import generics
 
 from core.models import GameRoom
-#from .serializers import GameRoomSerializer
+from .serializers import GameRoomSerializer
 
-# Create your views here.
+class GameRoomList(generics.ListCreateAPIView):
+    queryset = GameRoom.objects.all()
+    serializer_class = GameRoomSerializer
 
+class GameRoomDetail(generics.RetrieveDestroyAPIView):
+    queryset = GameRoom.objects.all()
+    serializer_class = GameRoomSerializer
+
+
+""" Concrete View Classes
+#CreateAPIView
+Used for create-only endpoints.
+#ListAPIView
+Used for read-only endpoints to represent a collection of model instances.
+#RetrieveAPIView
+Used for read-only endpoints to represent a single model instance.
+#DestroyAPIView
+Used for delete-only endpoints for a single model instance.
+#UpdateAPIView
+Used for update-only endpoints for a single model instance.
+##ListCreateAPIView
+Used for read-write endpoints to represent a collection of model instances.
+RetrieveUpdateAPIView
+Used for read or update endpoints to represent a single model instance.
+#RetrieveDestroyAPIView
+Used for read or delete endpoints to represent a single model instance.
+#RetrieveUpdateDestroyAPIView
+Used for read-write-delete endpoints to represent a single model instance.
+"""

@@ -42,6 +42,7 @@ class RoomViewSet(viewsets.ModelViewSet):
         """
         Return objects for current authenticated user only
         """
+        print("TEST 1")
         return self.queryset.all().order_by('-id')
 
     def create(self, request, *args, **kwargs):
