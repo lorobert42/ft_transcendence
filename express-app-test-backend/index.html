@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Main Page</title>
+    <base href="/">
+    <link href="./bootstrap-5.3.2-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+</head>
+<body class="d-flex flex-column min-vh-100">
+    <div class="container-fluid" id="header_id">
+        <nav class="navbar fixed-top d-flex flex-row" id="navbar_id">
+            <div class="d-flex fixed-center justify-content-center mx-2">
+                <a class="navbar-brand align-items-center" href="/" data-link>
+                    <img src="./assets/ponglogo.png" alt="" height="30" width="30" class="rounded">
+                </a>
+            </div>
+            <div class="d-flex flex-grow-1">
+                <div id="home_button_id">
+                    <a class="btn btn-light" href="/" data-link>
+                        <i class="bi bi-house"></i>
+                        Home
+                    </a>
+                </div>
+                <div id="profile_button_id">
+                    <a class="btn btn-light" href="/local" data-link>
+                        <i class="bi bi-universal-access"></i>
+                        Local Game
+                    </a>
+                </div>
+                <div id="remote_button_id">
+                    <a class="btn btn-light" href="/remote" data-link>
+                        <i class="bi "></i>
+                        Remote Game
+                    </a>
+                </div>
+            </div>
+        </nav>
+    </div>
+    <div class="container-fluid bg-light" id="body"></div>
+    <div class="container-fluid bg-dark" id="footer"></div>
+
+    <script type="module" src="app.js"></script>
+    <script src="bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

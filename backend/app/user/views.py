@@ -45,4 +45,4 @@ class ListUsersView(generics.ListAPIView):
     # You can add authentication and permission classes as needed
     # For example, restrict this view to admin users only
     authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.IsAuthenticated]

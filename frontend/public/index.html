@@ -4,38 +4,60 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Main Page</title>
+    <base href="/">
     <link href="./bootstrap-5.3.2-dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="d-flex flex-column min-vh-100">
-  <div class="container flex-grow-1">
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="/" data-link>MyApp</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item active">
-                    <a class="nav-link" href="/" data-link>Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/profile" data-link>Profile</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/gameroom" data-link>Game Room</a>
-                </li>
-            </ul>
+    <div class="d-flex flex-column min-vh-100 min-vw-100 card">
+        <header class="container-fluid card-header" id="header_id">
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <div class="container-fluid">
+                  <!-- Logo -->
+                  <a class="navbar-brand" href="#">
+                    <img src="./assets/ponglogo.png" alt="" height="30" width="30" class="rounded img-light theme-switch">
+                  </a>
+              
+                  <!-- Left-aligned items -->
+                  <div class="">
+                        <a class="btn" href="/" data-link>
+                            <i class="bi bi-house"></i>
+                            Home
+                        </a>
+                      <a class="btn" href="/local" data-link>
+                            <i class="bi bi-universal-access"></i>
+                            Local Game
+                      </a>
+                      <a class="btn" href="/online" data-link>
+                            <i class="bi "></i>
+                            Online Game
+                      </a>
+                  </div>
+              
+                  <!-- This div will auto push the elements to the right -->
+                  <div class="d-flex ms-auto">
+                    <!-- Right-aligned items -->
+                    <button class="btn btn-outline-primary" data-bs-toggle="offcanvas" data-bs-target="#chatCanva" aria-controls="chatCanva" role="button">Chat</button>
+                    <div class="px-2" id="loginLabel"></div>
+                  </div>
+                </div>
+              </nav>          
+            </header>
+        <div class="container-fluid flex-grow-1" id="body">
+            <div class="offcanvas offcanvas-end" tabindex="-1" id="chatCanva" aria-labelledby="chatCanvaLabel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="chatCanvaLabel">Chat</h5>
+                    <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body d-flex container flex-grow-1" id="chatapp"> </div>
+            </div>
+            <div class="d-flex container-fluid flex-grow-1" id="app"></div>
         </div>
-    </nav>
-    
-    <div id="app"></div>
-  </div>
-    <!-- Footer -->
-  <footer class="bg-light text-center text-lg-start">
-      <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-          © 2024 MyApp
-      </div>
-  </footer>
+        <footer class="text-center text-lg-start m-0 container-fluid">
+            <div class="mx-auto text-center">© 2024 Transcendance</div>
+        </footer>          
+    </div>
 
     <script type="module" src="app.js"></script>
     <script src="bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
