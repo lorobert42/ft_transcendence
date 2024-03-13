@@ -1,4 +1,3 @@
-
 const routes = {
     '/': {name: 'Home', view: 'home.js'},
     '/profile': {name: 'Profile', view: 'profile.js'},
