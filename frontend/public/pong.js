@@ -41,7 +41,9 @@ export function initPongGame() {
 
 	async function fetchAndUpdateGameState() {
 		try {
-			const response = await fetch('http://localhost:8000/game/state/');
+			const response = await fetch('https://localhost:8080/game/state/', {
+				mode: "same-origin",
+			});
 			const data = await response.json();
 			console.log("Fetched coordinates:", data);
 
