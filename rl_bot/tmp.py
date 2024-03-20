@@ -65,8 +65,8 @@ class Player:
     def __init__(self, control_side, player_type='human'):
         self.control_side = control_side  # 'left' or 'right'
         self.player_type = player_type  # 'human' or 'rl'
-        self.action_left = None  # Action chosen by the left player (up, down, none)
-        self.action_right = None  # Action chosen by the right player (up, down, none)
+        self.action = None  # Action chosen by the left player (up, down, none)
+        self.action = None  # Action chosen by the right player (up, down, none)
     def decide_action(self, observation=None, keys=None):
         if self.player_type == 'human':
             if self.control_side == 'left':
@@ -111,9 +111,8 @@ class GameManager:
         pygame.display.set_caption("Pong")
         clock = pygame.time.Clock()
         running = True
-        action_left = None  # Action chosen by the left player (up, down, none)
-        action_right = None  # Action chosen by the right player (up, down, none)
-        frames_since_last_action = 0  # Track frames to match action frequency
+        action = None  # Action chosen by the player (up, down, none)
+        frames_since_last_observation = FPS  # Track frames to match action frequency, init to FPS for first observation
 
         while running:
             for event in pygame.event.get():
@@ -122,32 +121,20 @@ class GameManager:
 
             keys = pygame.key.get_pressed()  # Get pressed keys for human players
             
+            # Update observation every second
+            if frames_since_last_observation >= FPS:  # Time to update action
+                observation = self.get_observation()
+                frames_since_last_observation = 0
+            
             # Decide actions for both players and update paddles
             for player in self.players:
                 if player.player_type == 'human':
-                    if player.control_side == 'left':
-                        action_left = player.decide_action(keys=keys)
-                    else:
-                        action_right = player.decide_action(keys=keys)
+                    action = player.decide_action(keys=keys)
                 elif player.player_type == 'rl':
-                    frames_since_last_action += 1
-                    if frames_since_last_action * 30 >= FPS:  # Time to update action
-                        if player.control_side == 'left':
-                            observation = self.get_observation(player)
-                            action_left = player.decide_action(observation=observation)
-                        else:
-                            observation = self.get_observation(player)
-                            action_right = player.decide_action(observation=observation)
-                        frames_since_last_action = 0
-                        #observation = self.get_observation(player)
-                        #action = player.decide_action(observation=observation)
-                if player.control_side == 'left':
-                    self.apply_action(player, action_left)
-                else:
-                    self.apply_action(player, action_right)
-                #self.apply_action(player, action)
+                    action = player.decide_action(observation=observation)
+                self.apply_action(player, action)
 
-
+            frames_since_last_observation += 1
             self.ball.move()
             self.handle_collision()
             self.check_score()
@@ -162,18 +149,10 @@ class GameManager:
         pygame.quit()
         sys.exit()
 
-    def get_observation(self, player):
+    def get_observation(self):
         # Construct and return the current state observation
         # This is sent once per second to the RL agent
-        ball_x = self.ball.x
-        ball_y = self.ball.y
-        if (player.control_side == 'left'):
-            paddle_y = self.paddle_left.y
-            opponent_paddle_y = self.paddle_right.y
-        else:
-            paddle_y = self.paddle_right.y
-            opponent_paddle_y = self.paddle_left.y
-        observation = [self.ball.x, self.ball.y, self.ball.x, self.ball.y, paddle_y, opponent_paddle_y]
+        observation = [self.ball.x, self.ball.y, self.ball.x, self.ball.y, self.paddle_right.y, self.paddle_left.y]
         return (observation)
 
     def apply_action(self, player, action):
@@ -238,6 +217,11 @@ class GameManager:
 # Main function
 if __name__ == "__main__":
     
+
+    """ TESTING GAME """
+    # Human vs Human
+    game_human_vs_human = GameManager(player1_type='human', player2_type='human')
+    game_human_vs_human.run()
 
     """ TRAINING AGENTS """
     game_rl_vs_rl = GameManager(player1_type='rl', player2_type='rl')
