@@ -14,13 +14,29 @@ async function loadView(view){
         return `<h1>404 Page not Found</h1>`;
     }
 }
+function cleanupPreviousView() {
+    console.log("Router called, path: " + window.location.pathname);
+   	cleanupPreviousView(); // Clean resources from the previous view
+
+	const canvas = document.getElementById('pongCanvas');
+    if (canvas) {
+        console.log("Removing canvas");
+        canvas.parentNode.removeChild(canvas);
+    } else {
+        console.log("No canvas found to remove");
+    }
+}
 
 async function router()
 {
     const path = window.location.pathname;
     const route = routes[path] || routes['/'];
     const content = await loadView(route.view);
-    document.getElementById('app').innerHTML = content;
+    if (typeof content === 'undefined') {
+        console.error('content is undefined', route.view);
+    }
+
+    //document.getElementById('app').innerHTML = content;
 }
 
 export function setupListener(){

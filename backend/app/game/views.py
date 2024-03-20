@@ -1,4 +1,5 @@
 from django.shortcuts import render
+import json
 
 # Create your views here.
 
@@ -9,10 +10,12 @@ from .game import GameManager  # Import the game logic
 def game_state(request):
     # Mocked game state data
     data = {
-        'player1': {'x': 20, 'y': 100},  # Test coordinates for player 1
+        'player1': {'x': 40, 'y': 100},  # Test coordinates for player 1
         'player2': {'x': 980, 'y': 200},  # Test coordinates for player 2
         'ball': {'x': 500, 'y': 350},  # Test coordinates for the ball
     }
+    print(json.dumps(data, indent=4))  # This will print the structured data to your Django console
+
     return JsonResponse(data)
 
 '''
