@@ -7,6 +7,31 @@
 
 
 
+# define env interface:
+# 
+# 1. observation_space: 
+	# Position of the ball: The (x, y) coordinates.
+	# Velocity of the ball: The change in (x, y) position per time step, which can help predict where the ball will move next.
+	# Position of the agent's paddle: The y-coordinate (assuming horizontal movement is fixed).
+	# Position of the opponent's paddle: The y-coordinate.
+
+	# observation = [ball_x, ball_y, ball_vel_x, ball_vel_y, paddle_y, opponent_paddle_y]
+# 2. Actions:
+	# Up: Move the paddle up.
+	# Down: Move the paddle down.
+	# None: Keep the paddle in its current position.
+
+# 3. Reward:
+	# +2  Awarded each time the agent scores a point (i.e., the opponent misses the ball).
+	# +1  Awarded each time the agent touches the ball
+	# -1  Incurred each time the opponent scores a point (i.e., the agent misses the ball).
+	# +0  For all other scenarios not resulting in a score to encourage efficient play without unnecessary movement.
+
+# e
+# 
+# 
+
+
 import numpy as np
 
 # Example settings (you'll need to adapt these)
