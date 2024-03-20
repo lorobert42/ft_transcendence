@@ -9,23 +9,22 @@ pygame.init()
 WIDTH, HEIGHT = 1000, 700
 PADDLE_WIDTH, PADDLE_HEIGHT = 25, 125
 BALL_RADIUS = 10
-FPS = 20
+FPS = 45
 
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-
 class Ball:
-    def __init__(self, x, y, radius, max_vel_x=10, max_vel_y=15):
+    def __init__(self, x, y, radius, vel_x=5, vel_y=5):
         self.x = x
         self.y = y
         self.radius = radius
-        self.max_vel_x = max_vel_x
-        self.max_vel_y = max_vel_y
+        self.vel_x = vel_x
+        self.vel_y = vel_y
 
     def move(self):
-        self.x += self.max_vel_x
-        self.y += self.max_vel_y
+        self.x += self.vel_x
+        self.y += self.vel_y
 
     def draw(self, screen):
         pygame.draw.circle(screen, WHITE, (self.x, self.y), self.radius)
@@ -33,8 +32,8 @@ class Ball:
     def reset(self):
         self.x = WIDTH // 2
         self.y = HEIGHT // 2
-        self.max_vel_x *= -1
-        self.max_vel_y = 5
+        self.vel_x *= -1
+        self.vel_y = 5
 
 class Paddle:
     """Paddle class"""
@@ -66,7 +65,6 @@ class Player:
         self.control_side = control_side  # 'left' or 'right'
         self.player_type = player_type  # 'human' or 'rl'
         self.action = None  # Action chosen by the left player (up, down, none)
-        self.action = None  # Action chosen by the right player (up, down, none)
     def decide_action(self, observation=None, keys=None):
         if self.player_type == 'human':
             if self.control_side == 'left':
@@ -106,7 +104,7 @@ class GameManager:
         self.player_right = Player('right', player2_type)
         self.players = [self.player_left, self.player_right]
 
-    def run(self, mode='human'):
+    def run(self):
         screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Pong")
         clock = pygame.time.Clock()
@@ -152,7 +150,7 @@ class GameManager:
     def get_observation(self):
         # Construct and return the current state observation
         # This is sent once per second to the RL agent
-        observation = [self.ball.x, self.ball.y, self.ball.x, self.ball.y, self.paddle_right.y, self.paddle_left.y]
+        observation = [self.ball.x, self.ball.y, self.ball.vel_x, self.ball.vel_y, self.paddle_right.y, self.paddle_left.y]
         return (observation)
 
     def apply_action(self, player, action):
@@ -167,42 +165,48 @@ class GameManager:
 
 
 
-
     def handle_collision(self):
         """ Change the ball direction if it hit the ceiling """
-
         if self.ball.y - self.ball.radius <= 0 or self.ball.y + self.ball.radius >= HEIGHT:
-            self.ball.max_vel_y *= -1 # Changed x to y
+            self.ball.vel_y *= -1  # Bounce off the wall
 
-        if self.ball.max_vel_x < 0:
+        # Collision with the left paddle
+        if self.ball.vel_x < 0:  # Ball moving left
+            
             # Ball goes left to right ->
             if self.paddle_left.x + self.paddle_left.width >= self.ball.x - self.ball.radius and \
             self.paddle_left.y <= self.ball.y <= self.paddle_left.y + self.paddle_left.height:
+            
                 # Ball is hitting the left_paddle
                 if self.ball.x > self.paddle_left.x:  # Ensure collision is at the front of paddle
-                    self.ball.max_vel_x *= -1
-
-                    # Calculate vertical velocity adjustment
-                    difference_in_y = (self.paddle_right.y + self.paddle_right.height / 2) - self.ball.y
-                    reduction_factor = (self.paddle_right.height / 2) / self.ball.max_vel_y
-                    self.ball.vel_y = difference_in_y / reduction_factor
-                    # Will change the velocity of the ball depending of where the
-                    # Ball is hitting the paddle
-
-        if self.ball.max_vel_x > 0:  # Ball moving right
-            # Ball goes right to left <-
-            if self.paddle_right.x <= self.ball.x + self.ball.radius and \
-            self.paddle_right.y <= self.ball.y <= self.paddle_right.y + self.paddle_right.height:
-                # Ball is hitting the rigth_paddle
-                if self.ball.x < self.paddle_right.x + self.paddle_right.width:  # Ensure collision is at the front of paddle
-                    self.ball.max_vel_x *= -1
+                    # Reverse horizontal velocity
+                    self.ball.vel_x *= -1  
 
                     # Calculate vertical velocity adjustment
                     difference_in_y = (self.paddle_left.y + self.paddle_left.height / 2) - self.ball.y
-                    reduction_factor = (self.paddle_left.height / 2) / self.ball.max_vel_y
-                    self.ball.vel_y = difference_in_y / reduction_factor
+                    
                     # Will change the velocity of the ball depending of where the
                     # Ball is hitting the paddle
+                    self.ball.vel_y = -difference_in_y / 10  # sensitivity of the bounce
+
+        # Collision with the right paddle
+        if self.ball.vel_x > 0:  # Ball moving right
+            
+            if self.paddle_right.x <= self.ball.x + self.ball.radius and \
+            self.paddle_right.y <= self.ball.y <= self.paddle_right.y + self.paddle_right.height:
+            
+                if self.ball.x < self.paddle_right.x + self.paddle_right.width:  # Ensure collision is at the front of paddle
+                    
+                    # Reverse horizontal velocity
+                    self.ball.vel_x *= -1 
+                    
+                    # Calculate vertical velocity adjustment
+                    difference_in_y = (self.paddle_right.y + self.paddle_right.height / 2) - self.ball.y
+                    
+                    # Will change the velocity of the ball depending of where the
+                    # Ball is hitting the paddle
+                    self.ball.vel_y = -difference_in_y / 10  # sensitivity of the bounce
+
 
     def check_score(self):
         if self.ball.x < 0:
