@@ -1,9 +1,14 @@
+
 export function initPongGame() {
     const canvas = document.getElementById('pongCanvas');
     if (!canvas) {
         console.error('Canvas element not found!');
         return;
+    } else
+    {
+        console.log('Canvas element found!');
     }
+
     const ctx = canvas.getContext('2d');
     
     let player1 = { x: 20, y: 100, width: 10, height: 50 }; 
@@ -64,10 +69,11 @@ export function initPongGame() {
 
     console.log('About to fetch game state...');
     setInterval(fetchAndUpdateGameState, 100);
-    
+    // fetchAndUpdateGameState();
     function gameLoop() {
         fetchAndUpdateGameState();
         requestAnimationFrame(gameLoop);
+        console.log('Game loop running');
     }
-    gameLoop();    
+    // gameLoop();    
 };

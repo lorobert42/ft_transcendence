@@ -8,15 +8,9 @@ export default async function GameRoom() {
 	canvasElement.height = 700;
 	canvasElement.style.backgroundColor = '#000';
     
-    document.getElementById('app').innerHTML = canvasHTML;
+    // document.getElementById('app').innerHTML = canvasElement.outerHTML;
 	// document.body.appendChild(canvasElement);
-	
 
-	await import('../pong.js').then(module => {
-        module.initPongGame();
-    }).catch(error => {
-        console.error('Failed to load pong game script:', error);
-    });
-    return canvasHTML;
+    return canvasElement.outerHTML;
 }
 

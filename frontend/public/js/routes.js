@@ -32,6 +32,6 @@ export const routes = {
     '/online': {
         name: 'Online',
         view: 'gameroom.js',
-        features: [],
+        features: ['game.js'],
     },
 };
