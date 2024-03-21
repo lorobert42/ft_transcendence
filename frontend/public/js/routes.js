@@ -11,7 +11,7 @@ export const routes = {
     },
     '/gameroom': {
         name: 'Game Room',
-        view: 'gameroom_vw.js',
+        view: 'gameroom.js',
         features: [],
     },
     '/login': {
@@ -31,7 +31,7 @@ export const routes = {
     },
     '/online': {
         name: 'Online',
-        view: 'online_vw.js',
+        view: 'gameroom.js',
         features: [],
     },
 };
