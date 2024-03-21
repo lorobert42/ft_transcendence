@@ -6,6 +6,8 @@ from drf_spectacular.views import (
 from django.contrib import admin
 from django.urls import path, include
 
+from game.views import game_state
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/schema/', SpectacularAPIView.as_view(), name='api-schema'),
@@ -13,5 +15,4 @@ urlpatterns = [
          name='api-docs'),
     path('api/user/', include('user.urls')),
     path('api/chat/', include('chat.urls')),
-    path('api/game/', include('game.urls')),
-]
+    path('api/game/state/', game_state, name='game_state'),

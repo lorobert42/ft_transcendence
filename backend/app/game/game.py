@@ -11,7 +11,7 @@ class Ball():
 
     def __init__(self, x, y, rad):
         self.x = self.origin_x = x
-        self.x = self.origin_x = x
+        self.y = self.origin_y = 
         self.rad = rad
         self.x_vel = self.MAX_VEL
         self.y_vel = 0
@@ -53,9 +53,8 @@ class GameManager():
 
     def handle_collision(ball, left, right):
         """ Change the ball direction if it hit the ceiling """
-        if ball.y + ball.rad >= HEIGHT or ball.y - ball.rad == 0:
-            ball.x_vel *= -1
-
+        if ball.y + ball.rad >= HEIGHT or ball.y - ball.rad <= 0: # Ball hit the ceiling --> replaced '==' with '>='
+            ball.y_vel *= -1 # Change the y direction of the ball instead of x
         # Cheking the direction of the ball
         if ball.x_vel < 0:
             # Ball goes left to right ->
