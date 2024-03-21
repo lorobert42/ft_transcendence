@@ -47,6 +47,7 @@ INSTALLED_APPS = [
 	'channels',
 	'user',
 	'corsheaders',
+    'game',
 ]
 
 MIDDLEWARE = [
@@ -164,4 +165,3 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost",
     "http://localhost:8081",
 ]
-CORS_ALLOW_ALL_ORIGINS = False  # For development

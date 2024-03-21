@@ -7,6 +7,18 @@ from django.http import JsonResponse
 from .game import GameManager  # Import the game logic
 import random
 
+from rest_framework import generics
+
+from core.models import GameRoom
+from .serializers import GameRoomSerializer
+
+class GameRoomList(generics.ListCreateAPIView):
+    queryset = GameRoom.objects.all()
+    serializer_class = GameRoomSerializer
+
+class GameRoomDetail(generics.RetrieveDestroyAPIView):
+    queryset = GameRoom.objects.all()
+    serializer_class = GameRoomSerializer
 # Temp test x and y axis
 def game_state(request):
     # Mocked game state data
@@ -18,15 +30,3 @@ def game_state(request):
     print(json.dumps(data, indent=4))  # This will print the structured data to your Django console
 
     return JsonResponse(data)
-
-'''
-def game_state(request):
-    # Assume GameManager can provide current state; you might need to adjust this
-    game_manager = GameManager()
-    data = {
-        'player1': {'x': game_manager.paddle_left.x, 'y': game_manager.paddle_left.y},
-        'player2': {'x': game_manager.right_paddle.x, 'y': game_manager.right_paddle.y},
-        'ball': {'x': game_manager.ball.x, 'y': game_manager.ball.y},
-    }
-    return JsonResponse(data)
-'''
