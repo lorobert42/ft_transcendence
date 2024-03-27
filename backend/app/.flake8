@@ -1,7 +1,0 @@
-[flake8]
-exclude = 
-	migrations,
-	.git,
-	__pycache__,
-	manage.py,
-	settings.py

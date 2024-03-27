@@ -1,7 +1,0 @@
-services:
-  backend:
-    volumes:
-      - ./backend/app:/app
-  frontend:
-    volumes:
-      - ./frontend/public:/var/www/html

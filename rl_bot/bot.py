@@ -27,9 +27,10 @@
 	# -1  Incurred each time the opponent scores a point (i.e., the agent misses the ball).
 	# +0  For all other scenarios not resulting in a score to encourage efficient play without unnecessary movement.
 
-# e
-# 
-# 
+
+
+
+
 
 
 import numpy as np
