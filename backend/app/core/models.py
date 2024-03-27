@@ -35,7 +35,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     """Custom user model that supports using email instead of username"""
     email = models.EmailField(max_length=255, unique=True)
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=25)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -72,3 +72,32 @@ class Message(models.Model):
 
     def __str__(self):
         return f'{self.user.email}: {self.content} [{self.timestamp}]'
+
+
+class GameRoom(models.Model):
+    """GameRoom info"""
+    name = models.CharField(max_length=255)
+    user = models.ManyToManyField(User)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.name}'
+
+
+class Game(models.Model):
+    name = models.CharField(max_length=255)
+    user = models.ManyToManyField(User, through="GameInfo")
+    game_room = models.ForeignKey(to=GameRoom, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.name}: [{self.game_room.name}]"
+
+
+class GameInfo(models.Model):
+    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    game = models.ForeignKey(to=Game, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    has_won = models.BooleanField()
+
+    def __str__(self):
+        return f"{self.game.name} : [{self.user.name} | {self.score}]"

@@ -11,6 +11,7 @@ from django.contrib.auth import get_user_model
 
 def get_or_create_chat_room(user1, user2):
         if user1 == user2:
+            print("TEST")
             raise serializers.ValidationError("Cannot create a chat room with the same user")
 
     # Check for an existing chat room with these two users

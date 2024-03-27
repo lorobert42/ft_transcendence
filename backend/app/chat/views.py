@@ -15,7 +15,7 @@ from channels.layers import get_channel_layer
 
 from chat import serializers
 
-
+"""
 def index_view(request):
     return render(request, 'index.html', {
         'rooms': Room.objects.all(),
@@ -27,10 +27,7 @@ def room_view(request, room_name):
     return render(request, 'room.html', {
         'room': chat_room,
     })
-
-
-
-
+"""
 
 class RoomViewSet(viewsets.ModelViewSet):
     """
@@ -46,6 +43,7 @@ class RoomViewSet(viewsets.ModelViewSet):
         """
         Return objects for current authenticated user only
         """
+        print("TEST 1")
         return self.queryset.all().order_by('-id')
 
     def retrieve(self, request, *args, **kwargs):

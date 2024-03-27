@@ -6,11 +6,29 @@ mac:
 	docker compose up --build -d
 	docker compose run --rm backend python manage.py migrate
 
+up_only:
+	docker compose up -d
+
 build:
 	docker compose build
 
 down:
 	docker compose down
+
+lb:
+	docker compose logs backend
+
+test:
+	docker compose run --rm backend sh -c "python manage.py test"
+
+migrate:
+	docker compose run --rm backend sh -c "python manage.py makemigrations"
+
+mig:
+	docker compose run --rm backend sh -c "python manage.py migrate"
+
+db:
+	docker compose run --rm backend sh -c "python manage.py dbshell"
 
 clean:
 	docker compose down --rmi all
@@ -27,6 +45,9 @@ typo:
 
 logs:
 	docker compose logs
+
+typo:
+	docker compose run --rm backend sh -c "flake8"
 
 ls:
 	docker compose images
