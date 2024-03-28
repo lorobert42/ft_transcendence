@@ -436,137 +436,31 @@ register(
 #sys.stdout = sys.__stdout__
 
 import time
-"""
-def main():
-    sys.stdout = open(os.devnull, 'w')
-    # Initialize the environment
-    env = gym.make('PongCustom-v0')
-
-    episodes = 200
-
-
-    # train v0
-    #agent_left = DQNAgent(env.state_size, env.action_size)
-    #agent_right = DQNAgent(env.state_size, env.action_size)
-    
-    # train v1
-    #model_left = load_model('v0_left_agent.h5')
-    #model_right = load_model('v0_right_agent.h5')
-
-    # train v2
-    #model_left = load_model('v1_left_agent.h5')
-    #model_right = load_model('v1_right_agent.h5')
-
-    # train v2
-    model_left = load_model('v2_left_agent.h5')
-    model_right = load_model('v2_right_agent.h5')
-
-    agent_left = DQNAgent(env.state_size, env.action_size, model_left)
-    agent_right = DQNAgent(env.state_size, env.action_size, model_right)
-
-    start_time = time.time()
-    new_time = time.time()
-    for e in range(episodes):
-        
-        state = env.reset() # Reset the environment to the initial state
-        done = False
-        
-        while not done:
-            action_left = agent_left.act(state)
-            action_right = agent_right.act(state)
-            #print(action_left, action_right)
-
-            actions = (action_left, action_right)
-            next_state, reward, done, info = env.step(actions)
-
-            # Update models/agents with experiences - specifics depend on your implementation
-            agent_left.remember(state, action_left, reward[0], next_state, done)
-            agent_right.remember(state, action_right, reward[1], next_state, done)
-
-            state = next_state
-            if done:
-                # Method to sample from memory and learn 
-                if len(agent_left.memory) > 32:
-                    agent_left.replay(BATCH_SIZE)
-                    agent_right.replay(BATCH_SIZE)
-                sys.stdout = sys.__stdout__
-                elapsed_time = time.time() - start_time
-                epoch_time = time.time() - new_time
-                print()
-                print(green(f"Episode: {e+1}/{episodes} completed.", ['bold', 'underlined']))
-
-                new_time = time.time()
-                
-                estimated_remaining_time1 = (episodes - e) * epoch_time
-                min_remaining1 = round(estimated_remaining_time1 // 60, 2)
-
-                estimated_remaining_time2 = episodes * elapsed_time / (e+1)
-                min_remaining2 = round(estimated_remaining_time2 // 60, 2)
-                print("Elapsed Time:")
-                print("Total:\t\t", blue(f"{round(elapsed_time, 0)}"), " \t and epoch: ", blue(f"{round(epoch_time, 0)}"), " seconds")
-                print("Estimated remaining time:")
-                print("Between\t", blue(f"{min_remaining1}"), "and ", blue(f"{min_remaining2}"), " minutes")
-                print()
-                sys.stdout = open(os.devnull, 'w')
-                break
-
-    agent_left.save('v3_left_agent.h5')
-    agent_right.save('v3_right_agent.h5')
-
-if __name__ == '__main__':
-    main()
-
-
-
-"""
-
-
-
-
-
-
-
-
-
-
-
 
 
 
 def main():
-    agent_left = load_model('v1_left_agent.h5')
-    agent_right = load_model('v1_right_agent.h5')
+    agent_left = load_model('v2_left_agent.h5')
+    agent_right = load_model('v2_right_agent.h5')
 
-    """ TESTING GAME """
-    # Human vs Human
-    game_human_vs_human = GameManager(player1_type='human', player2_type='human', model_left=None, model_right=None)
-    game_human_vs_human.run()
-
-
+    """ TESTING AGENTS """
     # RL vs Human
     game_rl_vs_human = GameManager(player1_type='rl', player2_type='human', model_left=agent_left, model_right=None)
     game_rl_vs_human.run()
-    """ TESTING AGENTS """
+
     # Human vs RL
     game_human_vs_rl = GameManager(player1_type='human', player2_type='rl', model_left=None, model_right=agent_left)
     game_human_vs_rl.run()
 
-    """ TRAINING AGENTS """
+    # RL vs RL
     game_rl_vs_rl = GameManager(player1_type='rl', player2_type='rl', model_left=agent_left, model_right=agent_right)
     game_rl_vs_rl.run()
     
-    """ TESTING AGENTS """
-    # Human vs RL
-    game_human_vs_rl = GameManager(player1_type='human', player2_type='rl', model_left=None, model_right=agent_left)
-    game_human_vs_rl.run()
-
     """ TESTING GAME """
     # Human vs Human
     game_human_vs_human = GameManager(player1_type='human', player2_type='human', model_left=None, model_right=None)
     game_human_vs_human.run()
 
-#    game = GameManager()
-#    game.run()
 
 if __name__ == '__main__':
     main()

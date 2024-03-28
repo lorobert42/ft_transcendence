@@ -91,14 +91,10 @@ tf.get_logger().setLevel('ERROR')
 
 class Player:
     
-    def __init__(self, control_side, player_type='human', model=None, epsilon=1.0, epsilon_decay=0.995, epsilon_min=0.01):
+    def __init__(self, control_side, player_type='human', model=None):
         self.control_side = control_side  # 'left' or 'right'
         self.player_type = player_type  # 'human' or 'rl'
         self.model = model  # DQN model
-        self.epsilon = epsilon
-        self.epsilon_decay = epsilon_decay
-        self.epsilon_min = epsilon_min
-
         self.action = None  # Action chosen by the left player (up, down, none)
 
     def decide_action(self, observation=None, keys=None):
@@ -115,13 +111,6 @@ class Player:
                     return 'down'
             return 'none'
         elif self.player_type == 'rl':
-            """
-            if np.random.rand() < self.epsilon:  # epsilon is your exploration rate, which you decrease over time
-                # Exploration: random action
-                return random.choice(["none", "up", "down"])
-            """
-            #else:
-                # Exploitation: Use the DQN model to choose the best action
             observation_reshaped = np.reshape(observation, [1, -1])  # Ensure the observation shape matches what the model expects
             q_values = self.model.predict(observation_reshaped)
             action = np.argmax(q_values[0])
@@ -129,9 +118,6 @@ class Player:
             # Translate numerical action to your environment's action space
             actions_dict = {0: "none", 1: "up", 2: "down"}
             return actions_dict[action]
-
-    def update_epsilon(self):
-        self.epsilon = max(self.epsilon_min, self.epsilon * self.epsilon_decay)
 
 
 class GameManager:
@@ -365,7 +351,7 @@ class DQNAgent:
         # High epsilon encourages exploration
         # Low epsilon encourages exploitation
         # Epsilon decay encourages exploitation over time
-        self.epsilon = 0.6  # Exploration rate
+        self.epsilon = 0.5  # Exploration rate
         self.epsilon_min = 0.01
         self.epsilon_decay = 0.995
         
