@@ -18,9 +18,6 @@ down:
 lb:
 	docker compose logs backend
 
-test:
-	docker compose run --rm backend sh -c "python manage.py test"
-
 migrate:
 	docker compose run --rm backend sh -c "python manage.py makemigrations"
 
@@ -45,9 +42,6 @@ typo:
 
 logs:
 	docker compose logs
-
-typo:
-	docker compose run --rm backend sh -c "flake8"
 
 ls:
 	docker compose images
