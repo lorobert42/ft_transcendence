@@ -11,7 +11,7 @@ class Ball():
 
     def __init__(self, x, y, rad):
         self.x = self.origin_x = x
-        self.y = self.origin_y = 
+        self.y = self.origin_y = y
         self.rad = rad
         self.x_vel = self.MAX_VEL
         self.y_vel = 0
