@@ -1,7 +1,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 
-Class GameRoomConsumer(AsyncWebsocketConsumer):
+class GameRoomConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.game_room_name = self.scope['url_route']['kwarg']['game_room_id']
         self.game_room_group_name = 'game_%s' % self.game_room_name

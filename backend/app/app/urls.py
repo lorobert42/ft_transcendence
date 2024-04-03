@@ -16,3 +16,5 @@ urlpatterns = [
     path('api/user/', include('user.urls')),
     path('api/chat/', include('chat.urls')),
     path('api/game/state/', game_state, name='game_state'),
+    path('api/game2', include('game.urls')),
+]
