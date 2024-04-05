@@ -59,24 +59,6 @@
     <script type="module" src="app.js"></script>
     <script src="bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
 
-  
-
-    <!-- Test call api fetch and websocket -->
-  <script>
-    // Create WebSocket connection.
-    const socket = new WebSocket("ws://localhost:8000/game/test/");
-
-    // Connection opened
-    socket.addEventListener("open", (event) => {
-      socket.send("Hello Server!");
-    });
-
-    // Listen for messages
-    socket.addEventListener("message", (event) => {
-      console.log("Message from server ", event.data);
-    });
-  </script>
-
 </body>
 <footer class="text-center text-lg-start m-0 container-fluid">
     <div class="mx-auto text-center">© 2024 Transcendance</div>
