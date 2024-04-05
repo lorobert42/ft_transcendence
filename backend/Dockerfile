@@ -10,6 +10,9 @@ COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
 
 RUN apk add --no-cache postgresql-client
+# next two lines to get make to work on Stuart's mac
+RUN apk add libffi
+RUN apk add libffi-dev
 RUN python -m venv /py && \
 	/py/bin/pip install --upgrade pip && \
 	apk add --update --no-cache --virtual .tmp-build-deps build-base postgresql-dev musl-dev && \
