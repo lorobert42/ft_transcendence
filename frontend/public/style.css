@@ -1,95 +1,115 @@
-/* Basic Reset */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* style.css */
 
 body {
-    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-    background-color: #E5E5E5; /* Platinum Gray Background */
-    color: #707070; /* Slate Gray Text */
-    line-height: 1.6;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f0f0f0;
 }
 
-a {
-    color: #004175; /* Deep Space Blue Links */
-    text-decoration: none;
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-a:hover {
-    color: #ED7D31; /* Cadmium Orange on Hover */
+header {
+  background-color: #2f8d46;
+  color: white;
+  text-align: center;
+  padding: 1em;
 }
 
-/* Container for content */
-.container {
-    max-width: 1200px;
-    margin: auto;
-    padding: 20px;
-    background-color: #FFFFFF; /* Pure White Background for Content */
+nav {
+  background-color: #4caf50;
 }
 
-/* Headers */
-h1, h2, h3, h4, h5, h6 {
-    color: #004175; /* Deep Space Blue for Headings */
+nav ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
 }
 
-/* Buttons */
-.btn {
-    display: inline-block;
-    background: #004175; /* Deep Space Blue */
-    color: #FFFFFF; /* Pure White Text */
-    padding: 10px 20px;
-    cursor: pointer;
-    border-radius: 5px;
-    border: none;
-    transition: background-color 0.3s ease;
+nav li {
+  margin: 0;
 }
 
-.btn:hover {
-    background-color: #ED7D31; /* Cadmium Orange on Hover */
+nav a {
+  text-decoration: none;
+  color: #fff;
+  padding: 1em;
+  display: block;
+  transition: background-color 0.3s ease;
 }
 
-/* Navigation */
-.nav {
-    background: #004175; /* Deep Space Blue Background */
-    padding: 10px;
-    border-radius: 5px;
+nav a:hover {
+  background-color: #45a049;
 }
 
-.nav a {
-    color: #FFFFFF; /* Pure White Links */
-    margin-right: 15px;
+main {
+  flex: 1;
+  padding: 1em;
 }
 
-.nav a:hover {
-    color: #ED7D31; /* Cadmium Orange */
+#content {
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-/* Footer */
-footer {
-    background: #004175; /* Deep Space Blue Background */
-    color: #FFFFFF; /* Pure White Text */
-    text-align: center;
-    padding: 20px;
-    margin-top: 20px;
+#content h2 {
+  color: #2f8d46;
 }
 
-/* Utility Classes */
-.text-center {
-    text-align: center;
+#content img {
+  width: 400px;
+  height: auto;
+  margin: 0 auto;
+  display: block;
+  border-radius: 10px;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+  border: 3px solid #2f8d46;
 }
 
-.text-primary {
-    color: #004175; /* Deep Space Blue */
+form {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-.bg-primary {
-    background-color: #004175; /* Deep Space Blue */
-    color: #FFFFFF; /* Pure White Text */
+form label {
+  display: block;
+  margin-bottom: 8px;
 }
 
-.bg-secondary {
-    background-color: #BFC1C2; /* Silver Sand */
-    color: #707070; /* Slate Gray Text */
+form input,
+form textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 16px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+form button {
+  background-color: #4caf50;
+  color: #fff;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+form button:hover {
+  background-color: #45a049;
 }
