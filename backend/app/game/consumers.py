@@ -1,19 +1,24 @@
-from channels.generic.websocket import AsyncWebsocketConsumer
 
+from channels.generic.websocket import AsyncWebsocketConsumer
+import json
 
 class GameRoomConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.game_room_name = self.scope['url_route']['kwarg']['game_room_id']
+        self.game_room_name = self.scope['url_route']['kwargs']['game_room_name']
         self.game_room_group_name = 'game_%s' % self.game_room_name
+
         await self.channel_layer.group_add(
             self.game_room_group_name,
-            self.channel.name,
+            self.channel_name,
         )
+
+        await self.accept()
+
         await self.channel_layer.group_send(
             self.game_room_group_name,
             {
                 'type':'test_message',
-                'tester':'test message',
+                'tester':'Hello World',
             }
         )
 
