@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 
 from asgiref.sync import async_to_sync
@@ -84,18 +85,28 @@ class ChatConsumer(AsyncWebsocketConsumer):
         text_data_json = json.loads(text_data)
         message = text_data_json["message"]
         print("message in receive:", message)
+        user = self.scope["user"].id
+        timestamp = datetime.now().isoformat()
 
         # Send message to room group
         await self.channel_layer.group_send(
-            self.room_group_name, {"type": "chat_message", "message": message}
+            self.room_group_name,
+            {
+                "type": "chat_message",
+                "message": message,
+                "user": user,  # Including the user_id if needed
+                "timestamp": timestamp,
+            }
         )
 
     async def chat_message(self, event):
         message = event["message"]
+        user = event["user"]
+        timestamp = event["timestamp"]
         print("message in chat_message:", message)
 
         # Send message to WebSocket
-        await self.send(text_data=json.dumps({"message": message}))
+        await self.send(text_data=json.dumps({"message": message, "user": user, "timestamp":  timestamp}))
 
      # Helper method to get the room
     @database_sync_to_async

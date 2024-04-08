@@ -1,3 +1,5 @@
+import initChat from "./js/scripts/initChat.js";
+import chatPage from "./pages/chatPage.js";
 import homePage from "./pages/homePage.js";
 import loginPage from "./pages/loginPage.js";
 import registerPage from "./pages/registerPage.js";
@@ -8,10 +10,9 @@ function changeContent(page) {
   switch (page) {
     case "home":
       contentDiv.innerHTML = homePage();
+
       break;
-    case "login":
-      contentDiv.innerHTML = loginPage();
-      break;
+
     case "register":
       contentDiv.innerHTML = registerPage();
       break;
@@ -65,6 +66,12 @@ document.addEventListener("DOMContentLoaded", () => {
     e.preventDefault();
     changeContent("about");
   });
+  document.querySelector("#chat-link").addEventListener("click", (e) => {
+    e.preventDefault();
+    var contentDiv = document.getElementById("content");
+    contentDiv.innerHTML = chatPage();
+    initChat();
+  });
 
   document.querySelector("#contact-link").addEventListener("click", (e) => {
     e.preventDefault();
@@ -73,7 +80,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelector("#login-link").addEventListener("click", (e) => {
     e.preventDefault();
-    changeContent("login");
+    var contentDiv = document.getElementById("content");
+    contentDiv.innerHTML = loginPage();
+    import("/js/scripts/loginForm.js")
+      .then((module) => {
+        module.loginFormModule.init();
+      })
+      .catch((error) => {
+        console.error("Failed to load the login form module", error);
+      });
   });
   document.querySelector("#register-link").addEventListener("click", (e) => {
     e.preventDefault();

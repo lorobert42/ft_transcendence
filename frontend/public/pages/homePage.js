@@ -7,20 +7,24 @@ export default function homePage() {
 
   <!-- Content Sections -->
   <div class="container text-dark theme-switch">
-      <div class="row">
-          <div class="col-md-4">
-              <h2>Section 1</h2>
-              <p>Some text about section 1...</p>
-          </div>
-          <div class="col-md-4">
-              <h2>Section 2</h2>
-              <p>Some text about section 2...</p>
-          </div>
-          <div class="col-md-4">
-              <h2>Section 3</h2>
-              <p>Some text about section 3...</p>
-          </div>
-      </div>
+  <a class="navbar-brand" href="#">
+  <img
+    src="./assets/main_logo.png"
+    alt=""
+    height="30"
+    width="30"
+    class="rounded img-light theme-switch"
+  />
+</a>
+<h2>Test</h2>
+<p>
+  Geeks for Geeks is a portal for computer science enthusiasts,
+  providing a wide range of tutorials, articles, and resources.
+</p>
+<p>
+  Visit the GeeksforGeeks portal
+  <a href="https://www.geeksforgeeks.org/" target="_blank"> here </a>.
+</p>
   </div>
 `;
 }
