@@ -3,14 +3,22 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="./bootstrap-5.3.2-dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="style.css" />
     <title>SPA app</title>
   </head>
 
-  <body>
-    <div id="app">
+  <body class="d-flex flex-column min-vh-100">
+    <div id="app" class="d-flex flex-column min-vh-100 min-vw-100 card">
       <header>
-        <h1>GeeksforGeeks</h1>
+        <h1></h1>
         <h1>Single Page Application Using HTML, CSS & JavaScript</h1>
       </header>
 
@@ -20,15 +28,22 @@
           <li><a href="#" id="login-link">Login</a></li>
           <li><a href="#" id="register-link">Register</a></li>
           <li><a href="#" id="about-link">About</a></li>
+          <li><a href="#" id="chat-link">Chat</a></li>
           <li><a href="#" id="contact-link">Contact</a></li>
         </ul>
       </nav>
       <main>
         <div id="content">
-          <img
-            src="https://media.geeksforgeeks.org/wp-content/uploads/geeksforgeeks-12.png"
-          />
-          <h2>Welcome to Geeks for Geeks</h2>
+          <a class="navbar-brand" href="#">
+            <img
+              src="./assets/main_logo.png"
+              alt=""
+              height="30"
+              width="30"
+              class="rounded img-light theme-switch"
+            />
+          </a>
+          <h2>Test</h2>
           <p>
             Geeks for Geeks is a portal for computer science enthusiasts,
             providing a wide range of tutorials, articles, and resources.

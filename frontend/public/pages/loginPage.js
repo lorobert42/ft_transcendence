@@ -15,6 +15,8 @@ export default function loginPage() {
                         <label for="password">Password</label>
                         <input type="password" class="form-control" id="password" placeholder="Password">
                     </div>
+                    <div id="loginError" class="form-group text-center" style="display: none; color: red;"></div>
+                    <div id="loginSuccess" class="form-group text-center" style="display: none; color: black;"></div>
                     <div class="form-group text-center">
                         <button type="submit" class="btn btn-primary">Login</button>
                     </div>
@@ -24,5 +26,8 @@ export default function loginPage() {
                 </div>
             </div>
         </div>
-    </div>`;
+    </div>
+
+
+    `;
 }
