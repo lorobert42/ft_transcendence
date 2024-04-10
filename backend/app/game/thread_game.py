@@ -1,7 +1,7 @@
 
 import threading
 
-class threadPool:
+class ThreadPool:
 
     threads = {}
 
@@ -11,6 +11,6 @@ class threadPool:
             "thread": threading.Thread(target=consumers_instance.start_game),
             "count": False,
         }
-        threads = cls.threads[game_room_name]["thread"]
-        threads.deamon = True
-        threads.start()
+        thread = cls.threads[game_room_name]["thread"]
+        thread.deamon = True
+        thread.start()

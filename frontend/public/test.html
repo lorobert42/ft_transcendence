@@ -37,16 +37,12 @@
 				console.log("start send")
 			}
 			
-			document.querySelector('#game-info').onmessage = function(e) {
-				const data = JSON.parse(e.data);
-				console.log("test from thread")
-				console.log(data)
-			}
 			//test to receive data from backend (can be removed)
 			gameSocket.onmessage = function(e) {
 				const data = JSON.parse(e.data);
 				console.log(data)
-				document.querySelector('#myData').inerHTML = (data.value)
+				if (Number.isInteger(data.value) == true) 
+					document.querySelector('#game-info').inerHTML = (data.value)
 			}
 		</script>
 		<!-- Optional JavaScript -->

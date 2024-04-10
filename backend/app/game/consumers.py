@@ -2,7 +2,7 @@
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 import time
-from .thread_game import threadPool
+from .thread_game import ThreadPool
 
 class GameRoomConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -16,10 +16,10 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.game_room_name = self.scope['url_route']['kwargs']['game_room_name']
         self.game_room_group_name = 'game_%s' % self.game_room_name
 
-        if self.game_room_name not in threadPool.threads:
-            threadPool.add_game(self.game_room_name, self)
+        if self.game_room_name not in ThreadPool.threads:
+            ThreadPool.add_game(self.game_room_name, self)
 
-        self.thread = threadPool.threads[self.game_room_name]
+        self.thread = ThreadPool.threads[self.game_room_name]
 
         await self.channel_layer.group_add(
             self.game_room_group_name,
@@ -64,13 +64,13 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 print(self.thread['count'])
 
     """ Test of the multithreading to instance games"""
-    async def start_game(self):
+    def start_game(self):
         print("here")
         while True:
             if self.thread['count'] == True:
                 self.count -= 1
-                sleep(1)
-                await self.channel_layer.group_send(
+                time.sleep(1)
+                self.channel_layer.group_send(
                     self.game_room_group_name,
                     {
                         "type": "send_state",
