@@ -25,7 +25,13 @@ SECRET_KEY = 'django-insecure-az5^_+u4w29%i6=_afv_riijgahq*^)&no92y(g90d%wabl3hx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = [
+	'https://localhost:8080'
+]
+
+ALLOWED_HOSTS = [
+	'localhost'
+]
 
 
 # Application definition
@@ -161,6 +167,7 @@ CHANNEL_LAYERS = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
+	"https://localhost:8080",
     "http://localhost:8081",
     "http://localhost",
     "http://localhost:8081",
