@@ -2,7 +2,7 @@
 Views for user api
 """
 
-
+from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics, authentication, permissions
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.settings import api_settings
@@ -15,6 +15,10 @@ from user.serializers import (
     AuthTokenSerializer,
 )
 
+class UserAvatarUploadView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    parser_classes = (MultiPartParser, FormParser)
 
 class CreateUserView(generics.CreateAPIView):
     """Create a new user in the system"""

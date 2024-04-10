@@ -8,6 +8,13 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 
+def user_avatar_path(instance, filename):
+    """
+    Generates a unique file path for storing user avatar images.
+    The path includes the user's ID to avoid filename conflicts.
+    """
+    # file will be uploaded to MEDIA_ROOT/user_avatars/user_<id>/<filename>
+    return f'user_avatars/user_{instance.id}/{filename}'
 
 class UserManager(BaseUserManager):
     """ Manager for user profiles """
@@ -38,6 +45,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=25)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    avatar = models.ImageField(null=True,  blank=True,  upload_to='user_avatars/')
 
     objects = UserManager()
 

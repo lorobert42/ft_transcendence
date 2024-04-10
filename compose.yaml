@@ -11,7 +11,7 @@ services:
       - tr_network
     depends_on:
       - backend
-  
+
   backend:
     image: tr/backend
     container_name: tr_backend
@@ -32,7 +32,11 @@ services:
     depends_on:
       database:
         condition: service_healthy
-  
+    volumes:
+      - ./backend:/backend
+      - ./backend/app/media:/backend/app/media
+    working_dir: /backend/app
+
   backend_redis:
     image: redis
     container_name: tr_backend_redis
@@ -42,7 +46,7 @@ services:
       - tr_network
     volumes:
       - redis-data:/data
-    
+
   nginx:
     image: tr/reverse_proxy
     container_name: tr_reverse_proxy

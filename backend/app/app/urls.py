@@ -2,11 +2,14 @@ from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
 )
-
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
 from game.views import game_state
+
+print(settings.MEDIA_ROOT)  # Outputs: /path/to/your/media/files
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -16,4 +19,4 @@ urlpatterns = [
     path('api/user/', include('user.urls')),
     path('api/chat/', include('chat.urls')),
     path('api/game/state/', game_state, name='game_state'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

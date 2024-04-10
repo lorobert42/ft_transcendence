@@ -19,9 +19,14 @@ export const loginFormModule = (() => {
           successDiv.style.display = "block";
           localStorage.setItem("authToken", data.token);
         } else {
+          var errorString = "Login Error";
+
+          for (const property in data) {
+            console.log(`${property}: ${data[property]}`);
+            errorString += `\n${property}: ${data[property]}`;
+          }
           const errorMessageDiv = document.getElementById("loginError");
-          errorMessageDiv.textContent =
-            "Login failed. Please check your credentials.";
+          errorMessageDiv.textContent = errorString;
           errorMessageDiv.style.display = "block"; // Make the error message visible
         }
         //   window.location.href = "/";
