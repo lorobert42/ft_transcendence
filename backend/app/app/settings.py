@@ -165,3 +165,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost",
     "http://localhost:8081",
 ]
+
+# Media files (user-uploaded content)
+# Absolute filesystem path to the directory that will hold user-uploaded files.
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# URL that handles the media served from MEDIA_ROOT.
+MEDIA_URL = '/media/'

@@ -16,12 +16,17 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = get_user_model()
-        fields = ('email', 'password', 'name', 'id')
+        fields = ('email', 'password', 'name', 'id', 'avatar')
         extra_kwargs = {'password': {'write_only': True, 'min_length': 5}}
 
     def create(self, validated_data):
         """Create a new user with encrypted password and return it"""
-        return get_user_model().objects.create_user(**validated_data)
+        avatar = validated_data.pop('avatar', None)
+        user = get_user_model().objects.create_user(**validated_data)
+        if avatar is not None:
+            user.avatar = avatar
+            user.save()
+        return user
 
     def update(self, instance, validated_data):
         """Update a user, setting the password correctly and return it"""
