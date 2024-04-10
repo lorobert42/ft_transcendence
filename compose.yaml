@@ -32,10 +32,6 @@ services:
     depends_on:
       database:
         condition: service_healthy
-    volumes:
-      - ./backend:/backend
-      - ./backend/app/media:/backend/app/media
-    working_dir: /backend/app
 
   backend_redis:
     image: redis
