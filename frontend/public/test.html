@@ -12,11 +12,42 @@
 	<body>
 		<h1>Hello World!</h1>
 		
+		<table style="width:50%">
+			<tr>
+				<th><textarea class="form-control" id="game-info" rows="5"></textarea></th>
+			</tr>
+			<tr>
+				<!-- Start Bouton -->
+				<th><input class="btn btn-secondary btn-lg btn-block" id="Start" type="button" value="Start"></th>
+			</tr>
+		</table>
+		
 		<div id="myData"></div>
 		<script>
+			//connecting to websocket
 			const gameSocket = new WebSocket(
-			'ws://127.0.0.1:8000/ws/game/1/'
+			'ws://127.0.0.1:8000/ws/game/asd/'
 			);
+			
+			//Send a message to the backend to start the game
+			document.querySelector('#Start').onclick = function(e) {
+				gameSocket.send(JSON.stringify({
+					'message': 'start',
+				}))
+				console.log("start send")
+			}
+			
+			document.querySelector('#game-info').onmessage = function(e) {
+				const data = JSON.parse(e.data);
+				console.log("test from thread")
+				console.log(data)
+			}
+			//test to receive data from backend (can be removed)
+			gameSocket.onmessage = function(e) {
+				const data = JSON.parse(e.data);
+				console.log(data)
+				document.querySelector('#myData').inerHTML = (data.value)
+			}
 		</script>
 		<!-- Optional JavaScript -->
 		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
