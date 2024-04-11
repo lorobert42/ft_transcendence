@@ -1,8 +1,32 @@
 export default function homePage() {
+  //get language cookie and set it to EN if not set
+  const lang = document.cookie.split(";").find((cookie) => cookie.includes("lang")).split("=")[1];
+  if(!lang) {
+      lang = "EN";
+  }
+  console.log(lang);
+
+  let langdict = JSON.parse(`{
+      "FR": {
+          "title": "Bienvenue sur Transcendence",
+          "description": "Bienvenue sur Transcendence, le jeu de pong en ligne. Jouez contre vos amis ou contre l'IA."
+      },
+      "EN": {
+          "title": "Profile Page",
+          "description": "Welcome to Transcendence, the online pong game. Play against your friends or against the AI."
+      },
+      "PT": {
+          "title": "Pagina de perfil",
+          "description": "Bem-vindo ao Transcendence, o jogo de pong online. Jogue contra seus amigos ou contra a IA."
+      }
+  }`);
+  
+
+
   return `
   <!-- Hero Section -->
   <div class="text-dark theme-switch text-center py-2">
-      <h1>Welcome To Transcendance</h1>
+      <h1>${langdict[lang]['title']}</h1>
   </div>
 
   <!-- Content Sections -->
@@ -16,15 +40,9 @@ export default function homePage() {
     class="rounded img-light theme-switch"
   />
 </a>
-<h2>Test</h2>
-<p>
-  Geeks for Geeks is a portal for computer science enthusiasts,
-  providing a wide range of tutorials, articles, and resources.
-</p>
-<p>
-  Visit the GeeksforGeeks portal
-  <a href="https://www.geeksforgeeks.org/" target="_blank"> here </a>.
-</p>
+  <p class="text-center py-5">
+  ${langdict[lang]['description']}
+  </p>
   </div>
 `;
 }

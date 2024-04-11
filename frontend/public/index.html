@@ -12,48 +12,43 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="style.css" />
-    <title>SPA app</title>
+    <title>Transcendance</title>
   </head>
 
   <body class="d-flex flex-column min-vh-100">
     <div id="app" class="d-flex flex-column min-vh-100 min-vw-100 card">
-      <header>
-        <h1></h1>
-        <h1>Single Page Application Using HTML, CSS & JavaScript</h1>
-      </header>
-
-      <nav>
-        <ul>
-          <li><a href="#" id="home-link">Home</a></li>
-          <li><a href="#" id="login-link">Login</a></li>
-          <li><a href="#" id="register-link">Register</a></li>
-          <li><a href="#" id="profile-link">Profile</a></li>
-          <li><a href="#" id="chat-link">Chat</a></li>
-        </ul>
+      <nav class="bg-dark navbar">
+        <div>
+          <ul>
+            <li>
+              <a class="navbar-brand rounded img-light" href="#">
+                <img width="50" src="./assets/main_logo.png" alt="">
+              </a>
+            </li>
+            <li><a href="home" id="home-link">Home</a></li>
+            <li><a href="login" id="login-link">Login</a></li>
+            <li><a href="register" id="register-link">Register</a></li>
+            <li><a href="profile" id="profile-link">Profile</a></li>
+          </ul>
+        </div>
+        <div class="dropdown px-1" id="dropID">
+          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Language
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">FR</a></li>
+            <li><a class="dropdown-item" href="#">EN</a></li>
+            <li><a class="dropdown-item" href="#">PT</a></li>
+          </ul>
+        </div>
       </nav>
+      
       <main>
         <div id="content">
-          <a class="navbar-brand" href="#">
-            <img
-              src="./assets/main_logo.png"
-              alt=""
-              height="30"
-              width="30"
-              class="rounded img-light theme-switch"
-            />
-          </a>
-          <h2>Test</h2>
-          <p>
-            Geeks for Geeks is a portal for computer science enthusiasts,
-            providing a wide range of tutorials, articles, and resources.
-          </p>
-          <p>
-            Visit the GeeksforGeeks portal
-            <a href="https://www.geeksforgeeks.org/" target="_blank"> here </a>.
-          </p>
         </div>
       </main>
     </div>
     <script type="module" src="changeContent.js"></script>
+    <script src="./bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
   </body>
 </html>

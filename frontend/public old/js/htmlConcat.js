@@ -7,8 +7,4 @@ export async function pageRouting()
     const route = routes[path] || routes['/'];
     const content = await loadView(route.view);
     document.getElementById('app').innerHTML = content;
-    for(const feature of route.features){
-        const { default : feature_function } = await import(`./scripts/${feature}`);
-        feature_function();
-    }
 }

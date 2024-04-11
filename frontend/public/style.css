@@ -14,7 +14,7 @@ body {
 }
 
 header {
-  background-color: #2f8d46;
+  background-color: #081930;
   color: white;
   text-align: center;
   padding: 1em;
@@ -62,9 +62,6 @@ main {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
-#content h2 {
-  color: #2f8d46;
-}
 
 #content img {
   width: 400px;
@@ -73,7 +70,6 @@ main {
   display: block;
   border-radius: 10px;
   box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-  border: 3px solid #2f8d46;
 }
 
 form {
