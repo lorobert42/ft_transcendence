@@ -52,7 +52,7 @@ export default function initChat() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Token ${authToken}`, // Use the appropriate header according to your backend's auth scheme
+          Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
         },
         body: JSON.stringify({
           message: message,
