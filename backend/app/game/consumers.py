@@ -1,37 +1,41 @@
 
-from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 import time
-from .thread_game import ThreadPool
+import asyncio
+from channels.generic.websocket import AsyncWebsocketConsumer
+from asgiref.sync import async_to_sync
+from .game import GameClass
 
 class GameRoomConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
-        self.thread = None
-
+        self.game_tab = dict()
         super().__init__(*args, **kwargs)
 
     """ All the management of the websocket. """
     async def connect(self):
         """ Comportement of the websocket when created. """
-        self.game_room_name = self.scope['url_route']['kwargs']['game_room_name']
-        self.game_room_group_name = 'game_%s' % self.game_room_name
+        self.game_room_id = self.scope['url_route']['kwargs']['game_room_name']
+        self.game_room_group = 'game_%s' % self.game_room_id
 
-        if self.game_room_name not in ThreadPool.threads:
-            ThreadPool.add_game(self.game_room_name, self)
+        if self.game_tab.get(self.game_room_id) == None:
+            self.game_tab['self.game_room_id'] = GameClass(self.game_room_id)
 
-        self.thread = ThreadPool.threads[self.game_room_name]
+        try:
+            print(self.game_tab['self.game_room_id'].count)
+        except:
+            print("no value in dic")
 
         await self.channel_layer.group_add(
-            self.game_room_group_name,
+            self.game_room_group,
             self.channel_name,
         )
 
         await self.accept()
 
         await self.channel_layer.group_send(
-            self.game_room_group_name,
+            self.game_room_group,
             {
-                'type':'test_message',
+                'type':'send_test',
                 'tester':'Hello from Backend',
             }
         )
@@ -39,17 +43,9 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         """ Comportement of the websocket when disconnect. """
         await self.channel_layer.group_discard(
-            self.game_room_group_name,
+            self.game_room_group,
             self.channel_name,
         )
-
-    async def test_message(self, event):
-        """ Test function that send a message to the frontend. """
-        tester = event['tester']
-
-        await self.send(text_data=json.dumps({
-            'tester': tester,
-        }))
 
     async def receive(self, text_data):
         """ Comportement of the class when a certain message is send from the frontend. """
@@ -57,32 +53,41 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         message = td_json['message']
         if message == 'start':
             print("start receive")
-            if not self.thread["count"]:
-                self.count = 5
-                self.thread['count'] = True
-                print(self.count)
-                print(self.thread['count'])
+            self.game_tab['self.game_room_id'].count = 10
+            print(self.game_tab['self.game_room_id'].count)
+            self.game_tab['self.game_room_id'].active = True
+            self.game_tab['self.game_room_id'].task = asyncio.create_task(self.loop())
+            print("after loop")
 
-    """ Test of the multithreading to instance games"""
-    def start_game(self):
-        print("here")
-        while True:
-            if self.thread['count'] == True:
-                self.count -= 1
-                time.sleep(1)
-                self.channel_layer.group_send(
-                    self.game_room_group_name,
+
+    async def loop(self):
+        """ Main loop that will run the Game. """
+        print("in loop")
+        while self.game_tab['self.game_room_id'].active is True:
+            if self.game_tab['self.game_room_id'].count > 0:
+                print(self.game_tab['self.game_room_id'].count)
+                self.game_tab['self.game_room_id'].count -= 1
+                await self.channel_layer.group_send(
+                    self.game_room_group,
                     {
                         "type": "send_state",
-                        "state": self.count,
+                        "state": self.game_tab['self.game_room_id'].count,
                     }
                 )
+                await asyncio.sleep(1)
+            else:
+                print("end of the main loop")
+                self.game_tab['self.game_room_id'].active = False
 
-                print(self.count)
-                if self.count == 0:
-                    self.thread['count'] = False
+    async def send_test(self, event):
+        """ Test function that send a message to the frontend. """
+        tester = event['tester']
+
+        await self.send(text_data=json.dumps({
+            'tester': tester,
+        }))
 
     async def send_state(self, event):
+        """ Function that send state of the curent game. """
         state = event['state']
-
         await self.send(text_data=json.dumps(state))

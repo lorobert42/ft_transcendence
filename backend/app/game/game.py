@@ -5,6 +5,13 @@ D_BALL_RAD = 10  # Radius of the ball
 
 KEY_W, KEY_S, KEY_I, KEY_K = 1, 2, 3, 4
 
+class GameClass:
+    def __init__(self, game_id):
+        self.id = game_id
+        self.count = 0
+        self.active = False
+        self.task = None
+
 class Ball():
     MAX_VEL = 10
     MAX_VEL_Y = 15
