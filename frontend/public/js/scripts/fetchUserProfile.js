@@ -9,7 +9,7 @@ export const fetchUserProfileModule = (() => {
     fetch("/api/user/me", {
       method: "GET",
       headers: {
-        Authorization: `Token ${authToken}`, // Use the appropriate header according to your backend's auth scheme
+        Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
       },
     })
       .then((response) => {

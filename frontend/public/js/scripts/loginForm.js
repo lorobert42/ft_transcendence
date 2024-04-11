@@ -13,11 +13,11 @@ export const loginFormModule = (() => {
       .then((data) => {
         console.log("data received");
         console.log(data);
-        if (Object.hasOwn(data, "token")) {
+        if (Object.hasOwn(data, "access")) {
           const successDiv = document.getElementById("loginSuccess");
           successDiv.textContent = "Login Successful.";
           successDiv.style.display = "block";
-          localStorage.setItem("authToken", data.token);
+          localStorage.setItem("authToken", data.access);
         } else {
           var errorString = "Login Error";
 
