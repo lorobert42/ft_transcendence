@@ -12,7 +12,6 @@ RUN python -m pip install --upgrade pip && \
 	apk add --update --no-cache --virtual .tmp-build-deps \
 	build-base postgresql-dev musl-dev postgresql-client libffi libffi-dev && \
 	python -m pip install -r /tmp/requirements.txt && \
-	python -m pip install Pillow && \
 	if [ "$DEV" = "true" ] ; then \
 		python -m pip install -r /tmp/requirements.dev.txt ; \
 	fi && \
