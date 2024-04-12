@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (lang) {
     document.querySelector(".dropdown-toggle").innerText = lang.split("=")[1];
   } else {
-    document.querySelector(".dropdown-toggle").innerText = "FR";
+    document.querySelector(".dropdown-toggle").innerText = "EN";
   }
   pageRouting();
 });
