@@ -1,6 +1,7 @@
 up:
 	docker compose -f compose.yaml -f compose.dev.yaml up --build -d
-	docker compose run --rm backend python manage.py migrate
+	docker compose exec backend sh -c "python manage.py makemigrations"
+	docker compose exec backend sh -c "python manage.py migrate"
 
 mac:
 	docker compose up --build -d
