@@ -59,7 +59,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
 
     def is_valid_otp(self):
-        lifespan_in_seconds = 90
+        lifespan_in_seconds = 90 if self.otp_enabled else 300
         now = datetime.now(timezone.utc)
         time_diff = now - self.otp_created_at
         time_diff = time_diff.total_seconds()
