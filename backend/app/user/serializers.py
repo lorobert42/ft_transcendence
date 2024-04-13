@@ -54,10 +54,16 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class OTPEnableRequestSerializer(serializers.Serializer):
-    user_id = serializers.IntegerField()
+    email = serializers.EmailField()
+    password = serializers.CharField()
 
     def validate(self, attrs: dict):
-        user: User = User.objects.filter(id=attrs.get("user_id")).first()
+        email = attrs.get("email").lower().strip()
+        user = authenticate(
+            request=self.context.get("request"),
+            email=email,
+            password=attrs.get("password"),
+        )
         if not user or user.otp_enabled:
             raise exceptions.AuthenticationFailed("Error.")
         attrs["user_object"] = user
