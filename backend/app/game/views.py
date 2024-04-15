@@ -4,7 +4,6 @@ import json
 # Create your views here.
 
 from django.http import JsonResponse
-from .game import GameManager  # Import the game logic
 import random
 
 from rest_framework import generics
@@ -19,6 +18,7 @@ class GameRoomList(generics.ListCreateAPIView):
 class GameRoomDetail(generics.RetrieveDestroyAPIView):
     queryset = GameRoom.objects.all()
     serializer_class = GameRoomSerializer
+
 # Temp test x and y axis
 def game_state(request):
     # Mocked game state data

@@ -20,6 +20,30 @@
 				<!-- Start Bouton -->
 				<th><input class="btn btn-secondary btn-lg btn-block" id="Start" type="button" value="Start"></th>
 			</tr>
+			<tr>
+				<!-- Player1 Bouton -->
+				<th><input class="btn btn-secondary btn-lg btn-block" id="P1" type="button" value="P1"></th>
+			</tr>
+			<tr>
+				<!-- player2 Bouton -->
+				<th><input class="btn btn-secondary btn-lg btn-block" id="P2" type="button" value="P2"></th>
+			</tr>
+			<tr>
+				<!-- player1 Bouton UP -->
+				<th><input class="btn btn-secondary btn-lg btn-block" id="P1_UP" type="button" value="P1 UP"></th>
+			</tr>
+			<tr>
+				<!-- player1 Bouton DOWN-->
+				<th><input class="btn btn-secondary btn-lg btn-block" id="P1_DOWN" type="button" value="P1 DOWN"></th>
+			</tr>
+			<tr>
+				<!-- player2 Bouton UP-->
+				<th><input class="btn btn-secondary btn-lg btn-block" id="P2_UP" type="button" value="P2 UP"></th>
+			</tr>
+			<tr>
+				<!-- player2 Bouton DOWN-->
+				<th><input class="btn btn-secondary btn-lg btn-block" id="P2_DOWN" type="button" value="P2 DOWN"></th>
+			</tr>
 		</table>
 		
 		<div id="myData"></div>
@@ -29,12 +53,56 @@
 			'ws://127.0.0.1:8000/ws/game/0/'
 			);
 			
-			//Send a message to the backend to start the game
+			//Send a message to the backend to start the game from the start button
 			document.querySelector('#Start').onclick = function(e) {
 				gameSocket.send(JSON.stringify({
 					'message': 'start',
 				}))
 				console.log("start send")
+			}
+			
+			//Send a message to the backend to add P1 in the game
+			document.querySelector('#P1').onclick = function(e) {
+				gameSocket.send(JSON.stringify({
+					'message': 'P1',
+				}))
+				console.log("P1 message send")
+			}
+			
+			//Send a message to the backend to add P2 in the game
+			document.querySelector('#P2').onclick = function(e) {
+				gameSocket.send(JSON.stringify({
+					'message': 'P2',
+				}))
+				console.log("P2 message send")
+			}
+			
+			document.querySelector('#P1_UP').onclick = function(e) {
+				gameSocket.send(JSON.stringify({
+					'message': 'P1_UP',
+				}))
+				console.log("P1 UP send")
+			}
+			
+			document.querySelector('#P1_DOWN').onclick = function(e) {
+				gameSocket.send(JSON.stringify({
+					'message': 'P1_DOWN',
+				}))
+				console.log("P1 DOWN send")
+			}
+			
+			document.querySelector('#P2_UP').onclick = function(e) {
+				gameSocket.send(JSON.stringify({
+					'message': 'P2_UP',
+				}))
+				console.log("P2 UP send")
+			}
+			
+			document.querySelector('#P2_DOWN').onclick = function(e) {
+				gameSocket.send(JSON.stringify({
+					'message': 'P2_DOWN',
+				}))
+				console.log("P2 DOWN send")
 			}
 			
 			//test to receive data from backend (can be removed)
