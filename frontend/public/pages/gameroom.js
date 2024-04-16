@@ -5,7 +5,11 @@ export default function localRoom() {
 	// document.body.appendChild(canvasElement);
 
     return `<div class="container">
-						${canvasHTML}
+				<div> 
+				<h1>Local Room</h1>
+				<p id="scoreZone"></p>
+				</div>
+				${canvasHTML}
 			</div>`;
 
 
