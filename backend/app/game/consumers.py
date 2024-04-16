@@ -113,11 +113,8 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 """ Game logic """
                 self.game_tab['self.game_room_id'].ball.move()
                 ball = self.game_tab['self.game_room_id'].ball
-                print(ball)
                 left = self.game_tab['self.game_room_id'].paddle_l
-                print(left)
                 right = self.game_tab['self.game_room_id'].paddle_r
-                print(right)
                 if ball.y + ball.rad >= HEIGHT or ball.y - ball.rad <= 0: # Ball hit the ceiling
                     self.game_tab['self.game_room_id'].ball.y_vel *= -1
                 # Cheking the direction of the ball
@@ -150,7 +147,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                     self.game_tab['game_room_id'].score_p1 += 1
                     self.game_tab['game_room_id'].ball.reset()
 
-                print("HERE")
                 """ Getting data to send to the front """
                 data = {
                     "P1": self.game_tab['self.game_room_id'].paddle_l.pos(),
