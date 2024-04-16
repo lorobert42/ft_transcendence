@@ -102,12 +102,16 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         """ Main loop that will run the Game. """
         print("in loop")
         while self.game_tab['self.game_room_id'].active is True:
-            if self.game_tab['self.game_room_id'].count > 0:
+            if self.game_tab['self.game_room_id'].count > 0 and \
+            (self.game_tab['self.game_room_id'].score_p1 < max_score or \
+            self.game_tab['self.game_room_id'].score_p2 < max_score):
+
+                """ count variable that helped me to configure the socket. (have to be removed)"""
                 print(self.game_tab['self.game_room_id'].count)
                 self.game_tab['self.game_room_id'].count -= 1
-                self.game_tab['self.game_room_id'].ball.move()
 
                 """ Game logic """
+                self.game_tab['self.game_room_id'].ball.move()
                 ball = self.game_tab['self.game_room_id'].ball
                 print(ball)
                 left = self.game_tab['self.game_room_id'].paddle_l
@@ -139,6 +143,12 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                         self.game_tab['self.game_room_id'].ball.y_vel = -1 * y_vel
                         # Will change the velocity of the ball depending of where the
                         # Ball is hitting the paddle
+                if ball.x < 0: # right have scored so P2 won a point
+                    self.game_tab['game_room_id'].score_p2 += 1
+                    self.game_tab['game_room_id'].ball.reset()
+                elif ball.x > WIDTH: # left have scored so P1 won a point
+                    self.game_tab['game_room_id'].score_p1 += 1
+                    self.game_tab['game_room_id'].ball.reset()
 
                 print("HERE")
                 """ Getting data to send to the front """
@@ -158,7 +168,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 )
                 await asyncio.sleep(1)
             else:
-                print("end of the main loop")
+                print("Game ended, end of the main loop.")
                 self.game_tab['self.game_room_id'].active = False
 
     async def send_test(self, event):
