@@ -7,6 +7,19 @@ body {
   background-color: #f0f0f0;
 }
 
+top {
+  text-align: center;
+}
+
+.shadow {
+  box-shadow: 0px 0px 5px 0px;
+  padding-top: 10px;
+}
+
+h2, a{
+  color: #fff;
+}
+
 #app {
   display: flex;
   flex-direction: column;
@@ -14,7 +27,7 @@ body {
 }
 
 header {
-  background-color: #081930;
+  background-color: #040c17;
   color: white;
   text-align: center;
   padding: 1em;

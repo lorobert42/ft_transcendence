@@ -4,6 +4,7 @@ import loginPage from "./pages/loginPage.js";
 import profilePage from "./pages/profilePage.js";
 import registerPage from "./pages/registerPage.js";
 import localRoom from "./pages/gameroom.js";
+import contacts from "./pages/contacts.js";
 
 function pageRouting()
 {
@@ -56,6 +57,9 @@ function pageRouting()
               module.initPongGame();
             })
             break;
+        case "/friend":
+            contentDiv.innerHTML = contacts();
+            break;
         default:
             contentDiv.innerHTML = homePage();
             break;
@@ -97,6 +101,12 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.querySelector("#local-link").addEventListener("click", (e) => {
+    e.preventDefault();
+    history.pushState(null, '', e.target.href);
+    pageRouting();
+  });
+
+  document.querySelector("#friend-link").addEventListener("click", (e) => {
     e.preventDefault();
     history.pushState(null, '', e.target.href);
     pageRouting();
