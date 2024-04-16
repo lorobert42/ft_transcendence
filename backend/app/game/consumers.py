@@ -78,8 +78,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         elif message == "start":
             if self.game_tab['self.game_room_id'].p1 == True and self.game_tab['self.game_room_id'].p2 == True:
                 print("game started")
-                self.game_tab['self.game_room_id'].count = 30
-                print(self.game_tab['self.game_room_id'].count)
                 self.game_tab['self.game_room_id'].active = True
                 self.game_tab['self.game_room_id'].task = asyncio.create_task(self.loop(
                 self.game_tab['self.game_room_id'].max_score
@@ -102,14 +100,8 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         """ Main loop that will run the Game. """
         print("in loop")
         while self.game_tab['self.game_room_id'].active is True:
-            if self.game_tab['self.game_room_id'].count > 0 and \
-            (self.game_tab['self.game_room_id'].score_p1 < max_score or \
-            self.game_tab['self.game_room_id'].score_p2 < max_score):
-
-                """ count variable that helped me to configure the socket. (have to be removed)"""
-                print(self.game_tab['self.game_room_id'].count)
-                self.game_tab['self.game_room_id'].count -= 1
-
+            if self.game_tab['self.game_room_id'].score_p1 < max_score or \
+            self.game_tab['self.game_room_id'].score_p2 < max_score:
                 """ Game logic """
                 self.game_tab['self.game_room_id'].ball.move()
                 ball = self.game_tab['self.game_room_id'].ball
@@ -162,7 +154,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                         "state": data,
                     }
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.1)
             else:
                 print("Game ended, end of the main loop.")
                 self.game_tab['self.game_room_id'].active = False
