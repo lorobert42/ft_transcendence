@@ -1,11 +1,11 @@
 export default function profilePage() {
 
     //get language cookie and set it to EN if not set
-    const lang = document.cookie.split(";").find((cookie) => cookie.includes("lang")).split("=")[1];
-    if(!lang) {
-        lang = "EN";
+    const cookie = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
+    let lang = "EN";
+    if (cookie) {
+        lang = cookie.split("=")[1];
     }
-    console.log(lang);
 
     let langdict = JSON.parse(`{
         "FR": {
