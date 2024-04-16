@@ -6,6 +6,8 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from core.models import Room, Message, User
+from rest_framework import status
+from drf_spectacular.utils import extend_schema,  extend_schema, OpenApiParameter, OpenApiExample
 
 from user.serializers import (
     UserSerializer,
@@ -13,6 +15,8 @@ from user.serializers import (
     OTPEnableConfirmSerializer,
     LoginSerializer,
     VerifyOTPSerializer,
+    AddFriendSerializer,
+    CreateUserSerializer,
 )
 
 
@@ -24,7 +28,7 @@ class UserAvatarUploadView(generics.UpdateAPIView):
 
 class CreateUserView(generics.CreateAPIView):
     """Create a new user in the system"""
-    serializer_class = UserSerializer
+    serializer_class = CreateUserSerializer
 
 
 class OTPEnableRequestView(generics.GenericAPIView):
@@ -116,3 +120,34 @@ class ListUsersView(generics.ListAPIView):
     # You can add authentication and permission classes as needed
     # For example, restrict this view to admin users only
     permission_classes = [permissions.IsAuthenticated]
+
+
+class AddFriendView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer  # This is for responses, keep as is if you are returning user data.
+    request_serializer = AddFriendSerializer  # Define request serializer explicitly
+
+    @extend_schema(
+        request=AddFriendSerializer,  # Use the dedicated request serializer
+        responses={201: {"description": "Friend added successfully"}, 400: {"description": "Bad request"}},
+        description="Allows authenticated users to add other users as friends by providing the friend's user ID."
+    )
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        serializer = self.request_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        friend_id = serializer.validated_data['friend_id']
+
+        if friend_id == user.id:
+            return Response({"message": "You cannot add yourself as a friend"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            friend = User.objects.get(pk=friend_id)
+            # if friend in user.friends.all():
+            #     return Response({"message": "This user is already your friend"}, status=status.HTTP_400_BAD_REQUEST)
+            user.friends.add(friend)
+            user.save()
+            response_serializer = UserSerializer(user)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        except User.DoesNotExist:
+            return Response({"message": "Friend not found"}, status=status.HTTP_404_NOT_FOUND)
