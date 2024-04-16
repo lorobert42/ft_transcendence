@@ -48,6 +48,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         """ Comportement of the websocket when disconnect. """
+        self.game_tab.pop('self.game_room_id')
         await self.channel_layer.group_discard(
             self.game_room_group,
             self.channel_name,
@@ -78,8 +79,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         elif message == "start":
             if self.game_tab['self.game_room_id'].p1 == True and self.game_tab['self.game_room_id'].p2 == True:
                 print("game started")
-                self.game_tab['self.game_room_id'].count = 30
-                print(self.game_tab['self.game_room_id'].count)
                 self.game_tab['self.game_room_id'].active = True
                 self.game_tab['self.game_room_id'].task = asyncio.create_task(self.loop(
                 self.game_tab['self.game_room_id'].max_score
@@ -102,14 +101,8 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         """ Main loop that will run the Game. """
         print("in loop")
         while self.game_tab['self.game_room_id'].active is True:
-            if self.game_tab['self.game_room_id'].count > 0 and \
-            (self.game_tab['self.game_room_id'].score_p1 < max_score or \
-            self.game_tab['self.game_room_id'].score_p2 < max_score):
-
-                """ count variable that helped me to configure the socket. (have to be removed)"""
-                print(self.game_tab['self.game_room_id'].count)
-                self.game_tab['self.game_room_id'].count -= 1
-
+            if self.game_tab['self.game_room_id'].score_p1 < self.game_tab['self.game_room_id'].max_score and \
+            self.game_tab['self.game_room_id'].score_p2 < self.game_tab['self.game_room_id'].max_score:
                 """ Game logic """
                 self.game_tab['self.game_room_id'].ball.move()
                 ball = self.game_tab['self.game_room_id'].ball
@@ -122,9 +115,10 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                     # Ball goes right to left <-
                     if ball.y >= left.y and ball.y <= left.y + left.height and ball.x - ball.rad <= left.x + left.width:
                         # Ball is hitting the left_paddle
+                        self.game_tab['self.game_room_id'].ball.x_vel *= -1
                         middle_y = left.y + left.height / 2
                         difference_in_y = middle_y - ball.y
-                        reduction_factor = (left.heigth / 2) / ball.max_vel_y
+                        reduction_factor = (left.height / 2) / ball.max_vel_y
                         y_vel = difference_in_y / reduction_factor
                         self.game_tab['self.game_room_id'].ball.y_vel = -1 * y_vel
                         # Will change the velocity of the ball depending of where the
@@ -133,19 +127,20 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                     # Ball goes left to right ->
                     if ball.y >= right.y and ball.y <= right.y + right.height and ball.x + ball.rad >= right.x:
                         # Ball is hitting the rigth_paddle
-                        middle_y = right.x + right.height / 2
+                        self.game_tab['self.game_room_id'].ball.x_vel *= -1
+                        middle_y = right.y + right.height / 2
                         difference_in_y = middle_y - ball.y
                         reduction_factor = (right.height / 2) / ball.max_vel_y
                         y_vel = difference_in_y / reduction_factor
                         self.game_tab['self.game_room_id'].ball.y_vel = -1 * y_vel
                         # Will change the velocity of the ball depending of where the
                         # Ball is hitting the paddle
-                if ball.x < 0: # right have scored so P2 won a point
-                    self.game_tab['game_room_id'].score_p2 += 1
-                    self.game_tab['game_room_id'].ball.reset()
-                elif ball.x > WIDTH: # left have scored so P1 won a point
-                    self.game_tab['game_room_id'].score_p1 += 1
-                    self.game_tab['game_room_id'].ball.reset()
+                if ball.x <= 0: # right have scored so P2 won a point
+                    self.game_tab['self.game_room_id'].score_p2 += 1
+                    self.game_tab['self.game_room_id'].ball.reset()
+                elif ball.x >= WIDTH: # left have scored so P1 won a point
+                    self.game_tab['self.game_room_id'].score_p1 += 1
+                    self.game_tab['self.game_room_id'].ball.reset()
 
                 """ Getting data to send to the front """
                 data = {
@@ -162,7 +157,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                         "state": data,
                     }
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.01)
             else:
                 print("Game ended, end of the main loop.")
                 self.game_tab['self.game_room_id'].active = False
