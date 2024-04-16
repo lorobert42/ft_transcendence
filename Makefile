@@ -5,7 +5,8 @@ up:
 
 mac:
 	docker compose up --build -d
-	docker compose run --rm backend python manage.py migrate
+	docker compose exec backend sh -c "python manage.py makemigrations"
+	docker compose exec backend sh -c "python manage.py migrate"
 
 up_only:
 	docker compose up -d
@@ -20,10 +21,10 @@ lb:
 	docker compose logs backend
 
 migrate:
-	docker compose run --rm backend sh -c "python manage.py makemigrations"
+	docker compose exec backend sh -c "python manage.py makemigrations"
 
 mig:
-	docker compose run --rm backend sh -c "python manage.py migrate"
+	docker compose exec backend sh -c "python manage.py migrate"
 
 db:
 	docker compose run --rm backend sh -c "python manage.py dbshell"

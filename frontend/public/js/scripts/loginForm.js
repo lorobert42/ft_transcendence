@@ -2,7 +2,7 @@ export const loginFormModule = (() => {
   const loginUser = (email, password) => {
     console.log("in login user");
     localStorage.removeItem("authToken");
-    fetch("/api/user/token/", {
+    fetch("/api/user/login/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
