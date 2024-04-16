@@ -1,7 +1,7 @@
 """
 Database models
 """
-from datetime import datetime, timezone
+from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -46,7 +46,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=25)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-    avatar = models.ImageField(null=True,  blank=True,  upload_to='user_avatars/')
+    avatar = models.ImageField(null=True,  blank=True,  upload_to='user_avatars/',  default='user_avatars/default-avatar.png')
     otp_enabled = models.BooleanField(default=False)
     otp_auth_url = models.CharField(max_length=225, blank=True, null=True)
     qr_code = models.ImageField(upload_to="qrcode/", blank=True, null=True)
@@ -56,6 +56,10 @@ class User(AbstractBaseUser, PermissionsMixin):
 
      # Self-referencing ManyToManyField to represent friends
     friends = models.ManyToManyField('self', symmetrical=True, blank=True)
+
+    # New field for tracking the last active time
+    last_active = models.DateTimeField(default=timezone.now)
+
 
     objects = UserManager()
 
