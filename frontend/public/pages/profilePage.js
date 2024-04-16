@@ -34,15 +34,14 @@ export default function profilePage() {
     
   return `
     <div class="container">
-                <div class="row">
-                    <div class="col-md-4 offset-md-4">
-                    <div id="profileContainer">
+        <div class="row">
+            <div class="col-md-4 offset-md-4">
+                <div id="profileContainer">
                     <h1 class="text-centered text-nowrap">${langdict[lang]['title']}</h1>
                     <img id="avatar" src="placeholder.jpg" alt="User Avatar" style="width: 100px; height: 100px;">
                     <p class="py-4">${langdict[lang]['nameSpace']}<span id="userName">${langdict[lang]['nameLoad']}</span></p>
                     <p>${langdict[lang]['mailSpace']}<span id="userEmail">${langdict[lang]['mailLoad']}</span></p>
                 </div>
-
             </div>
         </div>
     </div>`;

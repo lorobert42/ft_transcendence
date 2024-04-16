@@ -3,6 +3,7 @@ import homePage from "./pages/homePage.js";
 import loginPage from "./pages/loginPage.js";
 import profilePage from "./pages/profilePage.js";
 import registerPage from "./pages/registerPage.js";
+import localRoom from "./pages/gameroom.js";
 
 function pageRouting()
 {
@@ -48,6 +49,13 @@ function pageRouting()
         case "/chat":
             contentDiv.innerHTML = initChat();
             break;
+        case "/localroom":
+            contentDiv.innerHTML = localRoom();
+            import("./pong.js")
+            .then((module) => {
+              module.initPongGame();
+            })
+            break;
         default:
             contentDiv.innerHTML = homePage();
             break;
@@ -86,6 +94,12 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       history.pushState(null, '', e.target.href);
       pageRouting();
+  });
+
+  document.querySelector("#local-link").addEventListener("click", (e) => {
+    e.preventDefault();
+    history.pushState(null, '', e.target.href);
+    pageRouting();
   });
 
     // change dropdown text value depending on selected option
