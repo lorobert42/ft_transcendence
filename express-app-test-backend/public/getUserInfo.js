@@ -5,7 +5,7 @@ function getUserInfo() {
     console.log("Token retrieved");
 
     const xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "http://localhost:8000/api/user/me/", true);
+    xhttp.open("GET", "https://localhost:8080/api/user/me/", true);
     xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
     if (authToken) {
       // Use the authToken in your API calls

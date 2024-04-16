@@ -9,7 +9,7 @@ export function isLoggedIn() {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',
-            'Authentication': 'Token ' + localStorage.getItem('authToken')
+            'Authorization': 'Bearer ' + localStorage.getItem('authToken')
     }})
     .then(response => {
         if(!response.ok){

@@ -1,6 +1,7 @@
 """
 Database models
 """
+from datetime import datetime, timezone
 from django.db import models
 from django.contrib.auth.models import (
     AbstractBaseUser,
@@ -8,6 +9,13 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 
+def user_avatar_path(instance, filename):
+    """
+    Generates a unique file path for storing user avatar images.
+    The path includes the user's ID to avoid filename conflicts.
+    """
+    # file will be uploaded to MEDIA_ROOT/user_avatars/user_<id>/<filename>
+    return f'user_avatars/user_{instance.id}/{filename}'
 
 class UserManager(BaseUserManager):
     """ Manager for user profiles """
@@ -38,10 +46,26 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=25)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
+    avatar = models.ImageField(null=True,  blank=True,  upload_to='user_avatars/')
+    otp_enabled = models.BooleanField(default=False)
+    otp_auth_url = models.CharField(max_length=225, blank=True, null=True)
+    qr_code = models.ImageField(upload_to="qrcode/", blank=True, null=True)
+    otp_base32 = models.CharField(max_length=255, null=True)
+    login_otp_used = models.BooleanField(default=True)
+    otp_created_at = models.DateTimeField(blank=True, null=True)
 
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+    def is_valid_otp(self):
+        lifespan_in_seconds = 90 if self.otp_enabled else 300
+        now = datetime.now(timezone.utc)
+        time_diff = now - self.otp_created_at
+        time_diff = time_diff.total_seconds()
+        if time_diff >= lifespan_in_seconds or self.login_otp_used:
+            return False
+        return True
 
 
 class Room(models.Model):

@@ -25,7 +25,15 @@ SECRET_KEY = 'django-insecure-az5^_+u4w29%i6=_afv_riijgahq*^)&no92y(g90d%wabl3hx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS = [
+	'https://localhost:8080'
+]
+
+ALLOWED_HOSTS = [
+	'localhost'
+]
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 
 # Application definition
@@ -40,7 +48,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 	'core',
 	'rest_framework',
-	'rest_framework.authtoken',
 	'drf_spectacular',
 	'chat.apps.ChatConfig',
 	'channels',
@@ -144,7 +151,7 @@ AUTH_USER_MODEL = "core.User"
 REST_FRAMEWORK = {
 	'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 	'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         # ...
     ],
 }
@@ -160,7 +167,15 @@ CHANNEL_LAYERS = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
+	"https://localhost:8080",
     "http://localhost:8081",
     "http://localhost",
     "http://localhost:8081",
 ]
+
+# Media files (user-uploaded content)
+# Absolute filesystem path to the directory that will hold user-uploaded files.
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# URL that handles the media served from MEDIA_ROOT.
+MEDIA_URL = '/media/'
