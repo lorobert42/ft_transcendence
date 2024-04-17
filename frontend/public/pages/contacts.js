@@ -1,19 +1,19 @@
 export default function contacts() {
-
-    console.log(localStorage.getItem("authToken"));
-    let users = fetch('https://localhost:8080/api/user/users/', {
-        mode: "cors",
-        authToken: localStorage.getItem("authToken"),
-    }).then(response => response.json())
-    .then(data => {
-        console.log(data);
-        return data;
-    })
-    .catch((error) => {
-        console.error('Failed to fetch users:', error);
-    });
-
-
     return `
+    <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-6">
+        <h2>Add Friend</h2>
+        <input type="text" id="user-search" class="form-control mb-3" placeholder="Search User...">
+        <ul id="user-list" class="list-group">
+      </div>
+      <div class="col-md-6">
+        <h2>Friend List</h2>
+        <input type="text" id="friend-search" class="form-control mb-3" placeholder="Search friend...">
+        <ul id="friend-list" class="list-group">
+        </ul>
+      </div>
+    </div>
+  </div>
     `;
 }
