@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,17 +21,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-az5^_+u4w29%i6=_afv_riijgahq*^)&no92y(g90d%wabl3hx'
+SECRET_KEY = config('SECRET_KEY')
+
+SIMPLE_JWT = {
+    'SIGNING_KEY': config('SIGNING_KEY'),
+}
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
 CSRF_TRUSTED_ORIGINS = [
-	'https://localhost:8080'
+    'https://localhost:8080'
 ]
 
 ALLOWED_HOSTS = [
-	'localhost'
+    'localhost'
 ]
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -96,10 +101,10 @@ ASGI_APPLICATION = 'app.routing.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-		'HOST' : os.environ.get('DB_HOST'),
-		'NAME' : os.environ.get('DB_NAME'),
-		'USER' : os.environ.get('DB_USER'),
-		'PASSWORD' : os.environ.get('DB_PASS'),
+        'HOST': config('DB_HOST'),
+        'NAME': config('DB_NAME'),
+        'USER': config('DB_USER'),
+        'PASSWORD': config('DB_PASSWORD'),
     }
 }
 

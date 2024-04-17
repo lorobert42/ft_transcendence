@@ -21,8 +21,6 @@ export default function homePage() {
           "description": "Bem-vindo ao Transcendence, o jogo de pong online. Jogue contra seus amigos ou contra a IA."
       }
   }`);
-  
-
 
   return `
   <!-- Hero Section -->
