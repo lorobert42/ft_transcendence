@@ -112,6 +112,10 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
         print("Authentified User:", self.request.user.id)
         return self.request.user
 
+    def patch(self, request, *args, **kwargs):
+        # 'partial' parameter is set to True to allow partial updates
+        return self.partial_update(request, *args, **kwargs)
+
 
 class ListUsersView(generics.ListAPIView):
     """List all users in the system"""
@@ -149,5 +153,34 @@ class AddFriendView(generics.GenericAPIView):
             user.save()
             response_serializer = UserSerializer(user)
             return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        except User.DoesNotExist:
+            return Response({"message": "Friend not found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class DeleteFriendView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
+    @extend_schema(
+        request=AddFriendSerializer,  # Use the dedicated request serializer
+        responses={201: {"description": "Friend added successfully"}, 400: {"description": "Bad request"}},
+        description="Allows authenticated users to add other users as friends by providing the friend's user ID."
+    )
+    def post(self, request, *args, **kwargs):
+        # Ensure that the request context is passed to the serializer
+        serializer = AddFriendSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        friend_id = serializer.validated_data['friend_id']
+
+        if friend_id == request.user.id:
+            return Response({"message": "You cannot delete yourself as a friend"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            friend = User.objects.get(pk=friend_id)
+            if friend not in request.user.friends.all():
+                return Response({"message": "This user is not currently your friend"}, status=status.HTTP_400_BAD_REQUEST)
+            request.user.friends.remove(friend)
+            # Use HTTP 200 OK and send a success message
+            return Response({"message": "Friend successfully deleted"}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"message": "Friend not found"}, status=status.HTTP_404_NOT_FOUND)
