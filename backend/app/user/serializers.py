@@ -51,10 +51,17 @@ class UserSerializer(serializers.ModelSerializer):
         password = validated_data.pop('password', None)
         avatar = validated_data.pop('avatar', None)
 
+        # Update fields if they are included in the request
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+
         if password:
             instance.set_password(password)
 
         if avatar:
+            # Assuming avatar is a file, handle file save
+
             instance.avatar = avatar
 
         instance.save()
@@ -216,4 +223,11 @@ class AuthTokenSerializer(serializers.Serializer):
         return attrs
 
 class AddFriendSerializer(serializers.Serializer):
-    friend_id = serializers.IntegerField(help_text="ID of the user to be added as a friend")
+    friend_id = serializers.IntegerField()
+
+    def validate_friend_id(self, value):
+        # Check that the context has the request and then compare user IDs
+        request = self.context.get('request')
+        if request and value == request.user.id:
+            raise serializers.ValidationError("You cannot add or delete yourself.")
+        return value

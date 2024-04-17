@@ -49,12 +49,11 @@ class RoomAdmin(admin.ModelAdmin):
     view_participants_link.short_description = "participants"
 
 
-@admin.register(models.GameRoom)
-class GameRoomAdmin(admin.ModelAdmin):
-    list_display = ['name', 'id']
+
 
 
 admin.site.register(models.User, UserAdmin)
 admin.site.register(models.Message)
 admin.site.register(models.Game)
-admin.site.register(models.GameInfo)
+admin.site.register(models.Tournament)
+admin.site.register(models.Participation)

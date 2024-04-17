@@ -11,7 +11,7 @@ export function initPongGame() {
     }
     
     const gameSocket = new WebSocket(
-        'ws://127.0.0.1:8000/ws/game/0/'
+        'wss://' + location.host + '/ws/game/0/'
     );
     
     let keyPressed = {"ArrowUp": false, "ArrowDown": false, "w": false, "s": false};

@@ -7,12 +7,13 @@ export function isLoggedIn() {
     if (isLogged) {
         return true;
     }
+    console.log('invalid access token, checking refresh token');
     const refreshToken = localStorage.getItem('refreshToken');
     if (refreshToken !== null &&
         refreshToken !== undefined &&
         !isTokenExpired(refreshToken)
     ) {
-        fetch("/api/user/token/refresh/", {
+        return fetch("/api/user/token/refresh/", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -33,6 +34,7 @@ export function isLoggedIn() {
                 // Handle login error, e.g., show error message
             });
     }
+    console.log('invalid refresh token, not logged in');
     return false;
 }
 
@@ -51,6 +53,6 @@ function isTokenExpired(token) {
     const expirationTime = decodedToken.exp;
     const currentTime = Math.floor(Date.now() / 1000);
 
-    return expirationTime <= currentTime;
+    return expirationTime <= currentTime - 30;
 }
 
