@@ -9,11 +9,11 @@ export function initPongGame() {
     {
         console.log('Canvas element found!');
     }
-    
+
     const gameSocket = new WebSocket(
         'ws://127.0.0.1:8000/ws/game/0/'
     );
-    
+
     let keyPressed = {"ArrowUp": false, "ArrowDown": false, "w": false, "s": false};
     let keyMessage = {"ArrowUp": "P2_UP", "ArrowDown": "P2_DOWN", "w": "P1_UP", "s": "P1_DOWN"};
     function waitConnection() {
@@ -30,7 +30,7 @@ export function initPongGame() {
                         return;
                     }
                 });
-                
+
                 document.addEventListener('keyup', (e) => {
                     if (e.key in keyPressed) {
                         keyPressed[e.key] = false;
@@ -43,11 +43,11 @@ export function initPongGame() {
                 gameSocket.send(JSON.stringify({
                     'message': 'P1',
                 }));
-            
+
                 gameSocket.send(JSON.stringify({
                     'message': 'P2',
                 }));
-            
+
                 gameSocket.send(JSON.stringify({
                     'message': 'start',
                 }));
@@ -65,18 +65,18 @@ export function initPongGame() {
     waitConnection();
 
 
-        
+
     const ctx = canvas.getContext('2d');
-    
-    let player1 = { x: 20, y: 100, width: 25, height: 125, score: 0 }; 
-    let player2 = { x: canvas.width - 30, y: 200, width: 25, height: 125, score:0 }; 
-    let ball = { x: canvas.width / 2, y: canvas.height / 2, radius: 10 }; 
-    
+
+    let player1 = { x: 20, y: 100, width: 25, height: 125, score: 0 };
+    let player2 = { x: canvas.width - 30, y: 200, width: 25, height: 125, score:0 };
+    let ball = { x: canvas.width / 2, y: canvas.height / 2, radius: 10 };
+
     function drawPlayer(player) {
         ctx.fillStyle = '#FFF';
         ctx.fillRect(player.x, player.y, player.width, player.height);
     }
-    
+
     function drawBall(ball) {
         ctx.beginPath();
         ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
@@ -88,17 +88,17 @@ export function initPongGame() {
     function drawEverything() {
         // console.log(`Drawing player1 at ${player1.x}, ${player1.y}`);
         // console.log(`Drawing player2 at ${player2.x}, ${player2.y}`);
-    
+
         // Clear the canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
+
         drawPlayer(player1);
         drawPlayer(player2);
         drawBall(ball);
     }
 
     let data;
-    
+
     gameSocket.onmessage = function(e) {
         data = JSON.parse(e.data);
     }
@@ -111,9 +111,14 @@ export function initPongGame() {
             //     mode: "cors",
             //     //mode: "same-origin",
             // });
-            
+
+<<<<<<< HEAD
             // console.log("Fetched coordinates:", data);
 			// console.log("Fetched coordinates:", JSON.stringify(data, null, 2));
+=======
+            console.log("Fetched coordinates:", data);
+			console.log("Fetched coordinates:", JSON.stringify(data, null, 2));
+>>>>>>> e5d5750 (added game page local)
 
 			// player1.x = data.player1.x;
 			// player1.y = data.player1.y;
@@ -155,7 +160,7 @@ export function initPongGame() {
         } catch (error) {
             console.error('Failed to fetch coordinates:', error);
         }
-        
+
         drawEverything();
     }
 
@@ -167,5 +172,5 @@ export function initPongGame() {
         requestAnimationFrame(gameLoop);
         console.log('Game loop running');
     }
-    // gameLoop();    
+    // gameLoop();
 };
