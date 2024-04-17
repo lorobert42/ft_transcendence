@@ -3,6 +3,7 @@ LABEL maintainer="Stuart Rapoport"
 
 EXPOSE 8000
 ARG DEV=false
+ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 COPY ./requirements.txt /tmp/requirements.txt

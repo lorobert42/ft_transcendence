@@ -20,37 +20,45 @@ import qrcode
 
 from core.models import User
 
-
-class UserSerializer(serializers.ModelSerializer):
-    """Serializer for the users object"""
-
+class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ['email', 'password', 'name', 'id', 'avatar']
+        fields = ['email', 'password', 'name']
         extra_kwargs = {
             'password': {'write_only': True, 'min_length': 5},
         }
 
-    def create(self, validated_data: dict):
+    def create(self, validated_data):
         """Create a new user with encrypted password and return it"""
-        avatar = validated_data.pop('avatar', None)
         user = get_user_model().objects.create_user(**validated_data)
-        if avatar is not None:
-            user.avatar = avatar
-            user.save()
         user.save()
         return user
+
+
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer for the user objects, handling read and update operations."""
+
+    class Meta:
+        model = get_user_model()
+        fields = ['email', 'name', 'id', 'avatar', 'friends', 'password', 'last_active']
+        extra_kwargs = {
+            'password': {'write_only': True, 'min_length': 5},
+            'friends': {'read_only': True}  # Assuming friends are handled separately
+        }
 
     def update(self, instance, validated_data):
         """Update a user, setting the password correctly and return it"""
         password = validated_data.pop('password', None)
-        user = super().update(instance, validated_data)
+        avatar = validated_data.pop('avatar', None)
 
         if password:
-            user.set_password(password)
-            user.save()
+            instance.set_password(password)
 
-        return user
+        if avatar:
+            instance.avatar = avatar
+
+        instance.save()
+        return instance
 
 
 class OTPEnableRequestSerializer(serializers.Serializer):
@@ -206,3 +214,6 @@ class AuthTokenSerializer(serializers.Serializer):
 
         attrs['user'] = user
         return attrs
+
+class AddFriendSerializer(serializers.Serializer):
+    friend_id = serializers.IntegerField(help_text="ID of the user to be added as a friend")
