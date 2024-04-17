@@ -19,6 +19,7 @@ urlpatterns = [
     path("verify-otp/", views.VerifyOTPView.as_view(), name="verify-otp"),
     path("token/refresh/", TokenRefreshView.as_view(), name='token_refresh'),
 	path('add-friend/', views.AddFriendView.as_view(), name='add-friend'),
+	path('delete_friend/', views.DeleteFriendView.as_view(), name='delete-friend'),
     path("me/", views.ManageUserView.as_view(), name="me"),
     path('users/', views.ListUsersView.as_view(), name='user-list'),
 ]
