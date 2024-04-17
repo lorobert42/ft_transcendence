@@ -2,13 +2,13 @@ up:
 	docker compose -f compose.yaml -f compose.dev.yaml up --build -d
 	docker compose exec backend sh -c "python manage.py makemigrations"
 	docker compose exec backend sh -c "python manage.py migrate"
-	docker compose exec backend sh -c "python manage.py collectstatic"
+	docker compose exec backend sh -c "python manage.py collectstatic --no-input"
 
 mac:
 	docker compose up --build -d
 	docker compose exec backend sh -c "python manage.py makemigrations"
 	docker compose exec backend sh -c "python manage.py migrate"
-	docker compose exec backend sh -c "python manage.py collectstatic"
+	docker compose exec backend sh -c "python manage.py collectstatic --no-input"
 
 up_only:
 	docker compose up -d
