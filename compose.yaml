@@ -26,11 +26,10 @@ services:
       - 8000:8000
     networks:
       - tr_network
+    env_file:
+      - ./.env
     environment:
       - DB_HOST=tr_database
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASSWORD}
     depends_on:
       database:
         condition: service_healthy
