@@ -3,7 +3,7 @@ export async function contactHandler() {
     let authToken = localStorage.getItem('authToken');
     let friends = [];
     let users = [];
-
+    let pending = [];
 
     async function updateFriends() {
        friends = await fetch("/api/user/me/", {
@@ -41,6 +41,25 @@ export async function contactHandler() {
         });
     }
 
+    async function updatePending() {
+        pending = await fetch("/api/user/friend-invitations/", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
+            },
+          }).then((response) => {
+            if (response.status === 401) {
+              console.error("Unauthorized");
+            }
+            return response.json();
+          }).then((data) => {
+            return data["pending"];
+          }).catch((error) => {
+            console.error("Error:", error);
+        });
+    }
+
+    await updatePending();
     await updateFriends();
     await updateUsers();
 
@@ -115,8 +134,9 @@ export async function contactHandler() {
         firstTen.forEach((user) => {
             const li = document.createElement("li");
             li.className = "list-group-item d-flex justify-content-between align-items-center";
-            li.style = "white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%";
-            li.innerText = user.email;
+            const txt = document.createElement("p");
+            txt.innerText = user.email;
+            // txt.style = "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
 
             const buttonContainer = document.createElement("div");
             buttonContainer.classList.add("d-flex");
