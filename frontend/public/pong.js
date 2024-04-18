@@ -11,7 +11,7 @@ export function initPongGame() {
     }
     
     const gameSocket = new WebSocket(
-        'wss://' + location.host + '/ws/game/0/'
+        'wss://' + location.host + '/ws/game/0/?token=' + localStorage.getItem('authToken')
     );
     
     let keyPressed = {"ArrowUp": false, "ArrowDown": false, "w": false, "s": false};
