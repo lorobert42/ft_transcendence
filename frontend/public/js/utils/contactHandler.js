@@ -83,7 +83,7 @@ export async function contactHandler() {
 
     
     async function addFriend(id) {
-        let response = await fetch("/api/user/friend-invitations/create/", {
+        let response = await fetch("/api/user/friend-invitations/", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
@@ -113,7 +113,7 @@ export async function contactHandler() {
     }
 
     async function denyFriend(id) {
-      let response = await fetch(`/api/user/friend-invitations/update/${id}/`, {
+      let response = await fetch(`/api/user/friend-invitations/${id}/`, {
           method: "PATCH",
           headers: {
             Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
@@ -144,7 +144,7 @@ export async function contactHandler() {
   }
 
   async function acceptFriend(id) {
-    let response = await fetch(`/api/user/friend-invitations/update/${id}/`, {
+    let response = await fetch(`/api/user/friend-invitations/${id}/`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
@@ -176,7 +176,7 @@ export async function contactHandler() {
 
 
 async function deleteFriend(id) {
-  let response = await fetch(`/api/user/delete_friend/${id}/`, {
+  let response = await fetch(`/api/user/friend/${id}/`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
