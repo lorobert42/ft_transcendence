@@ -18,13 +18,13 @@ urlpatterns = [
     path("otp/activation/confirm/", views.OTPEnableConfirmView.as_view(), name="enable-otp-confirm"),
     path("otp/verify", views.VerifyOTPView.as_view(), name="verify-otp"),
     path("token/refresh/", TokenRefreshView.as_view(), name='token_refresh'),
-	path('add-friend/', views.AddFriendView.as_view(), name='add-friend'),
-    path('delete_friend/<int:pk>/', views.DeleteFriendView.as_view(), name='delete-friend'),
+	path('friend/', views.AddFriendView.as_view(), name='add-friend'),
+    path('friend/<int:pk>/', views.DeleteFriendView.as_view(), name='delete-friend'),
     path("me/", views.ManageUserView.as_view(), name="me"),
     path('users/', views.ListUsersView.as_view(), name='user-list'),
 
-    path('friend-invitations/create/', views.FriendInvitationCreateView.as_view(), name='create-friend-invitation'),
-    path('friend-invitations/update/<int:pk>/', views.FriendInvitationUpdateView.as_view(), name='update-friend-invitation'),
+    path('friend-invitations/', views.FriendInvitationCreateView.as_view(), name='create-friend-invitation'),
+    path('friend-invitations/<int:pk>/', views.FriendInvitationUpdateView.as_view(), name='update-friend-invitation'),
     path('friend-invitations/', views.FriendInvitationListView.as_view(), name='list-friend-invitations'),
 
 ]

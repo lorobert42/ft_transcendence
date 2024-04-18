@@ -163,6 +163,7 @@ class LoginSerializer(serializers.Serializer):
         refresh = RefreshToken.for_user(user)
         return {
             "otp": False,
+            "user_id": user.id,
             "tokens": {
                 "refresh": str(refresh),
                 "access": str(refresh.access_token),
