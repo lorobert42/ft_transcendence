@@ -1,12 +1,13 @@
 import initChat from "./js/scripts/initChat.js";
 import homePage from "./pages/homePage.js";
 import loginPage from "./pages/loginPage.js";
+import otpPage from "./pages/otpPage.js";
 import profilePage from "./pages/profilePage.js";
 import registerPage from "./pages/registerPage.js";
 import localRoom from "./pages/gameroom.js";
 import { isLoggedIn } from "./js/utils/loginHandler.js";
 
-function pageRouting() {
+export default function pageRouting() {
   if (isLoggedIn()) {
     console.log('is logged in');
   } else {
@@ -28,6 +29,16 @@ function pageRouting() {
         })
         .catch((error) => {
           console.error("Failed to load the login form module", error);
+        });
+      break;
+    case "/otp":
+      contentDiv.innerHTML = otpPage();
+      import("/js/scripts/otpForm.js")
+        .then((module) => {
+          module.otpFormModule.init();
+        })
+        .catch((error) => {
+          console.error("Failed to load the otp form module", error);
         });
       break;
     case "/register":

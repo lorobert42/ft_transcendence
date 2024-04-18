@@ -2,6 +2,7 @@
 Database models
 """
 from datetime import datetime
+from datetime import timezone as tz
 from django.forms import ValidationError
 
 from django.utils import timezone
@@ -70,7 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def is_valid_otp(self):
         lifespan_in_seconds = 90 if self.otp_enabled else 300
-        now = datetime.now(timezone.utc)
+        now = datetime.now(tz.utc)
         time_diff = now - self.otp_created_at
         time_diff = time_diff.total_seconds()
         if time_diff >= lifespan_in_seconds or self.login_otp_used:

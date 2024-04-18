@@ -1,15 +1,16 @@
 import pageRouting from '../../changeContent.js'
 
-export const loginFormModule = (() => {
-  const loginUser = (email, password) => {
-    console.log("in login user");
-    localStorage.removeItem("authToken");
-    fetch("/api/user/login/", {
+export const otpFormModule = (() => {
+  const otpCheck = (otp) => {
+    console.log("in otp check");
+    const id = localStorage.getItem('user_id');
+    localStorage.removeItem('user_id');
+    fetch("/api/user/otp/verify/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ 'otp': otp, 'user_id': id }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -21,11 +22,6 @@ export const loginFormModule = (() => {
           successDiv.style.display = "block";
           localStorage.setItem("authToken", data.access);
           localStorage.setItem("refreshToken", data.refresh);
-        } else if (Object.hasOwn(data, "success") && data.success === true) {
-          console.log('Use 2FA');
-          localStorage.setItem('user_id', data.user);
-          history.pushState({}, '', '/otp');
-          pageRouting();
         } else {
           var errorString = "Login Error";
 
@@ -46,17 +42,16 @@ export const loginFormModule = (() => {
   };
 
   const init = () => {
-    const loginForm = document.getElementById("loginForm");
-    if (loginForm) {
-      loginForm.addEventListener("submit", function (event) {
+    const otpForm = document.getElementById("otpForm");
+    if (otpForm) {
+      otpForm.addEventListener("submit", function (event) {
         event.preventDefault();
         const errorMessageDiv = document.getElementById("loginError");
         const successDiv = document.getElementById("loginSuccess");
         successDiv.style.display = "none"; // Make the error message visible
         errorMessageDiv.style.display = "none"; // Make the error message visible
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-        loginUser(email, password);
+        const otp = document.getElementById("otp").value;
+        otpCheck(otp);
       });
     } else {
       console.error("Login form not found at init time.");
