@@ -23,8 +23,7 @@ urlpatterns = [
     path("me/", views.ManageUserView.as_view(), name="me"),
     path('users/', views.ListUsersView.as_view(), name='user-list'),
 
-    path('friend-invitations/', views.FriendInvitationCreateView.as_view(), name='create-friend-invitation'),
+    path('friend-invitations/', views.FriendInvitationListCreateView.as_view(), name='create-friend-invitation'),
     path('friend-invitations/<int:pk>/', views.FriendInvitationUpdateView.as_view(), name='update-friend-invitation'),
-    path('friend-invitations/', views.FriendInvitationListView.as_view(), name='list-friend-invitations'),
 
 ]
