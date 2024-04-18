@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import Game, Tournament, User, Participation
+from core.models import Game, Tournament, User, Participation, GameInvitation
 
 class GameUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -66,3 +66,13 @@ class TournamentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tournament
         fields = ['id', 'name', 'participants']
+
+class GameInvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GameInvitation
+        fields = '__all__'
+
+    def validate(self, data):
+        if data['player1'] == data['player2']:
+            raise serializers.ValidationError("Player1 and Player2 cannot be the same person.")
+        return data

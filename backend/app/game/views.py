@@ -10,8 +10,8 @@ from drf_spectacular.utils import extend_schema,  extend_schema, OpenApiParamete
 from django.http import JsonResponse
 import random
 
-from core.models import Game, Tournament, Participation
-from .serializers import GameSerializer, TournamentSerializer, ParticipationSerializer, GameScoreUpdateSerializer
+from core.models import Game, Tournament, Participation, GameInvitation
+from .serializers import GameSerializer, TournamentSerializer, ParticipationSerializer, GameScoreUpdateSerializer, GameInvitationSerializer
 
 class GameList(generics.ListAPIView):
     queryset = Game.objects.all()
@@ -61,3 +61,16 @@ class TournamentAPIView(generics.ListCreateAPIView):
 class ParticipationAPIView(generics.ListCreateAPIView):
     queryset = Participation.objects.all()
     serializer_class = ParticipationSerializer
+
+# GameInvitation Views
+class GameInvitationCreateView(generics.CreateAPIView):
+    queryset = GameInvitation.objects.all()
+    serializer_class = GameInvitationSerializer
+
+class GameInvitationUpdateView(generics.UpdateAPIView):
+    queryset = GameInvitation.objects.all()
+    serializer_class = GameInvitationSerializer
+
+class GameInvitationListView(generics.ListAPIView):
+    queryset = GameInvitation.objects.all()
+    serializer_class = GameInvitationSerializer
