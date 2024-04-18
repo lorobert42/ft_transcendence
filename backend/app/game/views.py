@@ -14,30 +14,24 @@ import random
 from core.models import Game, Tournament, Participation, GameInvitation
 from .serializers import GameSerializer, TournamentSerializer, ParticipationSerializer, GameScoreUpdateSerializer, GameInvitationSerializer
 
-class GameList(generics.ListAPIView):
-    permission_classes = [permissions.IsAuthenticated]
+class GameListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = GameSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         """
-        This view should return a list of all the invitations
-        where the currently authenticated user is either user1 or user2
+        This view returns a list of all the games
+        where the currently authenticated user is either player1 or player2.
         """
         user = self.request.user
-        return Game.objects.filter(
-            Q(player1=user) | Q(player2=user)
-        )
+        return Game.objects.filter(Q(player1=user) | Q(player2=user))
 
-
-class GameCreateAPIView(generics.GenericAPIView):
-    serializer_class = GameSerializer  # Specify the serializer class here
-
-    def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)  # Use get_serializer method
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        """
+        Override this method if you need to perform custom actions
+        before saving the new object.
+        """
+        serializer.save()
 
 
 class GameUpdateAPIView(generics.GenericAPIView):
@@ -75,7 +69,7 @@ class ParticipationAPIView(generics.ListCreateAPIView):
     serializer_class = ParticipationSerializer
 
 # GameInvitation Views
-class GameInvitationCreateView(generics.CreateAPIView):
+class GameInvitationListCreateView(generics.ListCreateAPIView):
     queryset = GameInvitation.objects.all()
     serializer_class = GameInvitationSerializer
 
@@ -83,7 +77,3 @@ class GameInvitationUpdateView(generics.UpdateAPIView):
     queryset = GameInvitation.objects.all()
     serializer_class = GameInvitationSerializer
     http_method_names = ['patch']  # Allow only PATCH method
-
-class GameInvitationListView(generics.ListAPIView):
-    queryset = GameInvitation.objects.all()
-    serializer_class = GameInvitationSerializer
