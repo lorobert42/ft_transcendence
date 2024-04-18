@@ -80,8 +80,11 @@ class LoginUserView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response: dict = serializer.save()
+        print(response)
+
         if response["otp"]:
             user = response["user"]
+            print(response)
             return Response(
                 {
                     "success": True,
@@ -90,6 +93,7 @@ class LoginUserView(generics.GenericAPIView):
                 },
                 status=200,
             )
+        response["tokens"]["user_id"] = response["user_id"]
         return Response(response["tokens"], status=200)
 
 
@@ -191,6 +195,7 @@ class FriendInvitationCreateView(generics.CreateAPIView):
 class FriendInvitationUpdateView(generics.UpdateAPIView):
     queryset = FriendInvitation.objects.all()
     serializer_class = FriendInvitationSerializer
+    http_method_names = ['patch']  # Allow only PATCH method
 
 class FriendInvitationListView(generics.ListAPIView):
     serializer_class = FriendInvitationSerializer  # Ensure this is correctly defined

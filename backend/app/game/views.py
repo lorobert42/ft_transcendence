@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import json
-from rest_framework import status
+from django.db.models import Q
+from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework import generics, viewsets
 from drf_spectacular.utils import extend_schema,  extend_schema, OpenApiParameter, OpenApiExample
@@ -14,8 +15,18 @@ from core.models import Game, Tournament, Participation, GameInvitation
 from .serializers import GameSerializer, TournamentSerializer, ParticipationSerializer, GameScoreUpdateSerializer, GameInvitationSerializer
 
 class GameList(generics.ListAPIView):
-    queryset = Game.objects.all()
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = GameSerializer
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the invitations
+        where the currently authenticated user is either user1 or user2
+        """
+        user = self.request.user
+        return Game.objects.filter(
+            Q(player1=user) | Q(player2=user)
+        )
 
 
 class GameCreateAPIView(generics.GenericAPIView):
@@ -32,6 +43,7 @@ class GameCreateAPIView(generics.GenericAPIView):
 class GameUpdateAPIView(generics.GenericAPIView):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
+    http_method_names = ['patch']  # Allow only PATCH method
 
 
     @extend_schema(
@@ -70,6 +82,7 @@ class GameInvitationCreateView(generics.CreateAPIView):
 class GameInvitationUpdateView(generics.UpdateAPIView):
     queryset = GameInvitation.objects.all()
     serializer_class = GameInvitationSerializer
+    http_method_names = ['patch']  # Allow only PATCH method
 
 class GameInvitationListView(generics.ListAPIView):
     queryset = GameInvitation.objects.all()
