@@ -1,15 +1,16 @@
 """
 Views for user api
 """
-
+from django.db.models import Q
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics, permissions
 from rest_framework.response import Response
-from core.models import Room, Message, User
+from core.models import FriendInvitation, Room, Message, User
 from rest_framework import status
 from drf_spectacular.utils import extend_schema,  extend_schema, OpenApiParameter, OpenApiExample
 
 from user.serializers import (
+    FriendInvitationSerializer,
     UserSerializer,
     OTPEnableRequestSerializer,
     OTPEnableConfirmSerializer,
@@ -159,28 +160,47 @@ class AddFriendView(generics.GenericAPIView):
 
 class DeleteFriendView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = UserSerializer
+    serializer_class = UserSerializer  # Used for response formatting
 
     @extend_schema(
-        request=AddFriendSerializer,  # Use the dedicated request serializer
-        responses={201: {"description": "Friend added successfully"}, 400: {"description": "Bad request"}},
-        description="Allows authenticated users to add other users as friends by providing the friend's user ID."
+        responses={
+            204: {"description": "Friend successfully deleted"},
+            400: {"description": "Bad request"},
+            404: {"description": "Friend not found"}
+        },
+        description="Allows authenticated users to delete a friend by providing the friend's user ID in the URL."
     )
-    def post(self, request, *args, **kwargs):
-        # Ensure that the request context is passed to the serializer
-        serializer = AddFriendSerializer(data=request.data, context={'request': request})
-        serializer.is_valid(raise_exception=True)
-        friend_id = serializer.validated_data['friend_id']
-
-        if friend_id == request.user.id:
+    def delete(self, request, pk, *args, **kwargs):
+        if int(pk) == request.user.id:
             return Response({"message": "You cannot delete yourself as a friend"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            friend = User.objects.get(pk=friend_id)
+            friend = User.objects.get(pk=pk)
             if friend not in request.user.friends.all():
                 return Response({"message": "This user is not currently your friend"}, status=status.HTTP_400_BAD_REQUEST)
             request.user.friends.remove(friend)
-            # Use HTTP 200 OK and send a success message
-            return Response({"message": "Friend successfully deleted"}, status=status.HTTP_200_OK)
+            return Response({"message": "Friend successfully deleted"}, status=status.HTTP_204_NO_CONTENT)
         except User.DoesNotExist:
             return Response({"message": "Friend not found"}, status=status.HTTP_404_NOT_FOUND)
+
+# FriendInvitation Views
+class FriendInvitationCreateView(generics.CreateAPIView):
+    queryset = FriendInvitation.objects.all()
+    serializer_class = FriendInvitationSerializer
+
+class FriendInvitationUpdateView(generics.UpdateAPIView):
+    queryset = FriendInvitation.objects.all()
+    serializer_class = FriendInvitationSerializer
+
+class FriendInvitationListView(generics.ListAPIView):
+    serializer_class = FriendInvitationSerializer  # Ensure this is correctly defined
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the invitations
+        where the currently authenticated user is either user1 or user2
+        """
+        user = self.request.user
+        return FriendInvitation.objects.filter(
+            Q(user1=user) | Q(user2=user)
+        )
