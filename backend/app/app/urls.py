@@ -17,6 +17,6 @@ urlpatterns = [
     path('api/docs', SpectacularSwaggerView.as_view(url_name='api-schema'),
          name='api-docs'),
     path('api/user/', include('user.urls')),
-    path('api/chat/', include('chat.urls')),
+    #path('api/chat/', include('chat.urls')),
     path('api/game/', include('game.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
