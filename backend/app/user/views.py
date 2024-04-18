@@ -187,25 +187,27 @@ class DeleteFriendView(generics.GenericAPIView):
         except User.DoesNotExist:
             return Response({"message": "Friend not found"}, status=status.HTTP_404_NOT_FOUND)
 
-# FriendInvitation Views
-class FriendInvitationCreateView(generics.CreateAPIView):
-    queryset = FriendInvitation.objects.all()
+class FriendInvitationListCreateView(generics.ListCreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = FriendInvitationSerializer
+
+    def get_queryset(self):
+        """
+        This view returns a list of all the invitations
+        where the currently authenticated user is either user1 or user2.
+        """
+        user = self.request.user
+        return FriendInvitation.objects.filter(Q(user1=user) | Q(user2=user))
+
+    def perform_create(self, serializer):
+        """
+        This method allows setting additional attributes on the instance,
+        or perform model validation that requires access to the serializer and view.
+        """
+        # Additional logic (if any) before saving the instance
+        serializer.save()
 
 class FriendInvitationUpdateView(generics.UpdateAPIView):
     queryset = FriendInvitation.objects.all()
     serializer_class = FriendInvitationSerializer
     http_method_names = ['patch']  # Allow only PATCH method
-
-class FriendInvitationListView(generics.ListAPIView):
-    serializer_class = FriendInvitationSerializer  # Ensure this is correctly defined
-
-    def get_queryset(self):
-        """
-        This view should return a list of all the invitations
-        where the currently authenticated user is either user1 or user2
-        """
-        user = self.request.user
-        return FriendInvitation.objects.filter(
-            Q(user1=user) | Q(user2=user)
-        )
