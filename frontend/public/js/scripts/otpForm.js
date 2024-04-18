@@ -1,10 +1,11 @@
-import pageRouting from '../../changeContent.js'
-
 export const otpFormModule = (() => {
-  const otpCheck = (otp) => {
+  const otpCheck = (data, otp) => {
     console.log("in otp check");
-    const id = localStorage.getItem('user_id');
-    localStorage.removeItem('user_id');
+    let id;
+    if (Object.hasOwn(data, "id")) {
+      id = data.id;
+      console.log('id: ' + id);
+    }
     fetch("/api/user/otp/verify/", {
       method: "POST",
       headers: {
@@ -12,7 +13,12 @@ export const otpFormModule = (() => {
       },
       body: JSON.stringify({ 'otp': otp, 'user_id': id }),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (response.status === 401) {
+          throw new Error('Invalid credentials');
+        }
+        return response.json()
+      })
       .then((data) => {
         console.log("data received");
         console.log(data);
@@ -23,25 +29,18 @@ export const otpFormModule = (() => {
           localStorage.setItem("authToken", data.access);
           localStorage.setItem("refreshToken", data.refresh);
         } else {
-          var errorString = "Login Error";
-
-          for (const property in data) {
-            console.log(`${property}: ${data[property]}`);
-            errorString += `\n${property}: ${data[property]}`;
-          }
-          const errorMessageDiv = document.getElementById("loginError");
-          errorMessageDiv.textContent = errorString;
-          errorMessageDiv.style.display = "block"; // Make the error message visible
+          throw new Error('Unable to process your request, please retry.');
         }
-        //   window.location.href = "/";
       })
       .catch((error) => {
-        console.error("Login error:", error);
-        // Handle login error, e.g., show error message
+        var errorString = error;
+        const errorMessageDiv = document.getElementById("loginError");
+        errorMessageDiv.textContent = errorString;
+        errorMessageDiv.style.display = "block"; // Make the error message visible
       });
   };
 
-  const init = () => {
+  const init = (data) => {
     const otpForm = document.getElementById("otpForm");
     if (otpForm) {
       otpForm.addEventListener("submit", function (event) {
@@ -51,7 +50,7 @@ export const otpFormModule = (() => {
         successDiv.style.display = "none"; // Make the error message visible
         errorMessageDiv.style.display = "none"; // Make the error message visible
         const otp = document.getElementById("otp").value;
-        otpCheck(otp);
+        otpCheck(data, otp);
       });
     } else {
       console.error("Login form not found at init time.");

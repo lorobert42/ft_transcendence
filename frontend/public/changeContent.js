@@ -3,11 +3,12 @@ import homePage from "./pages/homePage.js";
 import loginPage from "./pages/loginPage.js";
 import otpPage from "./pages/otpPage.js";
 import profilePage from "./pages/profilePage.js";
+import enableOtpPage from "./pages/enableOtpPage.js";
 import registerPage from "./pages/registerPage.js";
 import localRoom from "./pages/gameroom.js";
 import { isLoggedIn } from "./js/utils/loginHandler.js";
 
-export default function pageRouting() {
+export default function pageRouting(data = {}) {
   if (isLoggedIn()) {
     console.log('is logged in');
   } else {
@@ -35,7 +36,7 @@ export default function pageRouting() {
       contentDiv.innerHTML = otpPage();
       import("/js/scripts/otpForm.js")
         .then((module) => {
-          module.otpFormModule.init();
+          module.otpFormModule.init(data);
         })
         .catch((error) => {
           console.error("Failed to load the otp form module", error);
@@ -53,12 +54,22 @@ export default function pageRouting() {
       break;
     case "/profile":
       contentDiv.innerHTML = profilePage();
-      import("/js/scripts/fetchUserProfile.js")
+      import("/js/scripts/userProfile.js")
         .then((module) => {
-          module.fetchUserProfileModule.fetchUserProfile();
+          module.userProfileModule.init();
         })
         .catch((error) => {
           console.error("Failed to load the login form module", error);
+        });
+      break;
+    case "/enable-otp":
+      contentDiv.innerHTML = enableOtpPage();
+      import("/js/scripts/enableOtpForm.js")
+        .then((module) => {
+          module.enableOtpFormModule.init(data);
+        })
+        .catch((error) => {
+          console.error("Failed to load the enable otp form module", error);
         });
       break;
     case "/chat":
