@@ -122,3 +122,13 @@ form button {
 form button:hover {
   background-color: #45a049;
 }
+
+.fixed-size-list-item {
+  min-height: 50px; /* Ensures a minimum height */
+  border: 1px solid #ddd; /* Visual border */
+  margin-bottom: 5px; /* Space between items */
+  display: flex; /* Flexbox for alignment */
+  align-items: center; /* Centers content vertically */
+  justify-content: center; /* Centers content horizontally */
+  padding: 0 10px; /* Padding on sides */
+}

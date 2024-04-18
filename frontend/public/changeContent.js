@@ -7,8 +7,9 @@ import { isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
 import tournament from "./pages/tournament.js";
+import gameSearch from "./pages/gameSearch.js";
 
-async function pageRouting() {
+export default async function pageRouting() {
   if (isLoggedIn()) {
     console.log('is logged in');
   } else {
@@ -90,6 +91,16 @@ async function pageRouting() {
             })
             .catch((error) => {
               console.error("Failed to load the tournament module", error);
+            });
+          break;
+        case "/gamesearch":
+          contentDiv.innerHTML = gameSearch();
+          import("./js/scripts/gameSearchHandler.js")
+            .then((module) => {
+              module.gameSearchHandler();
+            })
+            .catch((error) => {
+              console.error("Failed to load the game search module", error);
             });
           break;
     default:

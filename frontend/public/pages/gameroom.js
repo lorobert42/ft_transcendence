@@ -5,9 +5,12 @@ export default function localRoom() {
 	// document.body.appendChild(canvasElement);
 
     return `<div class="container">
-				<div> 
-				<h1>Local Room</h1>
-				<p id="scoreZone"></p>
+				<div>
+					<div class="col">
+						<h1>Local Room</h1>
+						<button id="button-start">Start Game</button>
+						</div>
+						<p id="scoreZone"></p>
 				</div>
 				${canvasHTML}
 			</div>`;

@@ -39,18 +39,11 @@ export function initPongGame() {
 
 
 
-                console.log("Connection ready !");
-                gameSocket.send(JSON.stringify({
-                    'message': 'P1',
-                }));
-            
-                gameSocket.send(JSON.stringify({
-                    'message': 'P2',
-                }));
-            
-                gameSocket.send(JSON.stringify({
-                    'message': 'start',
-                }));
+                document.getElementById('button-start').addEventListener('click', () => {
+                    gameSocket.send(JSON.stringify({
+                        'message': 'start',
+                    }));
+                });
         }
         else
         {
@@ -104,6 +97,8 @@ export function initPongGame() {
     }
 
     console.log("Initializing Pong game");
+
+
 
     function UpdateGameState() {
         try {

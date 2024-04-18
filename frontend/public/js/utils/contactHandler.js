@@ -99,15 +99,23 @@ export async function contactHandler() {
         });
     }
 
+    function limitStringTo20Chars(str) {
+      if (str.length > 20) {
+        return str.slice(0, 16) + "...";
+      } else {
+        return str;
+      }
+    }
+
     function firstTenFriends(frList) 
     {
         let firstTen = frList.slice(0, 10);
         let friendList = document.getElementById("friend-list");
         friendList.innerHTML = "";
         firstTen.forEach((user) => {
-            console.log("User value : ", user);
             const li = document.createElement("li");
             li.className = "list-group-item d-flex justify-content-between align-items-center";
+            li.style = "white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%";
             li.innerText = user.email;
 
             const buttonContainer = document.createElement("div");
