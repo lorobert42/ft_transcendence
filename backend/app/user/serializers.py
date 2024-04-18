@@ -18,7 +18,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 import pyotp
 import qrcode
 
-from core.models import User
+from core.models import User, FriendInvitation
 
 class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -231,3 +231,13 @@ class AddFriendSerializer(serializers.Serializer):
         if request and value == request.user.id:
             raise serializers.ValidationError("You cannot add or delete yourself.")
         return value
+
+class FriendInvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FriendInvitation
+        fields = '__all__'
+
+    def validate(self, data):
+        if data['user1'] == data['user2']:
+            raise serializers.ValidationError("User1 and User2 cannot be the same person.")
+        return data
