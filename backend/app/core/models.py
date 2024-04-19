@@ -13,6 +13,9 @@ from django.contrib.auth.models import (
     PermissionsMixin,
 )
 
+from icecream import ic
+
+
 def user_avatar_path(instance, filename):
     """
     Generates a unique file path for storing user avatar images.
@@ -20,6 +23,7 @@ def user_avatar_path(instance, filename):
     """
     # file will be uploaded to MEDIA_ROOT/user_avatars/user_<id>/<filename>
     return f'user_avatars/user_{instance.id}/{filename}'
+
 
 class UserManager(BaseUserManager):
     """ Manager for user profiles """
@@ -64,12 +68,12 @@ class User(AbstractBaseUser, PermissionsMixin):
     # New field for tracking the last active time
     last_active = models.DateTimeField(default=timezone.now)
 
-
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
 
     def is_valid_otp(self):
+        ic(self)
         lifespan_in_seconds = 90 if self.otp_enabled else 300
         now = datetime.now(tz.utc)
         time_diff = now - self.otp_created_at

@@ -87,6 +87,10 @@ export default function profilePage() {
               <input type="password" class="form-control" id="otpDisablePassword" placeholder="${langdict[lang]['passwordPlaceholder']}">
             </div>
             <div class="form-group text-center">
+              <label for="otp">OTP</label>
+              <input type="text" class="form-control" id="otp" placeholder="000000">
+            </div>
+            <div class="form-group text-center">
               <button type="submit" class="btn btn-primary">Disable</button>
             </div>
           </form>
@@ -99,7 +103,15 @@ export default function profilePage() {
               <strong class="me-auto">Error</strong>
               <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
             </div>
-            <div id="errorMessage" class="toast-body">
+            <div id="errorMessage" class="toast-body bg-danger-subtle">
+            </div>
+          </div>
+          <div id="messageToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header text-bg-success">
+              <strong class="me-auto">Error</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div id="message" class="toast-body bg-success-subtle">
             </div>
           </div>
         </div>

@@ -14,6 +14,7 @@ from user.serializers import (
     UserSerializer,
     OTPEnableRequestSerializer,
     OTPEnableConfirmSerializer,
+    OTPDisableSerializer,
     LoginSerializer,
     VerifyOTPSerializer,
     AddFriendSerializer,
@@ -68,6 +69,27 @@ class OTPEnableConfirmView(generics.GenericAPIView):
                 "user": user.id,
                 "backup_codes": data["backup_codes"],
                 "message": "2FA enabled",
+            },
+            status=200
+        )
+
+
+class OTPDisableView(generics.GenericAPIView):
+    """
+    Disable 2FA
+    """
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = OTPDisableSerializer
+
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(
+            {
+                "success": True,
+                "user": user.id,
+                "message": "2FA disabled",
             },
             status=200
         )

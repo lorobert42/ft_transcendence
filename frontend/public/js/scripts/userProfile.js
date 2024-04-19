@@ -63,6 +63,34 @@ export const userProfileModule = (() => {
       });
   };
 
+  const otpDisableRequest = (password, otp) => {
+    fetch("/api/user/otp/disable/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify({ 'email': user.email, 'password': password, 'otp': otp }),
+    })
+      .then((response) => {
+        if (response.status === 401) {
+          throw new Error('Invalid credentials');
+        }
+        return response.json()
+      })
+      .then((data) => {
+        console.log(data);
+        if (Object.hasOwn(data, "success") && data.success === true) {
+          printMessage('Two-Factor Authentication disabled');
+        } else {
+          throw new Error('Unable to process your request, please retry.');
+        }
+      })
+      .catch((error) => {
+        printError(error);
+      });
+  };
+
   const showOtpOption = (otpEnabled) => {
     if (otpEnabled === false) {
       const otpEnable = document.getElementById("otpEnable");
@@ -85,7 +113,8 @@ export const userProfileModule = (() => {
         otpDisableForm.addEventListener("submit", function (event) {
           event.preventDefault();
           const password = document.getElementById("otpDisablePassword").value;
-          otpEnableRequest(password);
+          const otp = document.getElementById("otp").value;
+          otpDisableRequest(password, otp);
         });
       } else {
         console.error("Login form not found at init time.");
@@ -98,6 +127,14 @@ export const userProfileModule = (() => {
     errorMessageDiv.textContent = message;
     const errorToast = document.getElementById("errorToast");
     const toastBootstrap = bootstrap.Toast.getOrCreateInstance(errorToast);
+    toastBootstrap.show();
+  };
+
+  const printMessage = (message) => {
+    const messageDiv = document.getElementById("message");
+    messageDiv.textContent = message;
+    const messageToast = document.getElementById("messageToast");
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(messageToast);
     toastBootstrap.show();
   };
 

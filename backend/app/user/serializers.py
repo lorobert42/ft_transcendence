@@ -8,7 +8,6 @@ from django.contrib.auth import (
     get_user_model,
     authenticate,
 )
-from django.contrib.auth.hashers import make_password, check_password
 from django.utils.translation import gettext as _
 from django.core.files.base import ContentFile
 from django.utils.crypto import get_random_string
@@ -19,6 +18,8 @@ import pyotp
 import qrcode
 
 from core.models import User, FriendInvitation
+
+from icecream import ic
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -134,6 +135,50 @@ class OTPEnableConfirmSerializer(serializers.Serializer):
         user.save()
         validated_data["user_object"] = user
         return validated_data
+
+
+class OTPDisableSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField()
+    otp = serializers.CharField()
+
+    def validate(self, attrs: dict):
+        email = attrs.get("email").lower().strip()
+        user = authenticate(
+            request=self.context.get("request"),
+            email=email,
+            password=attrs.get("password"),
+        )
+        if not user or not user.otp_enabled:
+            ic('password error')
+            raise exceptions.AuthenticationFailed("Error.")
+        totp = pyotp.TOTP(user.otp_base32)
+        user.otp_created_at = datetime.now(timezone.utc)
+        user.login_otp_used = False
+        user.save()
+        if (
+            totp.verify(attrs.get("otp"), valid_window=1)
+            and user.is_valid_otp()
+        ):
+            attrs["user_object"] = user
+            return super().validate(attrs)
+        else:
+            hotp = pyotp.HOTP(user.otp_base32)
+            for i in range(10):
+                if hotp.verify(attrs.get("otp"), i):
+                    attrs["user_object"] = user
+                    return super().validate(attrs)
+        ic('token error')
+        raise exceptions.AuthenticationFailed("Error.")
+
+    def create(self, validated_data: dict):
+        user: User = validated_data.get("user_object")
+        user.otp_enabled = False
+        user.otp_auth_url = None
+        user.otp_base32 = None
+        user.login_otp_used = True
+        user.save()
+        return user
 
 
 class LoginSerializer(serializers.Serializer):
