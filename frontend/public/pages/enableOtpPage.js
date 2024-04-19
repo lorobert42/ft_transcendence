@@ -28,9 +28,9 @@ return `
   <div class="container">
     <div class="row">
       <div class="col-md-4 offset-md-4">
-        <img id="qrCode" src="" class="img-fluid" alt="QR code">
-        <p>${langdict[lang]['instructions']}</p>
         <form id="otpForm">
+          <img id="qrCode" src="" class="img-fluid" alt="QR code">
+          <p>${langdict[lang]['instructions']}</p>
           <div class="form-group text-center">
             <h1>${langdict[lang]['otp']}</h1>
           </div>
@@ -39,11 +39,18 @@ return `
             <input type="text" class="form-control" id="otp" placeholder="000000">
           </div>
           <div id="loginError" class="form-group text-center" style="display: none; color: red;"></div>
-          <div id="loginSuccess" class="form-group text-center" style="display: none; color: black;"></div>
           <div class="form-group text-center">
             <button type="submit" class="btn btn-primary">${langdict[lang]['submit']}</button>
           </div>
         </form>
+        <div id="backup" class="text-center" style="display: none">
+          <h1>Activation Succesful</h1>
+          <p class="text-start">Two-Factor Authentiication is now enabled for your account.
+            To avoid your account being locked in case of loss of your phone, please save these backup codes.
+          </p>
+          <ul id="backupList" class="list-group">
+          </ul>
+        </div>
       </div>
     </div>
   </div>

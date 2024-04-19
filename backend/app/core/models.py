@@ -58,7 +58,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     login_otp_used = models.BooleanField(default=True)
     otp_created_at = models.DateTimeField(blank=True, null=True)
 
-     # Self-referencing ManyToManyField to represent friends
+    # Self-referencing ManyToManyField to represent friends
     friends = models.ManyToManyField('self', symmetrical=True, blank=True)
 
     # New field for tracking the last active time

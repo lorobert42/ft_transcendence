@@ -16,9 +16,17 @@ export const enableOtpFormModule = (() => {
       })
       .then((data) => {
         if (Object.hasOwn(data, "success") && data.success === true) {
-          const successDiv = document.getElementById("loginSuccess");
-          successDiv.textContent = "2FA enabled.";
-          successDiv.style.display = "block";
+          const form = document.getElementById("otpForm");
+          form.style.display = "none";
+          const backupList = document.getElementById("backupList");
+          data.backup_codes.map((code) => {
+            const backupCode = document.createElement("li");
+            backupCode.innerText = code;
+            backupCode.className = "list-group-item";
+            backupList.appendChild(backupCode);
+          });
+          const backupDiv = document.getElementById("backup");
+          backupDiv.style.display = "block";
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -43,10 +51,6 @@ export const enableOtpFormModule = (() => {
     if (otpForm) {
       otpForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        const errorMessageDiv = document.getElementById("loginError");
-        const successDiv = document.getElementById("loginSuccess");
-        successDiv.style.display = "none"; // Make the error message visible
-        errorMessageDiv.style.display = "none"; // Make the error message visible
         const otp = document.getElementById("otp").value;
         otpCheck(id, otp);
       });
