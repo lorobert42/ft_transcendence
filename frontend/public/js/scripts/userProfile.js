@@ -1,4 +1,5 @@
 import pageRouting from '../../changeContent.js'
+import { printMessage, printError } from '../utils/toastMessage.js';
 
 export const userProfileModule = (() => {
   const fetchUserProfile = async () => {
@@ -123,22 +124,6 @@ export const userProfileModule = (() => {
         console.error("Login form not found at init time.");
       }
     }
-  };
-
-  const printError = (message) => {
-    const errorMessageDiv = document.getElementById("errorMessage");
-    errorMessageDiv.textContent = message;
-    const errorToast = document.getElementById("errorToast");
-    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(errorToast);
-    toastBootstrap.show();
-  };
-
-  const printMessage = (message) => {
-    const messageDiv = document.getElementById("message");
-    messageDiv.textContent = message;
-    const messageToast = document.getElementById("messageToast");
-    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(messageToast);
-    toastBootstrap.show();
   };
 
   const init = async () => {
