@@ -23,6 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 CSRF_TRUSTED_ORIGINS = [
     'https://localhost:8080'
 ]
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
@@ -30,20 +32,20 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 # Application definition
 
 INSTALLED_APPS = [
-	'daphne',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-	'core',
-	'rest_framework',
-	'drf_spectacular',
-	'chat.apps.ChatConfig',
-	'channels',
-	'user',
-	'corsheaders',
+    'core',
+    'rest_framework',
+    'drf_spectacular',
+    'chat.apps.ChatConfig',
+    'channels',
+    'user',
+    'corsheaders',
     'game',
 ]
 
@@ -56,7 +58,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-	'user.middleware.UpdateLastActivityMiddleware',
+    'user.middleware.UpdateLastActivityMiddleware',
 ]
 
 ROOT_URLCONF = 'app.urls'
@@ -78,7 +80,7 @@ TEMPLATES = [
 ]
 
 # WSGI_APPLICATION = 'app.wsgi.application'
-ASGI_APPLICATION = 'app.routing.application'
+ASGI_APPLICATION = 'app.asgi.application'
 
 
 # Database
@@ -135,8 +137,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = "core.User"
 
 REST_FRAMEWORK = {
-	'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-	'DEFAULT_AUTHENTICATION_CLASSES': [
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
         # ...
     ],
@@ -153,7 +155,7 @@ CHANNEL_LAYERS = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:8080",
-	"https://localhost:8080",
+    "https://localhost:8080",
     "http://localhost:8081",
     "http://localhost",
     "http://localhost:8081",
