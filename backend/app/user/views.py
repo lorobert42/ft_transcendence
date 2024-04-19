@@ -2,6 +2,7 @@
 Views for user api
 """
 from django.db.models import Q
+from django.forms import ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics, permissions
 from rest_framework.response import Response
@@ -225,13 +226,47 @@ class FriendInvitationListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         """
-        This method allows setting additional attributes on the instance,
-        or perform model validation that requires access to the serializer and view.
+        Prevent creating an invitation if one already exists between the same two users,
+        regardless of the order of user1 and user2.
         """
-        # Additional logic (if any) before saving the instance
+        user1 = serializer.validated_data['user1']
+        user2 = serializer.validated_data['user2']
+
+        # Check if there is already an invitation between these two users in any order
+        if FriendInvitation.objects.filter(
+            (Q(user1=user1) & Q(user2=user2)) | (Q(user1=user2) & Q(user2=user1))
+        ).exists():
+            raise ValidationError('An invitation between these users already exists.')
+
         serializer.save()
 
 class FriendInvitationUpdateView(generics.UpdateAPIView):
     queryset = FriendInvitation.objects.all()
     serializer_class = FriendInvitationSerializer
     http_method_names = ['patch']  # Allow only PATCH method
+
+    def perform_update(self, serializer):
+        # Retrieve the existing status before updating
+        invitation = self.get_object()
+        old_status = invitation.status
+
+        # Update the invitation with new data
+        serializer.save()
+
+        # If status updated to 'accepted', add both users as friends
+        if old_status != 'accepted' and serializer.validated_data.get('status') == 'accepted':
+            user1 = invitation.user1
+            user2 = invitation.user2
+
+            # Check if they are already friends to avoid duplication
+            if user2 not in user1.friends.all():
+                user1.friends.add(user2)
+                user1.save()
+
+            if user1 not in user2.friends.all():
+                user2.friends.add(user1)
+                user2.save()
+
+            # Optional: return a custom response or modify the instance
+            # serializer.instance.additional_field = value
+            # serializer.save()
