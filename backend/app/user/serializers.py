@@ -20,6 +20,7 @@ import qrcode
 
 from core.models import User, FriendInvitation
 
+
 class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
@@ -54,7 +55,6 @@ class UserSerializer(serializers.ModelSerializer):
         # Update fields if they are included in the request
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-
 
         if password:
             instance.set_password(password)
@@ -122,6 +122,8 @@ class OTPEnableConfirmSerializer(serializers.Serializer):
             user.qr_code = None
             raise exceptions.AuthenticationFailed("Error.")
         attrs["user_object"] = user
+        hotp = pyotp.HOTP(user.otp_base32)
+        attrs["backup_codes"] = [hotp.at(0), hotp.at(1), hotp.at(2)]
         return super().validate(attrs)
 
     def create(self, validated_data: dict):
@@ -130,7 +132,8 @@ class OTPEnableConfirmSerializer(serializers.Serializer):
         user.qr_code = None
         user.otp_enabled = True
         user.save()
-        return user
+        validated_data["user_object"] = user
+        return validated_data
 
 
 class LoginSerializer(serializers.Serializer):

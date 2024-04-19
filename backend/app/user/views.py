@@ -5,9 +5,9 @@ from django.db.models import Q
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics, permissions
 from rest_framework.response import Response
-from core.models import FriendInvitation, Room, Message, User
+from core.models import FriendInvitation, User
 from rest_framework import status
-from drf_spectacular.utils import extend_schema,  extend_schema, OpenApiParameter, OpenApiExample
+from drf_spectacular.utils import extend_schema
 
 from user.serializers import (
     FriendInvitationSerializer,
@@ -60,11 +60,13 @@ class OTPEnableConfirmView(generics.GenericAPIView):
     def post(self, request, format=None):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        user = serializer.save()
+        data = serializer.save()
+        user = data["user_object"]
         return Response(
             {
                 "success": True,
                 "user": user.id,
+                "backup_codes": data["backup_codes"],
                 "message": "2FA enabled",
             },
             status=200
