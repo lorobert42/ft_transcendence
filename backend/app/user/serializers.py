@@ -123,7 +123,7 @@ class OTPEnableConfirmSerializer(serializers.Serializer):
             raise exceptions.AuthenticationFailed("Error.")
         attrs["user_object"] = user
         hotp = pyotp.HOTP(user.otp_base32)
-        attrs["backup_codes"] = [hotp.at(0), hotp.at(1), hotp.at(2)]
+        attrs["backup_codes"] = [hotp.at(i) for i in range(10)]
         return super().validate(attrs)
 
     def create(self, validated_data: dict):
