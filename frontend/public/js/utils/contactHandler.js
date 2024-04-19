@@ -22,6 +22,10 @@ export async function contactHandler() {
     });
 
 
+    function getUserEmailFromId(id) {
+      return users.find((user) => user.id == id).email;
+    }
+
     async function updateFriends() {
        friends = await fetch("/api/user/me/", {
             method: "GET",
@@ -75,6 +79,9 @@ export async function contactHandler() {
           }).catch((error) => {
             console.error("Error:", error);
         });
+
+
+        console.log(pending);
     }
 
     await updatePending();
@@ -112,7 +119,7 @@ export async function contactHandler() {
         filterPending();
     }
 
-    async function denyFriend(id) {
+    async function denyFriend(id, otherID) {
       let response = await fetch(`/api/user/friend-invitations/${id}/`, {
           method: "PATCH",
           headers: {
@@ -120,9 +127,9 @@ export async function contactHandler() {
             "Content-Type": "application/json",
           },
           body: `{
-            "status": "denied",
+            "status": "declined",
             "user1": ${userId},
-            "user2": ${id}
+            "user2": ${otherID}
           }`,
         }).then((response) => {
           if (response.status === 401) {
@@ -143,7 +150,7 @@ export async function contactHandler() {
       filterPending();
   }
 
-  async function acceptFriend(id) {
+  async function acceptFriend(id, otherID) {
     let response = await fetch(`/api/user/friend-invitations/${id}/`, {
         method: "PATCH",
         headers: {
@@ -152,8 +159,8 @@ export async function contactHandler() {
         },
         body: `{
           "status": "accepted",
-          "user1": ${userId},
-          "user2": ${id}
+          "user1": ${otherID},
+          "user2": ${userId}
         }`,
       }).then((response) => {
         if (response.status === 401) {
@@ -165,6 +172,27 @@ export async function contactHandler() {
       }).catch((error) => {
         console.error("Error:", error);
     });
+
+    let response2 = await fetch(`/api/user/friend/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
+          "Content-Type": "application/json",
+        },
+        body: `{
+          "friend_id": ${otherID}
+        }`,
+      }).then((response) => {
+        if (response.status === 401) {
+          console.error("Unauthorized");
+        }
+        return response.json();
+      }).then((data) => {
+        return data;
+      }).catch((error) => {
+        console.error("Error:", error);
+    });
+    
 
     await updateFriends();
     await updateUsers();
@@ -278,34 +306,49 @@ async function deleteFriend(id) {
         firstTen.forEach((user) => {
             const li = document.createElement("li");
             li.className = "list-group-item d-flex justify-content-between align-items-center";
-            li.innerText = user.email;
+            if(user.user2 == userId)
+            {
+              li.innerText = getUserEmailFromId(user.user1);
+              
+              const buttonContainer = document.createElement("div");
+              buttonContainer.classList.add("d-flex");
 
-            const buttonContainer = document.createElement("div");
-            buttonContainer.classList.add("d-flex");
+              // Create a button element for adding friend
+              const addButton = document.createElement('button');
+              addButton.className = 'btn btn-primary btn-sm';
+              addButton.textContent = 'Accept';
+              addButton.addEventListener('click', () => {
+                  acceptFriend(user.id, user.user1);
+                  console.log(`Accepted ${user.user1} as friend`);
+              });
 
-            // Create a button element for adding friend
-            const addButton = document.createElement('button');
-            addButton.className = 'btn btn-primary btn-sm';
-            addButton.textContent = 'Accept';
-            addButton.addEventListener('click', () => {
-                acceptFriend(user.id);
-                console.log(`Accepted ${user.email} as friend`);
-            });
+              // Create a button element for adding friend
+              const denyButton = document.createElement('button');
+              denyButton.className = 'btn btn-danger btn-sm';
+              denyButton.textContent = 'Deny';
+              denyButton.addEventListener('click', () => {
+                  denyFriend(user.id, user.user1);
+                  console.log(`Denied ${user.user1} as friend`);
+              });
 
-            // Create a button element for adding friend
-            const denyButton = document.createElement('button');
-            denyButton.className = 'btn btn-danger btn-sm';
-            denyButton.textContent = 'Deny';
-            denyButton.addEventListener('click', () => {
-                denyFriend(user.id);
-                console.log(`Denied ${user.email} as friend`);
-            });
+              buttonContainer.appendChild(denyButton);
+              buttonContainer.appendChild(addButton);
+              li.appendChild(buttonContainer);
 
-            buttonContainer.appendChild(denyButton);
-            buttonContainer.appendChild(addButton);
-            li.appendChild(buttonContainer);
+              pendingList.appendChild(li);
+            }
+            else
+            {
+              li.innerText = getUserEmailFromId(user.user2);
+              const txtContainer = document.createElement("div");
+              txtContainer.classList.add("d-flex");
+              txtContainer.innerText = "Pending";
 
-            pendingList.appendChild(li);
+              li.appendChild(txtContainer);
+              pendingList.appendChild(li);
+
+            }
+
         });
     }
 
@@ -313,6 +356,10 @@ async function deleteFriend(id) {
         const search = document.getElementById("user-search").value.toLowerCase();
         let filteredUsers = users.filter((user) => user.email.toLowerCase().includes(search));
         filteredUsers = filteredUsers.filter((user) => !friends.includes(user.id));
+        let PendingUsers = generatePendingUserList();
+        console.log(PendingUsers);
+        filteredUsers = filteredUsers.filter((user) => !PendingUsers.includes(user.email));
+    
         firstTenUsers(filteredUsers);
     }
 
@@ -325,26 +372,31 @@ async function deleteFriend(id) {
         firstTenFriends(filteredFriends);
     }
 
-
+    
     const search = document.getElementById("pending-search").value.toLowerCase();
   
+    function generatePendingUserList() {
+      let pendingList = pending.filter((invite) => invite["status"] == "pending");
+      console.log("Pending List: ", pendingList);
+      pendingList = pendingList.map((invite) => getUserEmailFromId(invite[`${invite.user1!= userId ? "user1" : "user2"}`]));
+      return pendingList;
+    }
+
     function filterPending() {
-    // Extract user IDs from pending invites
-    const inviteUserIds = new Set();
-    pending.forEach(invite => {
-      if (invite.status === "pending") { // Making sure the invite is pending
-        inviteUserIds.add(invite.user1);
-        inviteUserIds.add(invite.user2);
-      }
-    });
-  
-    // Filter users based on the search term in their email and if their ID is in 'inviteUserIds'
-    let filteredPending = users.filter(user => user.email.toLowerCase().includes(search) && inviteUserIds.has(user.id));
-  
-      console.log(filteredPending);
-    
-    // Assuming 'firstTenPending' is a function that you've defined to handle the filtered list
-      firstTenPending(filteredPending);
+      const search = document.getElementById("pending-search").value.toLowerCase();
+      let newPending = pending.filter((invite) => invite["status"] == "pending");
+      newPending = newPending.filter((invite) => invite["user1"] == userId || invite["user2"] == userId);
+      newPending = newPending.filter((invite) => {
+        if(invite.user1 == userId)
+        {
+          return getUserEmailFromId(invite.user2).includes(search);
+        }
+        else
+        {
+          return getUserEmailFromId(invite.user1).includes(search);
+        }
+      });
+      firstTenPending(newPending);
     }
 
     document.querySelector("#user-search").addEventListener("input", (e) => {
@@ -353,6 +405,10 @@ async function deleteFriend(id) {
 
     document.querySelector("#friend-search").addEventListener("input", (e) => {
         filterFriends();
+    });
+
+    document.querySelector("#pending-search").addEventListener("input", (e) => {
+        filterPending();
     });
 
     filterUsers();
