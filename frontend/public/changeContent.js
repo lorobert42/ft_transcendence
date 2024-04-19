@@ -15,13 +15,10 @@ import rootPage from "./pages/rootPage.js";
 export default async function pageRouting() {
   const path = window.location.pathname;
 
-  const homeLink = document.getElementById("home-link");
   const loginLink = document.getElementById("login-link");
   const registerLink = document.getElementById("register-link");
   const profileLink = document.getElementById("profile-link");
-  const localLink = document.getElementById("local-link");
   const friendLink = document.getElementById("friend-link");
-  const updateLink = document.getElementById("update-link");
   const tournamentLink = document.getElementById("tournament-link");
   const gamesearchLink = document.getElementById("gamesearch-link");
   const logoutButton = document.getElementById("logout-button");
@@ -31,17 +28,13 @@ export default async function pageRouting() {
       loginLink.style.display = "none";
       registerLink.style.display = "none";
       profileLink.style.display = "block";
-      localLink.style.display = "block";
       friendLink.style.display = "block";
-      updateLink.style.display = "block";
       tournamentLink.style.display = "block";
       gamesearchLink.style.display = "block";
       logoutButton.style.display = "block";
   } else {
       profileLink.style.display = "none";
-      localLink.style.display = "none";
       friendLink.style.display = "none";
-      updateLink.style.display = "none";
       tournamentLink.style.display = "none";
       gamesearchLink.style.display = "none";
       loginLink.style.display = "block";
@@ -267,19 +260,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     pageRouting();
   });
 
-  document.querySelector("#local-link").addEventListener("click", (e) => {
-    e.preventDefault();
-    history.pushState(null, '', e.target.href);
-    pageRouting();
-  });
 
   document.querySelector("#friend-link").addEventListener("click", (e) => {
-    e.preventDefault();
-    history.pushState(null, '', e.target.href);
-    pageRouting();
-  });
-
-  document.querySelector("#update-link").addEventListener("click", (e) => {
     e.preventDefault();
     history.pushState(null, '', e.target.href);
     pageRouting();

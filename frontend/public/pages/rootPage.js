@@ -11,9 +11,7 @@ export default async function rootPage() {
           <li><a href="login" id="login-link">Login</a></li>'
           <li><a href="register" id="register-link">Register</a></li>'
           <li><a href="profile" id="profile-link">Profile</a></li>'
-          <li><a href="localroom" id="local-link">Local</a></li>'
           <li><a href="friend" id="friend-link">Friends</a></li>'
-          <li><a href="update" id="update-link">Update</a></li>'
           <li><a href="tournament" id="tournament-link">Tournament</a></li>'
           <li><a href="gamesearch" id="gamesearch-link">Games</a></li>'
         </li>

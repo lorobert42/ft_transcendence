@@ -55,7 +55,7 @@ export default function profilePage() {
                     <p>${langdict[lang]['mailSpace']}<span id="userEmail">${langdict[lang]['mailLoad']}</span></p>
                 </div>
                 <div>
-                    <button type="button" class="btn btn-primary" id="update-profile">Update Profile</button>
+                    <button type="button" href="/profile" class="btn btn-primary" id="update-profile">Update Profile</button>
                 </div>
             </div>
         </div>
