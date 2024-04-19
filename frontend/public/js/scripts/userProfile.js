@@ -1,14 +1,14 @@
 import pageRouting from '../../changeContent.js'
 
 export const userProfileModule = (() => {
-  const fetchUserProfile = () => {
+  const fetchUserProfile = async () => {
     let authToken = localStorage.getItem("authToken");
     if (!authToken) {
       console.error("No auth token found. Redirecting to login.");
       // Redirect to login or show an error message
       return;
     }
-    fetch("/api/user/me", {
+    await fetch("/api/user/me", {
       method: "GET",
       headers: {
         Authorization: `Bearer ${authToken}`,
@@ -25,28 +25,23 @@ export const userProfileModule = (() => {
         console.log(data);
         document.getElementById("userName").textContent = data.name;
         document.getElementById("userEmail").textContent = data.email;
-        email = data.email;
-        //   document.getElementById("userLocation").textContent = data.location;
+        user = data;
         if (data.avatar != null)
           document.getElementById("avatar").src = data.avatar;
       })
       .catch((error) => {
-        console.error(
-          "There has been a problem with your fetch operation:",
-          error,
-        );
+        printError(error);
       });
   }
 
   const otpEnableRequest = (password) => {
-    console.log('OTP activation requested ' + email);
     fetch("/api/user/otp/activation/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
       },
-      body: JSON.stringify({ 'email': email, 'password': password }),
+      body: JSON.stringify({ 'email': user.email, 'password': password }),
     })
       .then((response) => {
         if (response.status === 401) {
@@ -64,30 +59,54 @@ export const userProfileModule = (() => {
         }
       })
       .catch((error) => {
-        var errorString = error;
-        const errorMessageDiv = document.getElementById("loginError");
-        errorMessageDiv.textContent = errorString;
-        errorMessageDiv.style.display = "block"; // Make the error message visible
+        printError(error);
       });
   };
 
-  const init = () => {
-    fetchUserProfile();
-    const otpForm = document.getElementById("otpForm");
-    if (otpForm) {
-      otpForm.addEventListener("submit", function (event) {
-        event.preventDefault();
-        const errorMessageDiv = document.getElementById("loginError");
-        errorMessageDiv.style.display = "none"; // Make the error message visible
-        const password = document.getElementById("password").value;
-        otpEnableRequest(password);
-      });
+  const showOtpOption = (otpEnabled) => {
+    if (otpEnabled === false) {
+      const otpEnable = document.getElementById("otpEnable");
+      otpEnable.classList.remove("d-none");
+      const otpForm = document.getElementById("otpForm");
+      if (otpForm) {
+        otpForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+          const password = document.getElementById("otpEnablePassword").value;
+          otpEnableRequest(password);
+        });
+      } else {
+        console.error("Login form not found at init time.");
+      }
     } else {
-      console.error("Login form not found at init time.");
+      const otpDisable = document.getElementById("otpDisable");
+      otpDisable.classList.remove("d-none");
+      const otpDisableForm = document.getElementById("otpDisableForm");
+      if (otpDisableForm) {
+        otpDisableForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+          const password = document.getElementById("otpDisablePassword").value;
+          otpEnableRequest(password);
+        });
+      } else {
+        console.error("Login form not found at init time.");
+      }
     }
   };
 
-  let email;
+  const printError = (message) => {
+    const errorMessageDiv = document.getElementById("errorMessage");
+    errorMessageDiv.textContent = message;
+    const errorToast = document.getElementById("errorToast");
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(errorToast);
+    toastBootstrap.show();
+  };
+
+  const init = async () => {
+    await fetchUserProfile();
+    showOtpOption(user.otp_enabled);
+  };
+
+  let user;
 
   return { init };
 })();
