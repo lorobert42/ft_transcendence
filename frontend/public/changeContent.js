@@ -11,9 +11,13 @@ import updatePage from "./pages/updatePage.js";
 import tournament from "./pages/tournament.js";
 import gameSearch from "./pages/gameSearch.js";
 import rootPage from "./pages/rootPage.js";
+import { rootPageTraduction } from "./pages/rootPage.js";
 
-export default async function pageRouting() {
+
+export default function pageRouting() {
   const path = window.location.pathname;
+  rootPageTraduction();
+
 
   const loginLink = document.getElementById("login-link");
   const registerLink = document.getElementById("register-link");
@@ -50,13 +54,13 @@ export default async function pageRouting() {
   console.log("Path: " + path);
 
   function redirectPath(path) {
-    history.pushState(null, '', path);
-    pageRouting();
+    // history.pushState(null, '', path);
+    // pageRouting();
   }
 
 
 
-  //if path is /home, send load content with function
+  // if path is /home, send load content with function
   let contentDiv = document.getElementById("content");
   switch (path) {
     case "/":
@@ -215,26 +219,20 @@ export default async function pageRouting() {
   }
 }
 
-let mainContent = document.getElementById("root");
-
-mainContent.innerHTML = await rootPage();
-
-window.addEventListener('popstate', (event)  => {
-  event.preventDefault();
-  pageRouting;
-});
-window.addEventListener('pushstate', (event)  =>{
-  event.preventDefault();
-  pageRouting();
-});
+window.addEventListener('popstate', pageRouting);
+window.addEventListener('pushstate', pageRouting);
 // Adding event listeners when the DOM content has fully loaded
 document.addEventListener("DOMContentLoaded", (event) => {
   event.preventDefault();
-  pageRouting();
+  let mainContent = document.getElementById("root");
+
+  mainContent.innerHTML = rootPage();
+  rootPageTraduction();
 
   document.querySelector("#home-link").addEventListener("click", (e) => {
     e.preventDefault();
     history.pushState(null, '', window.location.origin + e.target.pathname);
+    
     pageRouting();
   });
 
@@ -273,6 +271,16 @@ document.addEventListener("DOMContentLoaded", (event) => {
     pageRouting();
   });
 
+
+  function dropDownLanguage() {
+    const lang = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
+      if (lang) {
+        document.querySelector(".dropdown-toggle").innerText = lang.split("=")[1];
+      } else {
+        document.querySelector(".dropdown-toggle").innerText = "EN";
+      }
+  }
+
   // change dropdown text value depending on selected option
   document.querySelectorAll(".dropdown a").forEach((item) => {
     item.addEventListener("click", (e) => {
@@ -280,6 +288,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       document.querySelector(".dropdown-toggle").innerText = item.innerText;
       //add a cookie to store the selected value with the value samesite=strict
       document.cookie = `lang=${item.innerText}; samesite=strict`;
+      dropDownLanguage();
       history.pushState(null, '', window.location.href);
       pageRouting();
     });
@@ -292,12 +301,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     pageRouting();
   });
 
-
-  // load the content of the dropdown based on the cookie named lang value
-  const lang = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
-  if (lang) {
-    document.querySelector(".dropdown-toggle").innerText = lang.split("=")[1];
-  } else {
-    document.querySelector(".dropdown-toggle").innerText = "EN";
-  }
+  dropDownLanguage();
+  pageRouting();
 });
