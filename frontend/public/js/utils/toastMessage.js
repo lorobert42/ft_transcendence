@@ -13,3 +13,11 @@ export function printError(message) {
     const toastBootstrap = bootstrap.Toast.getOrCreateInstance(errorToast);
     toastBootstrap.show();
 }
+
+export function printSuccess(message) {
+    const successMessageDiv = document.getElementById("successMessage");
+    successMessageDiv.textContent = message;
+    const successToast = document.getElementById("successToast");
+    const toastBootstrap = bootstrap.Toast.getOrCreateInstance(successToast);
+    toastBootstrap.show();
+}
