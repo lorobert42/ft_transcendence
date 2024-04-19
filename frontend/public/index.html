@@ -1,55 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="./bootstrap-5.3.2-dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <title>Transcendance</title>
-  </head>
 
-  <body class="d-flex flex-column min-vh-100">
-    <div id="app" class="d-flex flex-column min-vh-100 min-vw-100 card">
-      <nav class="bg-dark navbar">
-        <div>
-          <ul>
-            <li>
-              <a class="navbar-brand rounded img-light" href="#">
-                <img width="50" src="./assets/main_logo.png" alt="">
-              </a>
-            </li>
-            <li><a href="home" id="home-link">Home</a></li>
-            <li><a href="login" id="login-link">Login</a></li>
-            <li><a href="register" id="register-link">Register</a></li>
-            <li><a href="profile" id="profile-link">Profile</a></li>
-            <li><a href="localroom" id="local-link">Local</a></li>
-          </ul>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="./bootstrap-5.3.2-dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Transcendance</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+  <div id="app" class="d-flex flex-column min-vh-100 min-vw-100 card">
+    <nav class="bg-dark navbar">
+      <div>
+        <ul>
+          <li>
+            <a class="navbar-brand rounded img-light" href="#">
+              <img width="50" src="./assets/main_logo.png" alt="">
+            </a>
+          </li>
+          <li><a href="home" id="home-link">Home</a></li>
+          <li><a href="login" id="login-link">Login</a></li>
+          <li><a href="register" id="register-link">Register</a></li>
+          <li><a href="profile" id="profile-link">Profile</a></li>
+          <li><a href="localroom" id="local-link">Local</a></li>
+        </ul>
+      </div>
+      <div class="dropdown px-1" id="dropID">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          Language
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="#">FR</a></li>
+          <li><a class="dropdown-item" href="#">EN</a></li>
+          <li><a class="dropdown-item" href="#">PT</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <main>
+      <div id="content">
+      </div>
+    </main>
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+      <div class="toast-container bottom-0 end-0 p-3">
+        <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header text-bg-danger">
+            <strong class="me-auto">Error</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div id="errorMessage" class="toast-body bg-danger-subtle">
+          </div>
         </div>
-        <div class="dropdown px-1" id="dropID">
-          <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-              Language
-          </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">FR</a></li>
-            <li><a class="dropdown-item" href="#">EN</a></li>
-            <li><a class="dropdown-item" href="#">PT</a></li>
-          </ul>
+        <div id="messageToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+          <div class="toast-header text-bg-success">
+            <strong class="me-auto">Error</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+          </div>
+          <div id="message" class="toast-body bg-success-subtle">
+          </div>
         </div>
-      </nav>
-      
-      <main>
-        <div id="content" >
-        </div>
-      </main>
+      </div>
     </div>
-    <script type="module" src="changeContent.js"></script>
-    <script src="./bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+  </div>
+  <script type="module" src="changeContent.js"></script>
+  <script src="./bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
 </html>

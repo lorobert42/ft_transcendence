@@ -96,25 +96,5 @@ export default function profilePage() {
           </form>
         </div>
       </div>
-      <div aria-live="polite" aria-atomic="true" class="position-relative">
-        <div class="toast-container bottom-0 end-0 p-3">
-          <div id="errorToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header text-bg-danger">
-              <strong class="me-auto">Error</strong>
-              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div id="errorMessage" class="toast-body bg-danger-subtle">
-            </div>
-          </div>
-          <div id="messageToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-header text-bg-success">
-              <strong class="me-auto">Error</strong>
-              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-            </div>
-            <div id="message" class="toast-body bg-success-subtle">
-            </div>
-          </div>
-        </div>
-      </div>
     </div>`;
 }

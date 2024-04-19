@@ -82,6 +82,7 @@ export const userProfileModule = (() => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           printMessage('Two-Factor Authentication disabled');
+          showOtpOption(false);
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -92,8 +93,11 @@ export const userProfileModule = (() => {
   };
 
   const showOtpOption = (otpEnabled) => {
+    const otpEnable = document.getElementById("otpEnable");
+    otpEnable.classList.add("d-none");
+    const otpDisable = document.getElementById("otpDisable");
+    otpDisable.classList.add("d-none");
     if (otpEnabled === false) {
-      const otpEnable = document.getElementById("otpEnable");
       otpEnable.classList.remove("d-none");
       const otpForm = document.getElementById("otpForm");
       if (otpForm) {
@@ -106,7 +110,6 @@ export const userProfileModule = (() => {
         console.error("Login form not found at init time.");
       }
     } else {
-      const otpDisable = document.getElementById("otpDisable");
       otpDisable.classList.remove("d-none");
       const otpDisableForm = document.getElementById("otpDisableForm");
       if (otpDisableForm) {
