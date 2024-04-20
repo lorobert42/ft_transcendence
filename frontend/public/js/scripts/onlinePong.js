@@ -39,7 +39,7 @@ export function initPongGame() {
 
                 document.getElementById('button-start').addEventListener('click', () => {
                     gameSocket.send(JSON.stringify({
-                        'message': 'start',
+                        'start': 'start',
                     }));
                 });
 

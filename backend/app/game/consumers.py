@@ -46,15 +46,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-        """ Send a message to the frontend to see if socket connected. (can be deleted)"""
-        await self.channel_layer.group_send(
-            self.game_room_group,
-            {
-                'type':'send_test',
-                'tester':'Hello from Backend',
-            }
-        )
-
     async def disconnect(self, close_code):
         """ Comportement of the websocket when disconnect. """
         if self.scope['user'].email == GameRoomConsumer.game_tab[self.room_id].p1['name']:
@@ -67,14 +58,16 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         """ Comportement of the class when a certain message is send from the frontend. """
         td_json = json.loads(text_data)
-        if 'message' in td_json:
-            await self.handle_message(td_json['message'])
         if 'join' in td_json:
             await self.add_user(td_json['join'])
+        if 'local' in td_json:
+            await self.handle_move_local(td_json['local'])
         if 'move' in td_json:
-            await self.handle_move(td_json['move'])
+            await self.handle_move_online(td_json['move'])
+        if 'start' in td_json:
+            await self.handle_start(td_json['start'])
 
-    async def handle_move(self, move):
+    async def handle_move_online(self, move):
         print(self.scope['user'].email, "Direction", move)
         if self.scope['user'].email == GameRoomConsumer.game_tab[self.room_id].p1['name']:
             if move == 'UP':
@@ -107,7 +100,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             GameRoomConsumer.game_tab[self.room_id].p2['name'] = "local"
             GameRoomConsumer.game_tab[self.room_id].p2['state'] = True
 
-    async def handle_message(self, message):
+    async def handle_move_local(self, message):
         if message == "P1_UP":
             await self.handle_paddle_move(KEY_P1_UP)
             print("P1 UP")
@@ -120,7 +113,9 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         elif message == "P2_DOWN":
             await self.handle_paddle_move(KEY_P2_DOWN)
             print("P2 DOWN")
-        elif message == "start":
+
+    async def handle_start(self, message):
+        if message == "start":
             if GameRoomConsumer.game_tab[self.room_id].p1['state'] == True and GameRoomConsumer.game_tab[self.room_id].p2['state'] == True:
                 print("game started")
                 GameRoomConsumer.game_tab[self.room_id].active = True
@@ -205,14 +200,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             else:
                 print("Game ended, end of the main loop.")
                 GameRoomConsumer.game_tab[self.room_id].active = False
-
-    async def send_test(self, event):
-        """ Test function that send a message to the frontend. """
-        tester = event['tester']
-
-        await self.send(text_data=json.dumps({
-            'tester': tester,
-        }))
 
     async def send_state(self, event):
         """ Function that send state of the curent game. """
