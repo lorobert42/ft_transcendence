@@ -49,7 +49,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         """ Comportement of the websocket when disconnect. """
         if self.scope['user'].email == GameRoomConsumer.game_tab[self.room_id].p1['name']:
-            GameRoomConsumer.game_tab.pop('self.game_room_id')
+            GameRoomConsumer.game_tab.pop(self.room_id)
         await self.channel_layer.group_discard(
             self.game_room_group,
             self.channel_name,
