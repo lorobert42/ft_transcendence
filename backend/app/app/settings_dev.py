@@ -5,7 +5,8 @@ from decouple import config
 SECRET_KEY = 'django-insecure-az5^_+u4w29%i6=_afv_riijgahq*^)&no92y(g90d%wabl3hx'
 
 ALLOWED_HOSTS = [
-    'localhost'
+    'localhost',
+    '10.18.204.107',
 ]
 
 # SECURITY WARNING: don't run with debug turned on in production!

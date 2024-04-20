@@ -5,28 +5,24 @@ export function initPongGame() {
     if (!canvas) {
         console.error('Canvas element not found!');
         return;
-    } else
-    {
+    } else {
         console.log('Canvas element found!');
     }
     
     const gameSocket = new WebSocket(
-        'wss://' + location.host + '/ws/game/0/?token=' + localStorage.getItem('authToken')
+        'wss://' + location.host + '/ws/game/online/1/?token=' + localStorage.getItem('authToken')
     );
     
-    let keyPressed = {"ArrowUp": false, "ArrowDown": false, "w": false, "s": false};
-    let keyMessage = {"ArrowUp": "P2_UP", "ArrowDown": "P2_DOWN", "w": "P1_UP", "s": "P1_DOWN"};
+    let keyPressed = {"w": false, "s": false};
+    let keyMessage = {"w": "UP", "s": "DOWN"};
     function waitConnection() {
         setTimeout(function() {
-            if(gameSocket.readyState === 1 && gameSocket.OPEN === 1)
-            {
-
+            if(gameSocket.readyState === 1 && gameSocket.OPEN === 1) {
                 document.addEventListener('keydown', (e) => {
                     if (e.key in keyPressed) {
                         keyPressed[e.key] = true;
                     }
-                    if(e.key.repeat)
-                    {
+                    if(e.key.repeat) {
                         return;
                     }
                 });
@@ -37,16 +33,17 @@ export function initPongGame() {
                     }
                 });
 
-
+                gameSocket.send(JSON.stringify({
+                    'join': 'online',
+                }));
 
                 document.getElementById('button-start').addEventListener('click', () => {
                     gameSocket.send(JSON.stringify({
                         'message': 'start',
                     }));
                 });
-        }
-        else
-        {
+
+        } else {
             console.log("waiting to connect");
             waitConnection();
         }
@@ -79,10 +76,6 @@ export function initPongGame() {
     }
 
     function drawEverything() {
-        // console.log(`Drawing player1 at ${player1.x}, ${player1.y}`);
-        // console.log(`Drawing player2 at ${player2.x}, ${player2.y}`);
-    
-        // Clear the canvas
         ctx.clearRect(0, 0, canvas.width, canvas.height);
     
         drawPlayer(player1);
@@ -102,21 +95,6 @@ export function initPongGame() {
 
     function UpdateGameState() {
         try {
-            // const response = await fetch('https://localhost:8080/api/game/state/', {
-            //     mode: "cors",
-            //     //mode: "same-origin",
-            // });
-            
-            // console.log("Fetched coordinates:", data);
-			// console.log("Fetched coordinates:", JSON.stringify(data, null, 2));
-
-			// player1.x = data.player1.x;
-			// player1.y = data.player1.y;
-			// player2.x = data.player2.x;
-			// player2.y = data.player2.y;
-			// ball.x = data.ball.x;
-			// ball.y = data.ball.y;
-
             player1.x = data["P1"]["x"];
             player2.x = data["P2"]["x"];
             player1.y = data["P1"]["y"];
@@ -131,22 +109,11 @@ export function initPongGame() {
             for (const key in keyPressed) {
                 if (keyPressed[key]) {
                     gameSocket.send(JSON.stringify({
-                        'message': keyMessage[key],
+                        'move': keyMessage[key],
                     }));
                 }
             }
 
-            /*
-                data = {
-                    "P1": self.game_tab['self.game_room_id'].paddle_l.pos(),
-                    "P2": self.game_tab['self.game_room_id'].paddle_r.pos(),
-                    "Ball": self.game_tab['self.game_room_id'].ball.pos(),
-                    "P1 Score": self.game_tab['self.game_room_id'].score_p1,
-                    "P2 Score": self.game_tab['self.game_room_id'].score_p2,
-                }
-            */
-
-            // console.log(data);
         } catch (error) {
             console.error('Failed to fetch coordinates:', error);
         }
@@ -156,11 +123,9 @@ export function initPongGame() {
 
     console.log('About to fetch game state...');
     setInterval(UpdateGameState, 16);
-    // fetchAndUpdateGameState();
     function gameLoop() {
         fetchAndUpdateGameState();
         requestAnimationFrame(gameLoop);
         console.log('Game loop running');
     }
-    // gameLoop();    
 };

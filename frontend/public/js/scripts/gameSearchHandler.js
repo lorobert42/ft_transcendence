@@ -59,4 +59,10 @@ export function gameSearchHandler() {
         history.pushState(null, '', "/localroom");
         pageRouting();
     });
+
+    document.getElementById("create-remote-game").addEventListener("click", (e) => {
+        e.preventDefault();
+        history.pushState(null, '', "/online");
+        pageRouting();
+    });
 }

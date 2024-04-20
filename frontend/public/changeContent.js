@@ -12,6 +12,7 @@ import tournament from "./pages/tournament.js";
 import gameSearch from "./pages/gameSearch.js";
 import rootPage from "./pages/rootPage.js";
 import { rootPageTraduction } from "./pages/rootPage.js";
+import onlineRoom from "./pages/gameroom.js";
 
 
 export default function pageRouting() {
@@ -141,6 +142,18 @@ export default function pageRouting() {
           console.error("Failed to load the enable otp form module", error);
         });
       break;
+    case "/online":
+      if(!logged)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = onlineRoom();
+      import("./js/scripts/onlinePong.js")
+        .then((module) => {
+          module.initPongGame();
+        })
+      break;
     case "/localroom":
       if(!logged)
       {
@@ -148,7 +161,7 @@ export default function pageRouting() {
         return;
       }
       contentDiv.innerHTML = localRoom();
-      import("./pong.js")
+      import("./js/scripts/localPong.js")
         .then((module) => {
           module.initPongGame();
         })
