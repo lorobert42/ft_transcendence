@@ -34,9 +34,19 @@ export function initPongGame() {
                     }
                 });
                 // Attach event listeners to buttons for starting the game
-                document.getElementById('button-start-human').addEventListener('click', () => startGame('human', 'human'));
-                document.getElementById('button-start-bot').addEventListener('click', () => startGame('human', 'bot'));
-
+				document.getElementById('button-start-human').addEventListener('click', () => {
+					startGame('human', 'human');
+				});
+			
+				document.getElementById('button-start-bot').addEventListener('click', () => {
+					const botSide = document.querySelector('input[name="botSide"]:checked').value;
+					if (botSide === 'left') {
+						startGame('bot', 'human');
+					} else {
+						startGame('human', 'bot');
+					}
+				});
+			
 			
             } else {
                 console.log("waiting to connect");

@@ -8,10 +8,15 @@ export default function localRoom() {
 				<div>
 					<div class="col">
 						<h1>Local Room</h1>
+						<div>
 						<button id="button-start-human">Play with Friend</button>
 						<button id="button-start-bot">Play against Bot</button>
+						<div>
+							<label><input type="radio" name="botSide" value="left" checked> Bot on Left</label>
+							<label><input type="radio" name="botSide" value="right"> Bot on Right</label>
 						</div>
-						<p id="scoreZone"></p>
+					</div>
+							<p id="scoreZone"></p>
 				</div>
 				${canvasHTML}
 			</div>`;
