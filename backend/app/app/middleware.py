@@ -8,6 +8,7 @@ from django.conf import settings
 
 User = get_user_model()
 
+
 @database_sync_to_async
 def get_user(validated_token):
     try:
@@ -26,7 +27,7 @@ class JwtAuthMiddleware(BaseMiddleware):
         token = params.get('token')
         decoded_data = jwt_decode(
             token,
-            settings.SECRET_KEY,
+            settings.SIMPLE_JWT['SIGNING_KEY'],
             algorithms=["HS256"]
         )
         return await get_user(validated_token=decoded_data)
