@@ -9,7 +9,7 @@ export default function profilePage() {
 
     let langdict = JSON.parse(`{
         "FR": {
-            "title": "Page de profil",
+            "title": "Page de Profil",
             "nameSpace": "Nom: ",
             "mailSpace": "Email: ",
             "nameLoad": "Chargement...",
@@ -17,7 +17,8 @@ export default function profilePage() {
             "enableOTP": "Activer 2FA",
             "password": "Mot de passe",
             "passwordPlaceholder": "Entrez votre mot de passe",
-            "otpSubmit": "Activer"
+            "otpSubmit": "Activer",
+            "profileButton": "Mettre à Jour le Profil"
         },
         "EN": {
             "title": "Profile Page",
@@ -28,7 +29,8 @@ export default function profilePage() {
             "enableOTP": "Enable 2FA",
             "password": "Password",
             "passwordPlaceholder": "Enter your password",
-            "otpSubmit": "Enable"
+            "otpSubmit": "Enable",
+            "profileButton": "Update Profile"
         },
         "PT": {
             "title": "Pagina de perfil",
@@ -39,7 +41,8 @@ export default function profilePage() {
             "enableOTP": "Ativar 2FA",
             "password": "Senha",
             "passwordPlaceholder": "Insira sua senha",
-            "otpSubmit": "Ativar"
+            "otpSubmit": "Ativar",
+            "profileButton": "Atualizar Perfil"
         }
     }`);
 
@@ -55,7 +58,7 @@ export default function profilePage() {
                     <p>${langdict[lang]['mailSpace']}<span id="userEmail">${langdict[lang]['mailLoad']}</span></p>
                 </div>
                 <div>
-                    <button type="button" href="/profile" class="btn btn-primary" id="update-profile">Update Profile</button>
+                    <button type="button" href="/profile" class="btn btn-primary" id="update-profile">${langdict[lang]['profileButton']}</button>
                 </div>
             </div>
         </div>
