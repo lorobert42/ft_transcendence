@@ -25,17 +25,8 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         """ Comportement of the websocket when created. """
         self.room_id = self.scope['url_route']['kwargs']['id']
         self.game_room_group = 'game_%s' % self.room_id
-        # Determine the player types for this game instance
-        
-        #player_1_type = self.scope['url_route']['kwargs'].get('player_1_type', 'human')
-        #player_2_type = self.scope['url_route']['kwargs'].get('player_2_type', 'human')
-        #print("Player 1 type: ", player_1_type)
-        #print("Player 2 type: ", player_2_type)
-        
-        player_1_type, player_2_type = "bot", "human"
-        if GameRoomConsumer.game_tab.get(self.room_id) == None:
-            GameRoomConsumer.game_tab[self.room_id] = GameClass(self.room_id, player_1_type, player_2_type)
 
+        '''
         print("User connectiton")
         ic(self.scope['user'].email)
         print("Data of user before joining")
@@ -48,7 +39,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             print(GameRoomConsumer.game_tab[self.room_id].count)
         except:
             print("no value in dic")
-
+        '''
         await self.channel_layer.group_add(
             self.game_room_group,
             self.channel_name,
@@ -68,22 +59,31 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         """ Comportement of the class when a certain message is send from the frontend. """
         td_json = json.loads(text_data)
-
-        game_instance = GameRoomConsumer.game_tab[self.room_id]
-        if game_instance.p1_type == 'bot':
-            GameRoomConsumer.game_tab[self.room_id].p1['name'] = "bot"
-            GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
-        
-        if game_instance.p2_type == 'bot':
-            GameRoomConsumer.game_tab[self.room_id].p2['name'] = "bot"
-            GameRoomConsumer.game_tab[self.room_id].p2['state'] = True
-
         if 'join' in td_json:
+            player_1_type = td_json.get('player_1_type', 'human')
+            player_2_type = td_json.get('player_2_type', 'human')
+
+            # If there's no game instance, create one with the specified player types
+            if GameRoomConsumer.game_tab.get(self.room_id) == None:
+                GameRoomConsumer.game_tab[self.room_id] = GameClass(self.room_id, player_1_type, player_2_type)
+
+            game_instance = GameRoomConsumer.game_tab[self.room_id]
+            if game_instance.p1_type == 'bot':
+                GameRoomConsumer.game_tab[self.room_id].p1['name'] = "bot"
+                GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
+            
+            if game_instance.p2_type == 'bot':
+                GameRoomConsumer.game_tab[self.room_id].p2['name'] = "bot"
+                GameRoomConsumer.game_tab[self.room_id].p2['state'] = True
+
             await self.add_user(td_json['join'])
             
             
-            
         if 'local' in td_json:
+            game_instance = GameRoomConsumer.game_tab[self.room_id]
+            player_1_type = td_json.get('player_1_type', 'human')
+            player_2_type = td_json.get('player_2_type', 'human')
+
             if ((td_json['local'] == 'P1_UP' or td_json['local'] == 'P1_DOWN') and game_instance.p1_type != 'bot'):
                 await self.handle_move_local(td_json['local'])
             elif ((td_json['local'] == 'P2_UP' or td_json['local'] == 'P2_DOWN') and game_instance.p2_type != 'bot'):
@@ -129,24 +129,23 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             GameRoomConsumer.game_tab[self.room_id].p2['state'] = True
 
     async def handle_move_local(self, message):
-        print("Entering handle_move_local")
         if message == "P1_UP":
             await self.handle_paddle_move(KEY_P1_UP)
-            print("P1 UP")
+            #print("P1 UP")
         elif message == "P1_DOWN":
             await self.handle_paddle_move(KEY_P1_DOWN)
-            print("P1 DOWN")
+            #print("P1 DOWN")
         elif message == "P2_UP":
             await self.handle_paddle_move(KEY_P2_UP)
-            print("P2 UP")
+            #print("P2 UP")
         elif message == "P2_DOWN":
             await self.handle_paddle_move(KEY_P2_DOWN)
-            print("P2 DOWN")
+            #print("P2 DOWN")
 
     async def handle_start(self, message):
         if message == "start":
             if GameRoomConsumer.game_tab[self.room_id].p1['state'] == True and GameRoomConsumer.game_tab[self.room_id].p2['state'] == True:
-                print("game started")
+                #print("game started")
                 GameRoomConsumer.game_tab[self.room_id].active = True
                 GameRoomConsumer.game_tab[self.room_id].task = asyncio.create_task(self.loop(
                 GameRoomConsumer.game_tab[self.room_id].max_score
@@ -173,11 +172,15 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.hit_ceiling = False
         """ Main loop that will run the Game. """
         print("in loop")
+        start_time = time.time()
         while GameRoomConsumer.game_tab[self.room_id].active:
-            start_time = time.time()
             if self.reset_game == True or self.hit_paddle == True:
                 end_time = time.time()
                 elapsed_time = end_time - start_time
+                if (self.reset_game == True):
+                    print("Resetting game")
+                if (self.hit_paddle == True):
+                    print("Hitting paddle")
                 print(f"Elapsed time: {elapsed_time} seconds")
                 start_time = time.time()
 
@@ -211,7 +214,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             if GameRoomConsumer.game_tab[self.room_id].p2_type == 'bot':
                 action = self.decide_bot_action('right', self.observation)
                 await self.handle_paddle_move(action)
-                print("Action: ", action)
 
                 if (action == KEY_P2_UP):
                     self.observation[4] -= (10 / HEIGHT)

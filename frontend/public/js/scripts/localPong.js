@@ -36,6 +36,8 @@ export function initPongGame() {
 
                 gameSocket.send(JSON.stringify({
                     'join': 'local',
+					'player_1_type': 'bot', // The type for player 1
+					'player_2_type': 'bot'    // The type for player 2 (the bot)		
                 }));
 
                 document.getElementById('button-start').addEventListener('click', () => {
