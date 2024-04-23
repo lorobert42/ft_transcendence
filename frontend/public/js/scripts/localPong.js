@@ -12,7 +12,7 @@ export function initPongGame() {
     const gameSocket = new WebSocket(
         'wss://' + location.host + '/ws/game/local/' + localStorage.getItem('user_id') + '/?token=' + localStorage.getItem('authToken')
     );
-    
+
     let keyPressed = {"ArrowUp": false, "ArrowDown": false, "w": false, "s": false};
     let keyMessage = {"ArrowUp": "P2_UP", "ArrowDown": "P2_DOWN", "w": "P1_UP", "s": "P1_DOWN"};
     function waitConnection() {
@@ -33,24 +33,38 @@ export function initPongGame() {
                         keyPressed[e.key] = false;
                     }
                 });
-
-                gameSocket.send(JSON.stringify({
-                    'join': 'local',
-                }));
-
-                document.getElementById('button-start').addEventListener('click', () => {
-                    gameSocket.send(JSON.stringify({
-                        'start': 'start',
-                    }));
-                });
+                // Attach event listeners to buttons for starting the game
+				document.getElementById('button-start-human').addEventListener('click', () => {
+					startGame('human', 'human');
+				});
+			
+				document.getElementById('button-start-bot').addEventListener('click', () => {
+					const botSide = document.querySelector('input[name="botSide"]:checked').value;
+					if (botSide === 'left') {
+						startGame('bot', 'human');
+					} else {
+						startGame('human', 'bot');
+					}
+				});
+			
+			
             } else {
                 console.log("waiting to connect");
                 waitConnection();
             }
         }, 5);
     }
+    function startGame(player1Type, player2Type) {
+        gameSocket.send(JSON.stringify({
+            'join': 'local',
+            'player_1_type': player1Type, 
+            'player_2_type': player2Type,
+        }));
 
-
+        gameSocket.send(JSON.stringify({
+            'start': 'start',
+        }));
+    }
     console.log("Connected");
     waitConnection();
 

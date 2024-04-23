@@ -7,7 +7,7 @@ export default function profilePage() {
     lang = cookie.split("=")[1];
   }
 
-  let langdict = JSON.parse(`{
+    let langdict = JSON.parse(`{
     "FR": {
       "title": "Page de profil",
       "nameSpace": "Nom: ",
@@ -42,7 +42,6 @@ export default function profilePage() {
       "otpSubmit": "Ativar"
     }
   }`);
-
 
   return `
     <div class="container">

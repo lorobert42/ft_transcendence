@@ -1,28 +1,71 @@
 export default function updatePage() {
+    //get language cookie and set it to EN if not set
+    const cookie = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
+    let lang = "EN";
+    if (cookie) {
+        lang = cookie.split("=")[1];
+    }
+
+    let langdict = JSON.parse(`{
+        "FR": {
+            "title": "Mise à Jour de l'Utilisateur",
+            "nameSpace": "Nom: ",
+            "mailSpace": "Email: ",
+            "enterName": "Entrez votre Nom ",
+            "enterMail": "Entrez votre Email ",
+            "enterAvatar": "Entrez l'Url de votre Avatar ",
+            "password": "Mot de Passe",
+            "passwordPlaceholder": "Entrez votre mot de passe",
+            "profileButton": "Mettre à Jour"
+        },
+        "EN": {
+            "title": "User Status Update",
+            "nameSpace": "Name: ",
+            "mailSpace": "Email: ",
+            "enterName": "Enter your Name",
+            "enterMail": "Enter your Email",
+            "enterAvatar": "Enter your Avatar Url",
+            "password": "Password",
+            "passwordPlaceholder": "Enter your password",
+            "profileButton": "Update"
+        },
+        "PT": {
+            "title": "Atualização do estado do utilizador",
+            "nameSpace": "Nome: ",
+            "mailSpace": "Email: ",
+            "enterName": "Introduza o seu nome ",
+            "enterMail": "Introduza o seu e-mail ",
+            "enterAvatar": "Introduzir o URL do teu Avatar ",
+            "password": "Palavra-passe",
+            "passwordPlaceholder": "Introduza a sua palavra-passe",
+            "profileButton": "Atualizar"
+        }
+    }`);
+
     return `
     <div class="row justify-content-center"> 
     <div class="col">
-      <h1>User Status Update</h1>
+      <h1>${langdict[lang]['title']}</h1>
     </div>
   </div>
 <form id="updateForm">
   <div class="form-group">
-    <label for="email">Email</label>
-    <input type="email" class="form-control" id="email" placeholder="Enter email">
+    <label for="email">${langdict[lang]['mailSpace']}</label>
+    <input type="email" class="form-control" id="email" placeholder="${langdict[lang]['enterMail']}">
   </div>
   <div class="form-group">
-    <label for="nameUpadte">Name</label>
-    <input type="text" class="form-control" id="nameUpdate" placeholder="Enter name">
+    <label for="nameUpadte">${langdict[lang]['nameSpace']}</label>
+    <input type="text" class="form-control" id="nameUpdate" placeholder="${langdict[lang]['enterName']}">
   </div>
   <div class="form-group">
     <label for="avatar">Avatar</label>
-    <input type="text" class="form-control" id="avatar" placeholder="Enter avatar URL">
+    <input type="text" class="form-control" id="avatar" placeholder="${langdict[lang]['enterAvatar']}">
   </div>
   <div class="form-group">
-    <label for="password">Password</label>
-    <input type="password" class="form-control" id="password" placeholder="Enter password">
+    <label for="password">${langdict[lang]['password']}</label>
+    <input type="password" class="form-control" id="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
   </div>
-  <button type="sumbit" class="btn btn-primary">Update</button>
+  <button type="sumbit" class="btn btn-primary">${langdict[lang]['profileButton']}</button>
 </form>
 `;
 }
