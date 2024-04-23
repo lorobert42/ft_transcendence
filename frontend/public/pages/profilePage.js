@@ -65,8 +65,9 @@ export default function profilePage() {
                     <h1>${langdict[lang]['enableOTP']}</h1>
                 </div>
                 <div class="form-group text-center">
+                    <input type="text" name="email" value="..." autocomplete="username email" style="display: none;">
                     <label for="password">${langdict[lang]['password']}</label>
-                    <input type="password" class="form-control" id="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
+                    <input type="password" autocomplete="current-password" class="form-control" id="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
                 </div>
                 <div id="loginError" class="form-group text-center" style="display: none; color: red;"></div>
                 <div class="form-group text-center">

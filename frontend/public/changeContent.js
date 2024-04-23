@@ -10,7 +10,6 @@ import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
 import tournament from "./pages/tournament.js";
 import gameSearch from "./pages/gameSearch.js";
-import rootPage from "./pages/rootPage.js";
 import { rootPageTraduction } from "./pages/rootPage.js";
 
 
@@ -54,8 +53,8 @@ export default function pageRouting() {
   console.log("Path: " + path);
 
   function redirectPath(path) {
-    // history.pushState(null, '', path);
-    // pageRouting();
+    history.pushState(null, '', path);
+    pageRouting();
   }
 
 
@@ -224,9 +223,7 @@ window.addEventListener('pushstate', pageRouting);
 // Adding event listeners when the DOM content has fully loaded
 document.addEventListener("DOMContentLoaded", (event) => {
   event.preventDefault();
-  let mainContent = document.getElementById("root");
 
-  mainContent.innerHTML = rootPage();
   rootPageTraduction();
 
   document.querySelector("#home-link").addEventListener("click", (e) => {

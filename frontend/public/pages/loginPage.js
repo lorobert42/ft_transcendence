@@ -44,11 +44,11 @@ export default function loginPage() {
                     </div>
                     <div class="form-group text-center">
                         <label for="email">Email</label>
-                        <input type="email" class="form-control" id="email" placeholder="${langdict[lang]['emailPlaceholder']}">
+                        <input type="email" class="form-control" autocomplete="email" id="email" placeholder="${langdict[lang]['emailPlaceholder']}">
                     </div>
                     <div class="form-group text-center">
                         <label for="password">${langdict[lang]['password']}</label>
-                        <input type="password" class="form-control" id="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
+                        <input type="password" autocomplete="current-password" class="form-control" id="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
                     </div>
                     <div id="loginError" class="form-group text-center" style="display: none; color: red;"></div>
                     <div id="loginSuccess" class="form-group text-center" style="display: none; color: black;"></div>

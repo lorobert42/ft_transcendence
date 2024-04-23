@@ -237,7 +237,10 @@ async function deleteFriend(id) {
         firstTen.forEach((user) => {
             const li = document.createElement("li");
             li.className = "list-group-item d-flex justify-content-between align-items-center";
-            li.innerText = user.email;
+            const txt = document.createElement("p");
+            txt.innerText = user.email;
+            txt.style = "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+            txt.className = "d-flex";
 
             const buttonContainer = document.createElement("div");
             buttonContainer.classList.add("d-flex");
@@ -253,7 +256,9 @@ async function deleteFriend(id) {
             });
 
             buttonContainer.appendChild(addButton);
+            li.appendChild(txt);
             li.appendChild(buttonContainer);
+            
 
             userList.appendChild(li);
         });
@@ -273,10 +278,11 @@ async function deleteFriend(id) {
         friendList.innerHTML = "";
         firstTen.forEach((user) => {
             const li = document.createElement("li");
-            li.className = "list-group-item d-flex justify-content-between";
+            li.className = "list-group-item d-flex align-content-center";
             const txt = document.createElement("p");
             txt.innerText = user.email;
             txt.style = "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+            txt.className = "d-flex";
 
             const buttonContainer = document.createElement("div");
             buttonContainer.classList.add("d-flex");
@@ -308,7 +314,10 @@ async function deleteFriend(id) {
             li.className = "list-group-item d-flex justify-content-between align-items-center";
             if(user.user2 == userId)
             {
-              li.innerText = getUserEmailFromId(user.user1);
+              const txt = document.createElement("p");
+              txt.innerText = getUserEmailFromId(user.user1);
+              txt.style = "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+              txt.className = "d-flex";
               
               const buttonContainer = document.createElement("div");
               buttonContainer.classList.add("d-flex");
@@ -333,18 +342,26 @@ async function deleteFriend(id) {
 
               buttonContainer.appendChild(denyButton);
               buttonContainer.appendChild(addButton);
+
+              li.appendChild(txt);
               li.appendChild(buttonContainer);
 
               pendingList.appendChild(li);
             }
             else
             {
-              li.innerText = getUserEmailFromId(user.user2);
+              const txt = document.createElement("p");
+              txt.innerText = getUserEmailFromId(user.user2);
+              txt.style = "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
+              txt.className = "d-flex";
+              
               const txtContainer = document.createElement("div");
               txtContainer.classList.add("d-flex");
               txtContainer.innerText = "Pending";
 
+              li.appendChild(txt);
               li.appendChild(txtContainer);
+
               pendingList.appendChild(li);
 
             }
@@ -356,6 +373,7 @@ async function deleteFriend(id) {
         const search = document.getElementById("user-search").value.toLowerCase();
         let filteredUsers = users.filter((user) => user.email.toLowerCase().includes(search));
         filteredUsers = filteredUsers.filter((user) => !friends.includes(user.id));
+        filteredUsers = filteredUsers.filter((user) => user.id != userId);
         let PendingUsers = generatePendingUserList();
         console.log(PendingUsers);
         filteredUsers = filteredUsers.filter((user) => !PendingUsers.includes(user.email));
