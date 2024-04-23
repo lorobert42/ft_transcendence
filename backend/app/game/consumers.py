@@ -216,9 +216,22 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 await asyncio.sleep(0.01)
             else:
                 print("Game ended, end of the main loop.")
+                await self.channel_layer.group_send(
+                    self.game_room_group,
+                    {
+                        "type": "send_end",
+                        "message": "Game Ended",
+                    }
+                )
                 GameRoomConsumer.game_tab[self.room_id].active = False
 
     async def send_state(self, event):
         """ Function that send state of the curent game. """
         state = event['state']
         await self.send(text_data=json.dumps(state))
+
+    async def send_end(self, event):
+        """ Function that a message to the front when the game haas ended. """
+        message = event['messgae']
+        await self.send(text_data=json.dumps(message))
+
