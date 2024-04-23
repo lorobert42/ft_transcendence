@@ -54,8 +54,9 @@ export default function profilePage() {
             <p class="py-4">${langdict[lang]['nameSpace']}<span id="userName">${langdict[lang]['nameLoad']}</span></p>
             <p>${langdict[lang]['mailSpace']}<span id="userEmail">${langdict[lang]['mailLoad']}</span></p>
           </div>
+          <button type="button" href="/profile" class="btn btn-primary" id="update-profile">Update Profile</button>
         </div>
-      </div>
+        </div>
       <div class="col-md-4 offset-md-4">
         <h2>Settings</h2>
         <h3>Two-Factor Authentication</h3>
