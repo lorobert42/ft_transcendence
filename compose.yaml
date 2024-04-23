@@ -20,10 +20,11 @@ services:
       dockerfile: Dockerfile
     expose:
       - 8000
-    ports:
-      - 8000:8000
     networks:
       - tr_network
+    volumes:
+      - django-static:/app/static
+      - django-media:/app/media
     env_file:
       - ./.env
     environment:
@@ -52,6 +53,9 @@ services:
       - 8080:8080
     networks:
       - tr_network
+    volumes:
+      - django-static:/app/static
+      - django-media:/app/media
     depends_on:
       - backend
 
@@ -81,3 +85,5 @@ networks:
 volumes:
   database-data:
   redis-data:
+  django-static:
+  django-media:
