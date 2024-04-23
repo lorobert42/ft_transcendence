@@ -23,7 +23,6 @@ RUN adduser --disabled-password --no-create-home django-user
 USER django-user
 
 WORKDIR /app
-COPY ./app /app
-RUN mkdir -p media/user_avatars
+COPY --chown=django-user ./app /app
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

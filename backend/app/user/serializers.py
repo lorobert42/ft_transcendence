@@ -19,8 +19,6 @@ import qrcode
 
 from core.models import User, FriendInvitation
 
-from icecream import ic
-
 
 class CreateUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -150,7 +148,6 @@ class OTPDisableSerializer(serializers.Serializer):
             password=attrs.get("password"),
         )
         if not user or not user.otp_enabled:
-            ic('password error')
             raise exceptions.AuthenticationFailed("Error.")
         totp = pyotp.TOTP(user.otp_base32)
         user.otp_created_at = datetime.now(timezone.utc)
@@ -168,7 +165,6 @@ class OTPDisableSerializer(serializers.Serializer):
                 if hotp.verify(attrs.get("otp"), i):
                     attrs["user_object"] = user
                     return super().validate(attrs)
-        ic('token error')
         raise exceptions.AuthenticationFailed("Error.")
 
     def create(self, validated_data: dict):
