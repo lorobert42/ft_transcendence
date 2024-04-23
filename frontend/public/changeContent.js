@@ -7,7 +7,6 @@ import registerPage from "./pages/registerPage.js";
 
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
-import aiRoom from "./pages/AIGameroom.js";
 
 import { isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
@@ -144,17 +143,6 @@ export default function pageRouting() {
         .catch((error) => {
           console.error("Failed to load the enable otp form module", error);
         });
-      break;
-    case "/AI":
-      if(!logged) {
-        redirectPath('/login');
-        return;
-      }
-      contentDiv.innerHTML = aiRoom();
-      import("./js/scripts/AIPong.js")
-        .then((module) => {
-          module.initPongGame();
-        })
       break;
     case "/online":
       if(!logged) {

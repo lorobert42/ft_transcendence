@@ -22,6 +22,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         """ Comportement of the websocket when created. """
         self.room_id = self.scope['url_route']['kwargs']['id']
         self.game_room_group = 'game_%s' % self.room_id
+        self.current_user = self.scope['user'].email
 
         if GameRoomConsumer.game_tab.get(self.room_id) == None:
             GameRoomConsumer.game_tab[self.room_id] = GameClass(self.room_id)
@@ -41,29 +42,24 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
         await self.accept()
 
-    async def disconnect(self, close_code):
+    async def disconnect(self, message):
         """ Comportement of the websocket when disconnect. """
-        ic (GameRoomConsumer.game_tab[self.room_id].p2['state'])
-        if GameRoomConsumer.game_tab[self.room_id].p1['name'] == self.scope['user'].email:
+        if GameRoomConsumer.game_tab[self.room_id].p1['name'] == self.current_user:
             if GameRoomConsumer.game_tab[self.room_id].p2['name'] == 'local' \
             or GameRoomConsumer.game_tab[self.room_id].p2['name'] == 'bot':
                 GameRoomConsumer.game_tab.pop(self.room_id)
             elif GameRoomConsumer.game_tab[self.room_id].p2['state'] == False:
-                print("game discard")
                 GameRoomConsumer.game_tab.pop(self.room_id)
             else:
-                print("user 1 disconnect")
                 GameRoomConsumer.game_tab[self.room_id].p1['state'] = False
-        if GameRoomConsumer.game_tab[self.room_id].p2['name'] == self.scope['user'].email:
+        elif GameRoomConsumer.game_tab[self.room_id].p2['name'] == self.current_user:
             if GameRoomConsumer.game_tab[self.room_id].p1['name'] == 'bot':
                 GameRoomConsumer.game_tab.pop(self.room_id)
             elif GameRoomConsumer.game_tab[self.room_id].p1['state'] == False:
-                print("game discard")
                 GameRoomConsumer.game_tab.pop(self.room_id)
             else:
-                print("user 2 disconnect")
                 GameRoomConsumer.game_tab[self.room_id].p2['state'] = False
-                ic (GameRoomConsumer.game_tab[self.room_id].p2['state'])
+        print(message)
         await self.channel_layer.group_discard(
             self.game_room_group,
             self.channel_name,
@@ -82,13 +78,13 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             await self.handle_start(td_json['start'])
 
     async def handle_move_online(self, move):
-        print(self.scope['user'].email, "Direction", move)
-        if self.scope['user'].email == GameRoomConsumer.game_tab[self.room_id].p1['name']:
+        print(self.current_user, "Direction", move)
+        if self.current_user == GameRoomConsumer.game_tab[self.room_id].p1['name']:
             if move == 'UP':
                 await self.handle_paddle_move(KEY_P1_UP)
             elif move == 'DOWN':
                 await self.handle_paddle_move(KEY_P1_DOWN)
-        if self.scope['user'].email == GameRoomConsumer.game_tab[self.room_id].p2['name']:
+        if self.current_user == GameRoomConsumer.game_tab[self.room_id].p2['name']:
             if move == 'UP':
                 await self.handle_paddle_move(KEY_P2_UP)
             elif move == 'DOWN':
@@ -96,15 +92,15 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
     async def add_user(self, mode):
         if mode == "online":
-            print("adding user ", self.scope['user'].email)
+            print("adding user ", self.current_user)
             if GameRoomConsumer.game_tab[self.room_id].p1['name'] == None:
-                GameRoomConsumer.game_tab[self.room_id].p1['name'] = self.scope['user'].email
+                GameRoomConsumer.game_tab[self.room_id].p1['name'] = self.current_user
                 GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
             else:
-                GameRoomConsumer.game_tab[self.room_id].p2['name'] = self.scope['user'].email
+                GameRoomConsumer.game_tab[self.room_id].p2['name'] = self.current_user
                 GameRoomConsumer.game_tab[self.room_id].p2['state'] = True
         else:
-            GameRoomConsumer.game_tab[self.room_id].p1['name'] = self.scope['user'].email
+            GameRoomConsumer.game_tab[self.room_id].p1['name'] = self.current_user
             GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
             GameRoomConsumer.game_tab[self.room_id].p2['name'] = "local"
             GameRoomConsumer.game_tab[self.room_id].p2['state'] = True
@@ -157,8 +153,8 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         """ Main loop that will run the Game. """
         print("in loop")
         while GameRoomConsumer.game_tab[self.room_id].active is True:
-            if GameRoomConsumer.game_tab[self.room_id].score_p1 < GameRoomConsumer.game_tab[self.room_id].max_score and \
-            GameRoomConsumer.game_tab[self.room_id].score_p2 < GameRoomConsumer.game_tab[self.room_id].max_score:
+            if GameRoomConsumer.game_tab[self.room_id].score_p1 < GameRoomConsumer.game_tab[self.room_id].max_score \
+            and GameRoomConsumer.game_tab[self.room_id].score_p2 < GameRoomConsumer.game_tab[self.room_id].max_score:
                 """ Game logic """
                 GameRoomConsumer.game_tab[self.room_id].ball.move()
                 ball = GameRoomConsumer.game_tab[self.room_id].ball
@@ -234,4 +230,3 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         """ Function that a message to the front when the game haas ended. """
         message = event['messgae']
         await self.send(text_data=json.dumps(message))
-
