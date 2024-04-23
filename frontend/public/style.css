@@ -7,6 +7,19 @@ body {
   background-color: #f0f0f0;
 }
 
+top {
+  text-align: center;
+}
+
+.shadow {
+  box-shadow: 0px 0px 5px 0px;
+  padding-top: 10px;
+}
+
+h2, a{
+  color: #000000;
+}
+
 #app {
   display: flex;
   flex-direction: column;
@@ -14,7 +27,7 @@ body {
 }
 
 header {
-  background-color: #081930;
+  background-color: #040c17;
   color: white;
   text-align: center;
   padding: 1em;
@@ -108,4 +121,14 @@ form button {
 
 form button:hover {
   background-color: #45a049;
+}
+
+.fixed-size-list-item {
+  min-height: 50px; /* Ensures a minimum height */
+  border: 1px solid #ddd; /* Visual border */
+  margin-bottom: 5px; /* Space between items */
+  display: flex; /* Flexbox for alignment */
+  align-items: center; /* Centers content vertically */
+  justify-content: center; /* Centers content horizontally */
+  padding: 0 10px; /* Padding on sides */
 }
