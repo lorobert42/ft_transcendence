@@ -11,13 +11,12 @@ export const registerFormModule = (() => {
       .then((data) => {
         console.log("data received");
         console.log(data);
-        if (Object.hasOwn(data, "id")) {
+        if (Object.hasOwn(data, "name") && Object.hasOwn(data,"email")) {
           const successDiv = document.getElementById("registerSuccess");
           successDiv.textContent = "Register Successful.";
           successDiv.style.display = "block";
         } else {
           var errorString = "Registration Error";
-
           for (const property in data) {
             console.log(`${property}: ${data[property]}`);
             errorString += `\n${property}: ${data[property]}`;

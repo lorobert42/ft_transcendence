@@ -35,6 +35,13 @@ export const userProfileModule = (() => {
       });
   }
 
+  const updateButton = document.getElementById("update-profile");
+  updateButton.addEventListener("click", function (event) {
+    event.preventDefault();
+    history.pushState({}, '', '/update');
+    pageRouting();
+  });
+
   const otpEnableRequest = (password) => {
     fetch("/api/user/otp/activation/", {
       method: "POST",

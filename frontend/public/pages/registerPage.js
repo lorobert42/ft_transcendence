@@ -55,12 +55,12 @@ export default function registerPage() {
                     <div class="form-group
                     text-center">
                         <label for="email">${langdict[lang]['email']}</label>
-                        <input type="email" class="form-control" id="email"  name="email" placeholder="${langdict[lang]['emailPlaceholder']}">
+                        <input type="email" autocomplete="email" class="form-control" id="email"  name="email" placeholder="${langdict[lang]['emailPlaceholder']}">
                     </div>
                     <div class="form-group
                     text-center">
                         <label for="name">${langdict[lang]['nameTitle']}</label>
-                        <input type="text" class="form-control" id="name" name="name" placeholder="${langdict[lang]['namePlaceholder']}">
+                        <input type="text" class="form-control" autocomplete="username" id="name" name="name" placeholder="${langdict[lang]['namePlaceholder']}">
                     </div>
                     <div class="form-group
                     text-center">
@@ -70,7 +70,7 @@ export default function registerPage() {
                     <div class="form-group
                     text-center">
                         <label for="password">${langdict[lang]['passwordPlaceholder']}</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
+                        <input type="password" autocomplete="current-password" class="form-control" id="password" name="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
                     </div>
                     <pre id="registerError" class="form-group text-center" style="display: none; color: red;"></pre>
                     <pre id="registerSuccess" class="form-group text-center" style="display: none; color: black;"></pre>

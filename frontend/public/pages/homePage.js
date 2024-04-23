@@ -6,6 +6,7 @@ export default function homePage() {
     lang = cookie.split("=")[1];
   }
   console.log(lang);
+  console.log(location.host)
 
   let langdict = JSON.parse(`{
       "FR": {
