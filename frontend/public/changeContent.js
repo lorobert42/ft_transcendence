@@ -13,7 +13,7 @@ import gameSearch from "./pages/gameSearch.js";
 import { rootPageTraduction } from "./pages/rootPage.js";
 
 
-export default function pageRouting() {
+export default function pageRouting(data = {}) {
   const path = window.location.pathname;
   rootPageTraduction();
 
