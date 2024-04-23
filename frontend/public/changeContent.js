@@ -4,7 +4,10 @@ import otpPage from "./pages/otpPage.js";
 import profilePage from "./pages/profilePage.js";
 import enableOtpPage from "./pages/enableOtpPage.js";
 import registerPage from "./pages/registerPage.js";
-import localRoom from "./pages/gameroom.js";
+
+import localRoom from "./pages/localGameroom.js";
+import onlineRoom from "./pages/onlineGameroom.js";
+
 import { isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
@@ -140,14 +143,24 @@ export default function pageRouting(data = {}) {
           console.error("Failed to load the enable otp form module", error);
         });
       break;
+    case "/online":
+      if(!logged) {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = onlineRoom();
+      import("./js/scripts/onlinePong.js")
+        .then((module) => {
+          module.initPongGame();
+        })
+      break;
     case "/localroom":
-      if(!logged)
-      {
+      if(!logged) {
         redirectPath('/login');
         return;
       }
       contentDiv.innerHTML = localRoom();
-      import("./pong.js")
+      import("./js/scripts/localPong.js")
         .then((module) => {
           module.initPongGame();
         })

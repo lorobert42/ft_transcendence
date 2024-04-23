@@ -8,8 +8,14 @@ class GameClass:
         self.id = game_id
         self.count = 0
         self.active = False
-        self.p1 = False
-        self.p2 = False
+        self.p1 = {
+            'name' : None,
+            'state' : False,
+        }
+        self.p2 = {
+            'name' : None,
+            'state' : False,
+        }
         self.task = None
         self.ball = Ball(WIDTH // 2, HEIGHT // 2, D_BALL_RAD)
         self.paddle_l = Paddle(20, HEIGHT / 2 - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT)
