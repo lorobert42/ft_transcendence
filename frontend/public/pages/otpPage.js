@@ -17,7 +17,7 @@ let langdict = JSON.parse(`
           "submit": "Log in"
       },
       "PT": {
-          "otp": "Entrar",
+          "otp": "Entrar OTP",
           "submit": "Entrar"
       }
 }`);

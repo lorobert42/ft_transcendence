@@ -9,6 +9,7 @@ export function initPongGame() {
         console.log('Canvas element found!');
     }
     
+    // ### Need to change the 0 in the path by the id of the game
     const gameSocket = new WebSocket(
         'wss://' + location.host + '/ws/game/online/1/?token=' + localStorage.getItem('authToken')
     );

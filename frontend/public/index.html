@@ -1,24 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="./bootstrap-5.3.2-dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
-    <link
-      href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <title>Transcendance</title>
-  </head>
 
-  <body class="d-flex flex-column min-vh-100">
-    <div id="app" class="d-flex flex-column min-vh-100 min-vw-100 card">
-      <div id="root" class="text-center"></div>
-    <script type="module" src="changeContent.js"></script>
-    <script src="./bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link href="./bootstrap-5.3.2-dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="./bootstrap-icons-1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <title>Transcendance</title>
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+  <div id="app" class="d-flex flex-column min-vh-100 min-vw-100 card">
+    <nav class="bg-dark navbar">
+      <div class="flex-grow-1">
+        <ul id="nav-link-list" class="justify-content-start">
+            <a class="navbar-brand rounded img-light" href="/home">
+              <img width="50" src="./assets/main_logo.png" alt="">
+            </a>
+            <li><a href="home" id="home-link"></a></li>
+            <li><a href="login" id="login-link"></a></li>
+            <li><a href="register" id="register-link"></a></li>
+            <li><a href="profile" id="profile-link"></a></li>
+            <li><a href="friend" id="friend-link"></a></li>
+            <li><a href="tournament" id="tournament-link"></a></li>
+            <li><a href="gamesearch" id="gamesearch-link"></a></li>
+        </ul>
+      </div>
+      <div class="dropdown" id="dropID">
+        <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            Language
+        </button>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item dropdown-lang-item" href="#">FR</a></li>
+          <li><a class="dropdown-item dropdown-lang-item" href="#">EN</a></li>
+          <li><a class="dropdown-item dropdown-lang-item" href="#">PT</a></li>
+        </ul>
+      </div>
+      <div class="px-5">
+        <button class="btn btn-secondary" id="logout-button"></button>
+      </div>
+    </nav>
+
+    <main>
+      <div id="content">
+      </div>
+    </main>
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+      <div class="toast-container bottom-0 end-0 p-3">
+        <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive"
+          aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body fs-5">
+              <strong id="errorMessage"></strong>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+              aria-label="Close"></button>
+          </div>
+        </div>
+        <div id="messageToast" class="toast align-items-center text-bg-primary border-0" role="alert" aria-live="assertive"
+          aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body fs-5">
+              <strong id="message"></strong>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+              aria-label="Close"></button>
+          </div>
+        </div>
+        <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive"
+          aria-atomic="true">
+          <div class="d-flex">
+            <div class="toast-body fs-5">
+              <strong id="successMessage"></strong>
+            </div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
+              aria-label="Close"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script type="module" src="changeContent.js"></script>
+  <script src="./bootstrap-5.3.2-dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
 </html>
