@@ -1,4 +1,5 @@
 import pageRouting from '../../changeContent.js'
+import { printError, printSuccess } from '../utils/toastMessage.js';
 
 export const loginFormModule = (() => {
   const loginUser = (email, password) => {
@@ -17,9 +18,7 @@ export const loginFormModule = (() => {
       })
       .then((data) => {
         if (Object.hasOwn(data, "access") && Object.hasOwn(data, "refresh")) {
-          const successDiv = document.getElementById("loginSuccess");
-          successDiv.textContent = "Login Successful.";
-          successDiv.style.display = "block";
+          printSuccess('Login Successful');
           localStorage.setItem("authToken", data.access);
           localStorage.setItem("refreshToken", data.refresh);
           localStorage.setItem("user_id", data.user_id);
@@ -33,10 +32,7 @@ export const loginFormModule = (() => {
         }
       })
       .catch((error) => {
-        var errorString = error;
-        const errorMessageDiv = document.getElementById("loginError");
-        errorMessageDiv.textContent = errorString;
-        errorMessageDiv.style.display = "block"; // Make the error message visible
+        printError(error);
       });
   };
 
@@ -45,10 +41,6 @@ export const loginFormModule = (() => {
     if (loginForm) {
       loginForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        const errorMessageDiv = document.getElementById("loginError");
-        const successDiv = document.getElementById("loginSuccess");
-        successDiv.style.display = "none"; // Make the error message visible
-        errorMessageDiv.style.display = "none"; // Make the error message visible
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
         loginUser(email, password);

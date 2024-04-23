@@ -50,8 +50,6 @@ export default function loginPage() {
                         <label for="password">${langdict[lang]['password']}</label>
                         <input type="password" autocomplete="current-password" class="form-control" id="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
                     </div>
-                    <div id="loginError" class="form-group text-center" style="display: none; color: red;"></div>
-                    <div id="loginSuccess" class="form-group text-center" style="display: none; color: black;"></div>
                     <div class="form-group text-center">
                         <button type="submit" class="btn btn-primary">${langdict[lang]['log']}</button>
                     </div>
