@@ -65,4 +65,10 @@ export function gameSearchHandler() {
         history.pushState(null, '', "/online");
         pageRouting();
     });
+
+    document.getElementById("create-ai-game").addEventListener("click", (e) => {
+        e.preventDefault();
+        history.pushState(null, '', "/online");
+        pageRouting();
+    });
 }

@@ -28,11 +28,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
         print("User connectiton")
         ic(self.scope['user'].email)
-        print("Data of user before joining")
-        ic(GameRoomConsumer.game_tab[self.room_id].p1['name'])
-        ic(GameRoomConsumer.game_tab[self.room_id].p1['state'])
-        ic(GameRoomConsumer.game_tab[self.room_id].p2['name'])
-        ic(GameRoomConsumer.game_tab[self.room_id].p2['state'])
         """ Test to see if the game is created when is none existant. (can be deleted)"""
         try:
             print(GameRoomConsumer.game_tab[self.room_id].count)
@@ -89,11 +84,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             else:
                 GameRoomConsumer.game_tab[self.room_id].p2['name'] = self.scope['user'].email
                 GameRoomConsumer.game_tab[self.room_id].p2['state'] = True
-            print("Data of user after joining")
-            ic(GameRoomConsumer.game_tab[self.room_id].p1['name'])
-            ic(GameRoomConsumer.game_tab[self.room_id].p1['state'])
-            ic(GameRoomConsumer.game_tab[self.room_id].p2['name'])
-            ic(GameRoomConsumer.game_tab[self.room_id].p2['state'])
         else:
             GameRoomConsumer.game_tab[self.room_id].p1['name'] = self.scope['user'].email
             GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
@@ -119,6 +109,14 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             if GameRoomConsumer.game_tab[self.room_id].p1['state'] == True and GameRoomConsumer.game_tab[self.room_id].p2['state'] == True:
                 print("game started")
                 GameRoomConsumer.game_tab[self.room_id].active = True
+                GameRoomConsumer.game_tab[self.room_id].task = asyncio.create_task(self.loop(
+                GameRoomConsumer.game_tab[self.room_id].max_score
+                ))
+        elif message == "restart":
+            if GameRoomConsumer.game_tab[self.room_id].p1['state'] == True and GameRoomConsumer.game_tab[self.room_id].p2['state'] == True:
+                GameRoomConsumer.game_tab[self.room_id].active = True
+                GameRoomConsumer.game_tab[self.room_id].score_p1 = 0
+                GameRoomConsumer.game_tab[self.room_id].score_p2 = 0
                 GameRoomConsumer.game_tab[self.room_id].task = asyncio.create_task(self.loop(
                 GameRoomConsumer.game_tab[self.room_id].max_score
                 ))

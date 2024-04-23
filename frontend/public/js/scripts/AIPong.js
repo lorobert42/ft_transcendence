@@ -10,14 +10,15 @@ export function initPongGame() {
     }
     
     const gameSocket = new WebSocket(
-        'wss://' + location.host + '/ws/game/online/1/?token=' + localStorage.getItem('authToken')
+        'wss://' + location.host + '/ws/game/ai/0/?token=' + localStorage.getItem('authToken')
     );
     
-    let keyPressed = {"w": false, "s": false};
-    let keyMessage = {"w": "UP", "s": "DOWN"};
+    let keyPressed = {false, "w": false, "s": false};
+    let keyMessage = {"w": "P1_UP", "s": "P1_DOWN"};
     function waitConnection() {
         setTimeout(function() {
             if(gameSocket.readyState === 1 && gameSocket.OPEN === 1) {
+
                 document.addEventListener('keydown', (e) => {
                     if (e.key in keyPressed) {
                         keyPressed[e.key] = true;
@@ -34,19 +35,18 @@ export function initPongGame() {
                 });
 
                 gameSocket.send(JSON.stringify({
-                    'join': 'online',
+                    'join': 'local',
                 }));
 
                 document.getElementById('button-start').addEventListener('click', () => {
                     gameSocket.send(JSON.stringify({
-                        'message': 'start',
+                        'start': 'start',
                     }));
                 });
-
-        } else {
-            console.log("waiting to connect");
-            waitConnection();
-        }
+            } else {
+                console.log("waiting to connect");
+                waitConnection();
+            }
         }, 5);
     }
 
@@ -91,8 +91,6 @@ export function initPongGame() {
 
     console.log("Initializing Pong game");
 
-
-
     function UpdateGameState() {
         try {
             player1.x = data["P1"]["x"];
@@ -109,15 +107,13 @@ export function initPongGame() {
             for (const key in keyPressed) {
                 if (keyPressed[key]) {
                     gameSocket.send(JSON.stringify({
-                        'move': keyMessage[key],
+                        'local': keyMessage[key],
                     }));
                 }
             }
-
         } catch (error) {
             console.error('Failed to fetch coordinates:', error);
         }
-        
         drawEverything();
     }
 

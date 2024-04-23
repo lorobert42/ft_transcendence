@@ -15,6 +15,9 @@ export default function gameSearch() {
                 <button type="button" class="btn btn-primary" id="create-remote-game">Create Remote Game</button>
             </li>
             <li class="list-group-item d-flex justify-content-center align-items-center">
+                <button type="button" class="btn btn-primary" id="create-ai-game">Create AI Game</button>
+            </li>
+            <li class="list-group-item d-flex justify-content-center align-items-center">
                 <button type="button" class="btn btn-primary" id="create-tournament">Create Tournament</button>
             </ul>
         </div>

@@ -4,7 +4,9 @@ import otpPage from "./pages/otpPage.js";
 import profilePage from "./pages/profilePage.js";
 import enableOtpPage from "./pages/enableOtpPage.js";
 import registerPage from "./pages/registerPage.js";
-import localRoom from "./pages/gameroom.js";
+import localRoom from "./pages/localGameroom.js";
+import onlineRoom from "./pages/onlineGameroom.js";
+import AIRoom from "./pages/AIGameroom.js";
 import { isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
@@ -12,7 +14,6 @@ import tournament from "./pages/tournament.js";
 import gameSearch from "./pages/gameSearch.js";
 import rootPage from "./pages/rootPage.js";
 import { rootPageTraduction } from "./pages/rootPage.js";
-import onlineRoom from "./pages/gameroom.js";
 
 
 export default function pageRouting() {
@@ -142,9 +143,19 @@ export default function pageRouting() {
           console.error("Failed to load the enable otp form module", error);
         });
       break;
+    case "/AI":
+      if(!logged) {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = aiRoom();
+      import("./js/scripts/AIPong.js")
+        .then((module) => {
+          module.initPongGame();
+        })
+      break;
     case "/online":
-      if(!logged)
-      {
+      if(!logged) {
         redirectPath('/login');
         return;
       }
@@ -155,8 +166,7 @@ export default function pageRouting() {
         })
       break;
     case "/localroom":
-      if(!logged)
-      {
+      if(!logged) {
         redirectPath('/login');
         return;
       }
