@@ -1,5 +1,5 @@
 
-export default function localRoom() {
+export default function aiRoom() {
     const canvasHTML = `<canvas id="pongCanvas" width="1000" height="700" style="background-color: #000;"></canvas>`;
     
     return `<div class="container">

@@ -43,8 +43,27 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         """ Comportement of the websocket when disconnect. """
-        if self.scope['user'].email == GameRoomConsumer.game_tab[self.room_id].p1['name']:
-            GameRoomConsumer.game_tab.pop(self.room_id)
+        ic (GameRoomConsumer.game_tab[self.room_id].p2['state'])
+        if GameRoomConsumer.game_tab[self.room_id].p1['name'] == self.scope['user'].email:
+            if GameRoomConsumer.game_tab[self.room_id].p2['name'] == 'local' \
+            or GameRoomConsumer.game_tab[self.room_id].p2['name'] == 'bot':
+                GameRoomConsumer.game_tab.pop(self.room_id)
+            elif GameRoomConsumer.game_tab[self.room_id].p2['state'] == False:
+                print("game discard")
+                GameRoomConsumer.game_tab.pop(self.room_id)
+            else:
+                print("user 1 disconnect")
+                GameRoomConsumer.game_tab[self.room_id].p1['state'] = False
+        if GameRoomConsumer.game_tab[self.room_id].p2['name'] == self.scope['user'].email:
+            if GameRoomConsumer.game_tab[self.room_id].p1['name'] == 'bot':
+                GameRoomConsumer.game_tab.pop(self.room_id)
+            elif GameRoomConsumer.game_tab[self.room_id].p1['state'] == False:
+                print("game discard")
+                GameRoomConsumer.game_tab.pop(self.room_id)
+            else:
+                print("user 2 disconnect")
+                GameRoomConsumer.game_tab[self.room_id].p2['state'] = False
+                ic (GameRoomConsumer.game_tab[self.room_id].p2['state'])
         await self.channel_layer.group_discard(
             self.game_room_group,
             self.channel_name,

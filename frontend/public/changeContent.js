@@ -4,9 +4,11 @@ import otpPage from "./pages/otpPage.js";
 import profilePage from "./pages/profilePage.js";
 import enableOtpPage from "./pages/enableOtpPage.js";
 import registerPage from "./pages/registerPage.js";
+
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
-import AIRoom from "./pages/AIGameroom.js";
+import aiRoom from "./pages/AIGameroom.js";
+
 import { isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";

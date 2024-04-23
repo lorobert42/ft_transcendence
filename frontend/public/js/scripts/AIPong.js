@@ -10,10 +10,10 @@ export function initPongGame() {
     }
     
     const gameSocket = new WebSocket(
-        'wss://' + location.host + '/ws/game/ai/0/?token=' + localStorage.getItem('authToken')
+        'wss://' + location.host + '/ws/game/ai/' + localStorage.getItem('user_id') + '/?token=' + localStorage.getItem('authToken')
     );
     
-    let keyPressed = {false, "w": false, "s": false};
+    let keyPressed = {"w": false, "s": false};
     let keyMessage = {"w": "P1_UP", "s": "P1_DOWN"};
     function waitConnection() {
         setTimeout(function() {
