@@ -121,7 +121,7 @@ export default async function pageRouting(data = {}) {
       contentDiv.innerHTML = onlineRoom();
       import("./js/scripts/onlinePong.js")
         .then((module) => {
-          module.initPongGame();
+          module.initPongGame(data);
         })
       break;
     case "/localroom":
@@ -132,7 +132,7 @@ export default async function pageRouting(data = {}) {
       contentDiv.innerHTML = localRoom();
       import("./js/scripts/localPong.js")
         .then((module) => {
-          module.initPongGame();
+          module.initPongGame(data);
         })
       break;
     case "/friend":
