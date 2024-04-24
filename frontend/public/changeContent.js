@@ -8,48 +8,27 @@ import registerPage from "./pages/registerPage.js";
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
 
-import { isLoggedIn } from "./js/utils/loginHandler.js";
+import { getUserInfo, isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
 import tournament from "./pages/tournament.js";
 import gameSearch from "./pages/gameSearch.js";
 import { rootPageTraduction } from "./pages/rootPage.js";
+import { setNavbar } from "./js/utils/navbarElements.js";
+import { getLang } from "./js/utils/getLang.js";
+import { printMessage } from "./js/utils/toastMessage.js";
 
-
-export default function pageRouting(data = {}) {
+export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
   rootPageTraduction();
 
+  let isLogged = isLoggedIn();
+  setNavbar(isLogged);
 
-  const loginLink = document.getElementById("login-link");
-  const registerLink = document.getElementById("register-link");
-  const profileLink = document.getElementById("profile-link");
-  const friendLink = document.getElementById("friend-link");
-  const tournamentLink = document.getElementById("tournament-link");
-  const gamesearchLink = document.getElementById("gamesearch-link");
-  const logoutButton = document.getElementById("logout-button");
-
-  let logged = isLoggedIn();
-  if (logged) {
-      loginLink.style.display = "none";
-      registerLink.style.display = "none";
-      profileLink.style.display = "block";
-      friendLink.style.display = "block";
-      tournamentLink.style.display = "block";
-      gamesearchLink.style.display = "block";
-      logoutButton.style.display = "block";
-  } else {
-      profileLink.style.display = "none";
-      friendLink.style.display = "none";
-      tournamentLink.style.display = "none";
-      gamesearchLink.style.display = "none";
-      loginLink.style.display = "block";
-      registerLink.style.display = "block";
-      logoutButton.style.display = "none";
-  }
-
-  if (isLoggedIn()) {
+  if (isLogged) {
     console.log('is logged in');
+    data.user = await getUserInfo();
+    console.log(data);
   } else {
     console.log('is logged out');
   }
@@ -69,8 +48,7 @@ export default function pageRouting(data = {}) {
       contentDiv.innerHTML = homePage();
       break;
     case "/login":
-      if(logged)
-      {
+      if (isLogged) {
         redirectPath('/profile');
         return;
       }
@@ -84,8 +62,7 @@ export default function pageRouting(data = {}) {
         });
       break;
     case "/otp":
-      if(logged)
-      {
+      if (isLogged) {
         redirectPath('/profile');
         return;
       }
@@ -99,8 +76,7 @@ export default function pageRouting(data = {}) {
         });
       break;
     case "/register":
-      if(logged)
-      {
+      if (isLogged) {
         redirectPath('/profile');
         return;
       }
@@ -114,26 +90,20 @@ export default function pageRouting(data = {}) {
         });
       break;
     case "/profile":
-      if(!logged)
-      {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
       contentDiv.innerHTML = profilePage();
       import("/js/scripts/userProfile.js")
         .then((module) => {
-          module.userProfileModule.init();
+          module.userProfileModule.init(data);
         })
         .catch((error) => {
           console.error("Failed to load the login form module", error);
         });
       break;
     case "/enable-otp":
-      if(logged)
-      {
-        redirectPath('/profile');
-        return;
-      }
       contentDiv.innerHTML = enableOtpPage();
       import("/js/scripts/enableOtpForm.js")
         .then((module) => {
@@ -144,7 +114,7 @@ export default function pageRouting(data = {}) {
         });
       break;
     case "/online":
-      if(!logged) {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
@@ -155,7 +125,7 @@ export default function pageRouting(data = {}) {
         })
       break;
     case "/localroom":
-      if(!logged) {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
@@ -165,66 +135,62 @@ export default function pageRouting(data = {}) {
           module.initPongGame();
         })
       break;
-      case "/friend":
-        if(!logged)
-        {
-          redirectPath('/login');
-          return;
-        }
-        contentDiv.innerHTML = contacts();
-        import("./js/utils/contactHandler.js")
-          .then((module) => {
-            module.contactHandler();
-          })
-          .catch((error) => {
-            console.error("Failed to load the contact handler module", error);
-          });
-        break;
-      case "/update":
-        if(!logged)
-        {
-          redirectPath('/login');
-          return;
-        }
-        contentDiv.innerHTML = updatePage();
-        import("./js/scripts/updateForm.js")
-          .then((module) => {
-            module.updateForm();
-          })
-          .catch((error) => {
-            console.error("Failed to load the login form module", error);
-          });
-        break;
-        case "/tournament":
-          if(!logged)
-          {
-            redirectPath('/login');
-            return;
-          }
-          contentDiv.innerHTML = tournament();
-          import("./js/scripts/tournamentHandler.js")
-            .then((module) => {
-              module.tournamentHandler();
-            })
-            .catch((error) => {
-              console.error("Failed to load the tournament module", error);
-            });
-          break;
-        case "/gamesearch":
-          if(!logged)
-          {
-            redirectPath('/login');
-            return;
-          }
-          contentDiv.innerHTML = gameSearch();
-          import("./js/scripts/gameSearchHandler.js")
-            .then((module) => {
-              module.gameSearchHandler();
-            })
-            .catch((error) => {
-              console.error("Failed to load the game search module", error);
-            });
-          break;
+    case "/friend":
+      if (!isLogged) {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = contacts();
+      import("./js/utils/contactHandler.js")
+        .then((module) => {
+          module.contactHandler();
+        })
+        .catch((error) => {
+          console.error("Failed to load the contact handler module", error);
+        });
+      break;
+    case "/update":
+      if (!isLogged) {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = updatePage();
+      import("./js/scripts/updateForm.js")
+        .then((module) => {
+          module.updateForm();
+        })
+        .catch((error) => {
+          console.error("Failed to load the login form module", error);
+        });
+      break;
+    case "/tournament":
+      if (!isLogged) {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = tournament();
+      import("./js/scripts/tournamentHandler.js")
+        .then((module) => {
+          module.tournamentHandler();
+        })
+        .catch((error) => {
+          console.error("Failed to load the tournament module", error);
+        });
+      break;
+    case "/gamesearch":
+      if (!isLogged) {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = gameSearch();
+      import("./js/scripts/gameSearchHandler.js")
+        .then((module) => {
+          module.gameSearchHandler();
+        })
+        .catch((error) => {
+          console.error("Failed to load the game search module", error);
+        });
+      break;
     default:
       contentDiv.innerHTML = homePage();
       break;
@@ -243,7 +209,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   document.querySelector("#home-link").addEventListener("click", (e) => {
     e.preventDefault();
     history.pushState(null, '', window.location.origin + e.target.pathname);
-    
     pageRouting();
   });
 
@@ -259,7 +224,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     e.preventDefault();
     history.pushState(null, '', e.target.href);
     pageRouting();
-
   });
 
 
@@ -284,12 +248,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 
   function dropDownLanguage() {
-    const lang = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
-      if (lang) {
-        document.querySelector(".dropdown-toggle").innerText = lang.split("=")[1];
-      } else {
-        document.querySelector(".dropdown-toggle").innerText = "EN";
-      }
+    const lang = getLang();
+    document.querySelector(".dropdown-toggle").innerText = lang;
   }
 
   // change dropdown text value depending on selected option
@@ -308,6 +268,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   document.getElementById("logout-button").addEventListener("click", (e) => {
     e.preventDefault();
     localStorage.clear();
+    printMessage("Logout Successful");
     history.pushState(null, '', '/');
     pageRouting();
   });

@@ -1,9 +1,7 @@
+import { getLang } from "../js/utils/getLang.js";
+
 export default function localRoom() {
-    const cookie = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
-    let lang = "EN";
-    if (cookie) {
-        lang = cookie.split("=")[1];
-    }
+    const lang = getLang();
 
     let langdict = JSON.parse(`{
         "FR": {

@@ -2,37 +2,11 @@ import pageRouting from '../../changeContent.js'
 import { printMessage, printError } from '../utils/toastMessage.js';
 
 export const userProfileModule = (() => {
-  const fetchUserProfile = async () => {
-    let authToken = localStorage.getItem("authToken");
-    if (!authToken) {
-      console.error("No auth token found. Redirecting to login.");
-      // Redirect to login or show an error message
-      return;
-    }
-    await fetch("/api/user/me", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    })
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        // Assuming the data object has keys 'name', 'email', 'location', and 'avatarUrl'
-        console.log(data);
-        document.getElementById("userName").textContent = data.name;
-        document.getElementById("userEmail").textContent = data.email;
-        user = data;
-        if (data.avatar != null)
-          document.getElementById("avatar").src = data.avatar;
-      })
-      .catch((error) => {
-        printError(error);
-      });
+  const setUserProfile = (user) => {
+    document.getElementById("userName").textContent = user.name;
+    document.getElementById("userEmail").textContent = user.email;
+    if (user.avatar != null)
+      document.getElementById("avatar").src = user.avatar;
   }
 
   const updateButton = document.getElementById("update-profile");
@@ -42,7 +16,7 @@ export const userProfileModule = (() => {
     pageRouting();
   });
 
-  const otpEnableRequest = (password) => {
+  const otpEnableRequest = (user, password) => {
     fetch("/api/user/otp/activation/", {
       method: "POST",
       headers: {
@@ -61,7 +35,7 @@ export const userProfileModule = (() => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           history.pushState({}, '', '/enable-otp');
-          pageRouting({ 'id': data.user, 'qr_code': data.qr_code });
+          pageRouting({ 'qr_code': data.qr_code });
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -71,7 +45,7 @@ export const userProfileModule = (() => {
       });
   };
 
-  const otpDisableRequest = (password, otp) => {
+  const otpDisableRequest = (user, password, otp) => {
     fetch("/api/user/otp/disable/", {
       method: "POST",
       headers: {
@@ -90,7 +64,8 @@ export const userProfileModule = (() => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           printMessage('Two-Factor Authentication disabled');
-          showOtpOption(false);
+          user.otp_enabled = false;
+          showOtpOption(user);
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -100,19 +75,19 @@ export const userProfileModule = (() => {
       });
   };
 
-  const showOtpOption = (otpEnabled) => {
+  const showOtpOption = (user) => {
     const otpEnable = document.getElementById("otpEnable");
     otpEnable.classList.add("d-none");
     const otpDisable = document.getElementById("otpDisable");
     otpDisable.classList.add("d-none");
-    if (otpEnabled === false) {
+    if (user.otp_enabled === false) {
       otpEnable.classList.remove("d-none");
       const otpForm = document.getElementById("otpForm");
       if (otpForm) {
         otpForm.addEventListener("submit", function (event) {
           event.preventDefault();
           const password = document.getElementById("otpEnablePassword").value;
-          otpEnableRequest(password);
+          otpEnableRequest(user, password);
         });
       } else {
         console.error("Login form not found at init time.");
@@ -125,7 +100,7 @@ export const userProfileModule = (() => {
           event.preventDefault();
           const password = document.getElementById("otpDisablePassword").value;
           const otp = document.getElementById("otp").value;
-          otpDisableRequest(password, otp);
+          otpDisableRequest(user, password, otp);
         });
       } else {
         console.error("Login form not found at init time.");
@@ -133,12 +108,10 @@ export const userProfileModule = (() => {
     }
   };
 
-  const init = async () => {
-    await fetchUserProfile();
-    showOtpOption(user.otp_enabled);
+  const init = (data) => {
+    setUserProfile(data.user);
+    showOtpOption(data.user);
   };
-
-  let user;
 
   return { init };
 })();

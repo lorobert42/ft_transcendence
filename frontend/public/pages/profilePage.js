@@ -1,13 +1,9 @@
+import { getLang } from "../js/utils/getLang.js";
+
 export default function profilePage() {
+  const lang = getLang();
 
-  //get language cookie and set it to EN if not set
-  const cookie = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
-  let lang = "EN";
-  if (cookie) {
-    lang = cookie.split("=")[1];
-  }
-
-    let langdict = JSON.parse(`{
+  let langdict = JSON.parse(`{
     "FR": {
       "title": "Page de profil",
       "nameSpace": "Nom: ",
