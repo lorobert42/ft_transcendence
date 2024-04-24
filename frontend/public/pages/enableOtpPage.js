@@ -1,10 +1,7 @@
+import { getLang } from "../js/utils/getLang.js";
+
 export default function enableOtpPage() {
-  //get language cookie and set it to EN if not set
-  const cookie = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
-  let lang = "EN";
-  if (cookie) {
-    lang = cookie.split("=")[1];
-  }
+  const lang = getLang();
 
   let langdict = JSON.parse(`
   {
@@ -38,12 +35,11 @@ return `
             <label for="otp">OTP</label>
             <input type="text" class="form-control" id="otp" placeholder="000000">
           </div>
-          <div id="loginError" class="form-group text-center" style="display: none; color: red;"></div>
           <div class="form-group text-center">
             <button type="submit" class="btn btn-primary">${langdict[lang]['submit']}</button>
           </div>
         </form>
-        <div id="backup" class="text-center" style="display: none">
+        <div id="backup" class="text-center d-none">
           <h1>Activation Succesful</h1>
           <p class="text-start">Two-Factor Authentiication is now enabled for your account.
             To avoid your account being locked in case of loss of your phone, please save these backup codes.

@@ -1,3 +1,6 @@
+import pageRouting from "../../changeContent.js";
+import { printError, printSuccess } from "../utils/toastMessage.js";
+
 export const otpFormModule = (() => {
   const otpCheck = (data, otp) => {
     console.log("in otp check");
@@ -20,23 +23,18 @@ export const otpFormModule = (() => {
         return response.json()
       })
       .then((data) => {
-        console.log("data received");
-        console.log(data);
         if (Object.hasOwn(data, "access") && Object.hasOwn(data, "refresh")) {
-          const successDiv = document.getElementById("loginSuccess");
-          successDiv.textContent = "Login Successful.";
-          successDiv.style.display = "block";
+          printSuccess("Login Successful");
           localStorage.setItem("authToken", data.access);
           localStorage.setItem("refreshToken", data.refresh);
+          history.pushState({}, '','/home');
+          pageRouting();
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
       })
       .catch((error) => {
-        var errorString = error;
-        const errorMessageDiv = document.getElementById("loginError");
-        errorMessageDiv.textContent = errorString;
-        errorMessageDiv.style.display = "block"; // Make the error message visible
+        printError(error);
       });
   };
 
@@ -45,10 +43,6 @@ export const otpFormModule = (() => {
     if (otpForm) {
       otpForm.addEventListener("submit", function (event) {
         event.preventDefault();
-        const errorMessageDiv = document.getElementById("loginError");
-        const successDiv = document.getElementById("loginSuccess");
-        successDiv.style.display = "none"; // Make the error message visible
-        errorMessageDiv.style.display = "none"; // Make the error message visible
         const otp = document.getElementById("otp").value;
         otpCheck(data, otp);
       });
