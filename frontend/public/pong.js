@@ -47,6 +47,9 @@ export function initPongGame() {
         }
         else
         {
+            console.log(window.location.pathname);
+            if(window.localStorage.pathname != "/localroom")
+                return ;
             console.log("waiting to connect");
             waitConnection();
         }
@@ -150,7 +153,8 @@ export function initPongGame() {
         } catch (error) {
             console.error('Failed to fetch coordinates:', error);
         }
-        
+        if(window.location.pathname !== "/localroom") 
+            return ;
         drawEverything();
     }
 

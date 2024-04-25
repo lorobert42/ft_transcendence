@@ -53,8 +53,8 @@ export default function pageRouting() {
   console.log("Path: " + path);
 
   function redirectPath(path) {
-    // history.pushState(null, '', path);
-    // pageRouting();
+    history.pushState(null, '', path);
+    pageRouting();
   }
 
 
@@ -152,21 +152,21 @@ export default function pageRouting() {
           module.initPongGame();
         })
       break;
-      case "/friend":
-        if(!logged)
-        {
-          redirectPath('/login');
-          return;
-        }
-        contentDiv.innerHTML = contacts();
-        import("./js/utils/contactHandler.js")
-          .then((module) => {
-            module.contactHandler();
-          })
-          .catch((error) => {
-            console.error("Failed to load the contact handler module", error);
-          });
-        break;
+    case "/friend":
+      if(!logged)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = contacts();
+      import("./js/utils/contactHandler.js")
+        .then((module) => {
+          module.contactHandler();
+        })
+        .catch((error) => {
+          console.error("Failed to load the contact handler module", error);
+        });
+      break;
       case "/update":
         if(!logged)
         {
