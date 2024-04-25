@@ -18,6 +18,8 @@ services:
     build:
       context: backend/
       dockerfile: Dockerfile
+      args:
+        - DEV=true
     expose:
       - 8000
     networks:

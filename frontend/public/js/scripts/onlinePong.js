@@ -1,3 +1,4 @@
+import { gData } from "../../changeContent.js";
 
 export function initPongGame() {
     const canvas = document.getElementById('pongCanvas');
@@ -11,7 +12,7 @@ export function initPongGame() {
     
     // ### Need to change the 0 in the path by the id of the game
     const gameSocket = new WebSocket(
-        'wss://' + location.host + '/ws/game/online/1/?token=' + localStorage.getItem('authToken')
+        'wss://' + location.host + '/ws/game/online/' + gData.user.id + '/?token=' + localStorage.getItem('authToken')
     );
     
     let keyPressed = {"w": false, "s": false};

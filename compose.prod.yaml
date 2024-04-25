@@ -1,5 +1,8 @@
 services:
   backend:
+    build:
+      args:
+        - DEV=false
     environment:
       - DJANGO_SETTINGS_MODULE=app.settings_prod
     command: ["daphne", "-p", "8000", "-b", "0.0.0.0", "app.asgi:application"]

@@ -1,4 +1,4 @@
-import pageRouting from "../../changeContent.js";
+import { pageRouting, gData } from "../../changeContent.js";
 import { printError, printSuccess } from "../utils/toastMessage.js";
 
 export const otpFormModule = (() => {
@@ -38,13 +38,13 @@ export const otpFormModule = (() => {
       });
   };
 
-  const init = (data) => {
+  const init = () => {
     const otpForm = document.getElementById("otpForm");
     if (otpForm) {
       otpForm.addEventListener("submit", function (event) {
         event.preventDefault();
         const otp = document.getElementById("otp").value;
-        otpCheck(data, otp);
+        otpCheck(gData, otp);
       });
     } else {
       console.error("Login form not found at init time.");

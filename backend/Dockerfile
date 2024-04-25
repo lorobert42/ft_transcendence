@@ -24,5 +24,6 @@ USER django-user
 
 WORKDIR /app
 COPY --chown=django-user ./app /app
+RUN mkdir -p /app/static
 
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]

@@ -69,8 +69,6 @@ export default function registerPage() {
               <label for="password">${langdict[lang]['passwordPlaceholder']}</label>
               <input type="password" autocomplete="current-password" class="form-control" id="password" name="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
             </div>
-            <pre id="registerError" class="form-group text-center" style="display: none; color: red;"></pre>
-            <pre id="registerSuccess" class="form-group text-center" style="display: none; color: black;"></pre>
             <div class="form-group
             text-center">
               <button type="submit" class="btn btn-primary">${langdict[lang]['registerBtn']}</button>

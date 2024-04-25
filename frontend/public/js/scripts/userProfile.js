@@ -1,4 +1,5 @@
-import pageRouting from '../../changeContent.js'
+import pageRouting, { gData } from '../../changeContent.js'
+import { getUserInfo } from '../utils/loginHandler.js';
 import { printMessage, printError } from '../utils/toastMessage.js';
 
 export const userProfileModule = (() => {
@@ -35,7 +36,8 @@ export const userProfileModule = (() => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           history.pushState({}, '', '/enable-otp');
-          pageRouting({ 'qr_code': data.qr_code });
+          gData.qr_code = data.qr_code;
+          pageRouting();
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -60,12 +62,12 @@ export const userProfileModule = (() => {
         }
         return response.json()
       })
-      .then((data) => {
+      .then(async (data) => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           printMessage('Two-Factor Authentication disabled');
-          user.otp_enabled = false;
-          showOtpOption(user);
+          gData.user = await getUserInfo();
+          showOtpOption(gData.user);
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -108,9 +110,9 @@ export const userProfileModule = (() => {
     }
   };
 
-  const init = (data) => {
-    setUserProfile(data.user);
-    showOtpOption(data.user);
+  const init = () => {
+    setUserProfile(gData.user);
+    showOtpOption(gData.user);
   };
 
   return { init };
