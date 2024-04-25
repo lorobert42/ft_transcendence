@@ -1,11 +1,7 @@
+import { getLang } from "../js/utils/getLang.js";
+
 export default function homePage() {
-  //get language cookie and set it to EN if not set
-  const cookie = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
-  let lang = "EN";
-  if (cookie) {
-    lang = cookie.split("=")[1];
-  }
-  console.log(lang);
+  const lang = getLang();
   console.log(location.host)
 
   let langdict = JSON.parse(`{

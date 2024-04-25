@@ -10,6 +10,12 @@ mac:
 	docker compose exec backend sh -c "python manage.py migrate"
 	docker compose exec backend sh -c "python manage.py collectstatic --no-input"
 
+prod:
+	docker compose -f compose.yaml -f compose.prod.yaml up --build -d
+	docker compose exec backend sh -c "python manage.py makemigrations"
+	docker compose exec backend sh -c "python manage.py migrate"
+	docker compose exec backend sh -c "python manage.py collectstatic --no-input"
+
 up_only:
 	docker compose up -d
 
@@ -17,7 +23,7 @@ build:
 	docker compose build
 
 down:
-	docker compose down
+	docker compose down --remove-orphans
 
 lb:
 	docker compose logs backend

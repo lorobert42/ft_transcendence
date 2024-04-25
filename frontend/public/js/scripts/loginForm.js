@@ -21,7 +21,6 @@ export const loginFormModule = (() => {
           printSuccess('Login Successful');
           localStorage.setItem("authToken", data.access);
           localStorage.setItem("refreshToken", data.refresh);
-          localStorage.setItem("user_id", data.user_id);
           history.pushState({}, '','/home');
           pageRouting();
         } else if (Object.hasOwn(data, "success") && data.success === true) {

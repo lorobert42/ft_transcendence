@@ -4,12 +4,20 @@ PADDLE_WIDTH, PADDLE_HEIGHT = 25, 125  # Paddle size
 D_BALL_RAD = 10  # Radius of the ball
 
 class GameClass:
-    def __init__(self, game_id):
+    def __init__(self, game_id, player1_type='human', player2_type='human'):
         self.id = game_id
+        self.p1_type = player1_type
+        self.p2_type = player2_type
         self.count = 0
         self.active = False
-        self.p1 = False
-        self.p2 = False
+        self.p1 = {
+            'name' : None,
+            'state' : False,
+        }
+        self.p2 = {
+            'name' : None,
+            'state' : False,
+        }
         self.task = None
         self.ball = Ball(WIDTH // 2, HEIGHT // 2, D_BALL_RAD)
         self.paddle_l = Paddle(20, HEIGHT / 2 - PADDLE_HEIGHT / 2, PADDLE_WIDTH, PADDLE_HEIGHT)

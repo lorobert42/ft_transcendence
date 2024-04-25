@@ -1,3 +1,5 @@
+import { printError } from "../utils/toastMessage.js";
+
 export const enableOtpFormModule = (() => {
   const otpCheck = (id, otp) => {
     fetch("/api/user/otp/activation/confirm/", {
@@ -17,7 +19,7 @@ export const enableOtpFormModule = (() => {
       .then((data) => {
         if (Object.hasOwn(data, "success") && data.success === true) {
           const form = document.getElementById("otpForm");
-          form.style.display = "none";
+          form.classList.add("d-none");
           const backupList = document.getElementById("backupList");
           data.backup_codes.map((code) => {
             const backupCode = document.createElement("li");
@@ -26,24 +28,20 @@ export const enableOtpFormModule = (() => {
             backupList.appendChild(backupCode);
           });
           const backupDiv = document.getElementById("backup");
-          backupDiv.style.display = "block";
+          backupDiv.classList.remove("d-none");
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
       })
       .catch((error) => {
-        var errorString = error;
-        const errorMessageDiv = document.getElementById("loginError");
-        errorMessageDiv.textContent = errorString;
-        errorMessageDiv.style.display = "block"; // Make the error message visible
+        printError(error);
       });
   };
 
   const init = (data) => {
-    let src, id;
-    if (Object.hasOwn(data, "qr_code") && Object.hasOwn(data, "id")) {
+    let src;
+    if (Object.hasOwn(data, "qr_code")) {
       src = data.qr_code;
-      id = data.id;
     }
     const qr_code = document.getElementById("qrCode");
     qr_code.src = src;
@@ -52,7 +50,7 @@ export const enableOtpFormModule = (() => {
       otpForm.addEventListener("submit", function (event) {
         event.preventDefault();
         const otp = document.getElementById("otp").value;
-        otpCheck(id, otp);
+        otpCheck(data.user.id, otp);
       });
     } else {
       console.error("Login form not found at init time.");

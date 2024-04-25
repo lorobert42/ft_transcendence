@@ -1,3 +1,16 @@
+export async function getUserInfo() {
+    let response = await fetch("/api/user/me/", {
+        method: "GET",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+        },
+    });
+    if (!response.ok) {
+        throw new Error(response.text());
+    }
+    let data = await response.json();
+    return data;
+}
 
 export function isLoggedIn() {
     const authToken = localStorage.getItem('authToken');

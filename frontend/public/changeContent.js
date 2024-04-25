@@ -4,49 +4,31 @@ import otpPage from "./pages/otpPage.js";
 import profilePage from "./pages/profilePage.js";
 import enableOtpPage from "./pages/enableOtpPage.js";
 import registerPage from "./pages/registerPage.js";
-import localRoom from "./pages/gameroom.js";
-import { isLoggedIn } from "./js/utils/loginHandler.js";
+
+import localRoom from "./pages/localGameroom.js";
+import onlineRoom from "./pages/onlineGameroom.js";
+
+import { getUserInfo, isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
 import tournament from "./pages/tournament.js";
 import gameSearch from "./pages/gameSearch.js";
 import { rootPageTraduction } from "./pages/rootPage.js";
+import { setNavbar } from "./js/utils/navbarElements.js";
+import { getLang } from "./js/utils/getLang.js";
+import { printMessage } from "./js/utils/toastMessage.js";
 
-
-export default function pageRouting() {
+export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
   rootPageTraduction();
 
+  let isLogged = isLoggedIn();
+  setNavbar(isLogged);
 
-  const loginLink = document.getElementById("login-link");
-  const registerLink = document.getElementById("register-link");
-  const profileLink = document.getElementById("profile-link");
-  const friendLink = document.getElementById("friend-link");
-  const tournamentLink = document.getElementById("tournament-link");
-  const gamesearchLink = document.getElementById("gamesearch-link");
-  const logoutButton = document.getElementById("logout-button");
-
-  let logged = isLoggedIn();
-  if (logged) {
-      loginLink.style.display = "none";
-      registerLink.style.display = "none";
-      profileLink.style.display = "block";
-      friendLink.style.display = "block";
-      tournamentLink.style.display = "block";
-      gamesearchLink.style.display = "block";
-      logoutButton.style.display = "block";
-  } else {
-      profileLink.style.display = "none";
-      friendLink.style.display = "none";
-      tournamentLink.style.display = "none";
-      gamesearchLink.style.display = "none";
-      loginLink.style.display = "block";
-      registerLink.style.display = "block";
-      logoutButton.style.display = "none";
-  }
-
-  if (isLoggedIn()) {
+  if (isLogged) {
     console.log('is logged in');
+    data.user = await getUserInfo();
+    console.log(data);
   } else {
     console.log('is logged out');
   }
@@ -66,8 +48,7 @@ export default function pageRouting() {
       contentDiv.innerHTML = homePage();
       break;
     case "/login":
-      if(logged)
-      {
+      if (isLogged) {
         redirectPath('/profile');
         return;
       }
@@ -81,8 +62,7 @@ export default function pageRouting() {
         });
       break;
     case "/otp":
-      if(logged)
-      {
+      if (isLogged) {
         redirectPath('/profile');
         return;
       }
@@ -96,8 +76,7 @@ export default function pageRouting() {
         });
       break;
     case "/register":
-      if(logged)
-      {
+      if (isLogged) {
         redirectPath('/profile');
         return;
       }
@@ -111,26 +90,20 @@ export default function pageRouting() {
         });
       break;
     case "/profile":
-      if(!logged)
-      {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
       contentDiv.innerHTML = profilePage();
       import("/js/scripts/userProfile.js")
         .then((module) => {
-          module.userProfileModule.init();
+          module.userProfileModule.init(data);
         })
         .catch((error) => {
           console.error("Failed to load the login form module", error);
         });
       break;
     case "/enable-otp":
-      if(logged)
-      {
-        redirectPath('/profile');
-        return;
-      }
       contentDiv.innerHTML = enableOtpPage();
       import("/js/scripts/enableOtpForm.js")
         .then((module) => {
@@ -140,14 +113,24 @@ export default function pageRouting() {
           console.error("Failed to load the enable otp form module", error);
         });
       break;
+    case "/online":
+      if (!isLogged) {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = onlineRoom();
+      import("./js/scripts/onlinePong.js")
+        .then((module) => {
+          module.initPongGame();
+        })
+      break;
     case "/localroom":
-      if(!logged)
-      {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
       contentDiv.innerHTML = localRoom();
-      import("./pong.js")
+      import("./js/scripts/localPong.js")
         .then((module) => {
           module.initPongGame();
         })
@@ -230,7 +213,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   document.querySelector("#home-link").addEventListener("click", (e) => {
     e.preventDefault();
     history.pushState(null, '', window.location.origin + e.target.pathname);
-    
     pageRouting();
   });
 
@@ -246,7 +228,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     e.preventDefault();
     history.pushState(null, '', e.target.href);
     pageRouting();
-
   });
 
 
@@ -271,12 +252,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 
   function dropDownLanguage() {
-    const lang = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
-      if (lang) {
-        document.querySelector(".dropdown-toggle").innerText = lang.split("=")[1];
-      } else {
-        document.querySelector(".dropdown-toggle").innerText = "EN";
-      }
+    const lang = getLang();
+    document.querySelector(".dropdown-toggle").innerText = lang;
   }
 
   // change dropdown text value depending on selected option
@@ -295,6 +272,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   document.getElementById("logout-button").addEventListener("click", (e) => {
     e.preventDefault();
     localStorage.clear();
+    printMessage("Logout Successful");
     history.pushState(null, '', '/');
     pageRouting();
   });
