@@ -1,25 +1,27 @@
 import { printError, printSuccess } from "../utils/toastMessage.js";
 
 export const registerFormModule = (() => {
-  const registerUser = (formData) => {
-    console.log("in register user");
-    localStorage.removeItem("authToken");
-    fetch("/api/user/create/", {
+  const registerUser = async (formData) => {
+    localStorage.clear();
+    if (formData.get("password") !== formData.get("password2")) {
+      printError("Password fields do not match");
+      return;
+    }
+    formData.delete("password2");
+    let response = await fetch("/api/user/create/", {
       method: "POST",
-
       body: formData,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (Object.hasOwn(data, "name") && Object.hasOwn(data,"email")) {
-          printSuccess("Registration success");
-        } else {
-          printError("Registration error");
-        }
-      })
-      .catch((error) => {
-        printError(error);
-      });
+    });
+    if (!response.ok) {
+      printError(await response.text());
+      return;
+    }
+    let data = await response.json();
+    if (Object.hasOwn(data, "name") && Object.hasOwn(data,"email")) {
+      printSuccess("Registration success");
+    } else {
+      printError("Registration error");
+    }
   };
 
   const init = () => {

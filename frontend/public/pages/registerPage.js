@@ -11,8 +11,8 @@ export default function registerPage() {
         "emailPlaceholder": "Entrez votre email",
         "nameTitle": "Nom",
         "namePlaceholder": "Entrez votre nom",
-        "avatarTitle": "Avatar",
         "passwordPlaceholder": "Entrez votre mot de passe",
+        "password2Placeholder": "Confirmez votre mot de passe",
         "registerBtn": "S'inscrire",
         "loginBtn": "Déjà un compte? Connectez-vous!"
       },
@@ -22,8 +22,8 @@ export default function registerPage() {
         "emailPlaceholder": "Enter your email",
         "nameTitle": "Name",
         "namePlaceholder": "Enter your name",
-        "avatarTitle": "Avatar",
         "passwordPlaceholder": "Enter your password",
+        "password2Placeholder": "Confirm your password",
         "registerBtn": "Register",
         "loginBtn": "Already have an account? Login!"
       },
@@ -33,8 +33,8 @@ export default function registerPage() {
         "emailPlaceholder": "Insira seu email",
         "nameTitle": "Nome",
         "namePlaceholder": "Insira seu nome",
-        "avatarTitle": "Avatar",
         "passwordPlaceholder": "Insira sua senha",
+        "password2Placeholder": "TODO",
         "registerBtn": "Registro",
         "loginBtn": "Já tem uma conta? Conecte-se!"
       }
@@ -61,13 +61,13 @@ export default function registerPage() {
             </div>
             <div class="form-group
             text-center">
-              <label for="avatar">${langdict[lang]['avatarTitle']}:</label>
-              <input type="file" id="avatar" name="avatar" name="avatar" accept="image/*"><br><br>
+              <label for="password">${langdict[lang]['passwordPlaceholder']}</label>
+              <input type="password" autocomplete="current-password" class="form-control" id="password" name="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
             </div>
             <div class="form-group
             text-center">
-              <label for="password">${langdict[lang]['passwordPlaceholder']}</label>
-              <input type="password" autocomplete="current-password" class="form-control" id="password" name="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
+              <label for="password2">${langdict[lang]['password2Placeholder']}</label>
+              <input type="password" autocomplete="current-password" class="form-control" id="password2" name="password2" placeholder="${langdict[lang]['password2Placeholder']}">
             </div>
             <div class="form-group
             text-center">
