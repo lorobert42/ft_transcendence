@@ -4,10 +4,8 @@ import otpPage from "./pages/otpPage.js";
 import profilePage from "./pages/profilePage.js";
 import enableOtpPage from "./pages/enableOtpPage.js";
 import registerPage from "./pages/registerPage.js";
-
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
-
 import { getUserInfo, isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
@@ -17,6 +15,7 @@ import { rootPageTraduction } from "./pages/rootPage.js";
 import { setNavbar } from "./js/utils/navbarElements.js";
 import { getLang } from "./js/utils/getLang.js";
 import { printMessage } from "./js/utils/toastMessage.js";
+import gameCreation from "./pages/gameCreation.js";
 
 export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
@@ -37,9 +36,9 @@ export default async function pageRouting(data = {}) {
   function redirectPath(path) {
     history.pushState(null, '', path);
     pageRouting();
-  }
+  } 
 
-
+  console.log("data: ", data);
 
   // if path is /home, send load content with function
   let contentDiv = document.getElementById("content");
@@ -47,6 +46,7 @@ export default async function pageRouting(data = {}) {
     case "/":
       contentDiv.innerHTML = homePage();
       break;
+
     case "/login":
       if (isLogged) {
         redirectPath('/profile');
@@ -61,6 +61,7 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the login form module", error);
         });
       break;
+
     case "/otp":
       if (isLogged) {
         redirectPath('/profile');
@@ -75,6 +76,7 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the otp form module", error);
         });
       break;
+
     case "/register":
       if (isLogged) {
         redirectPath('/profile');
@@ -89,6 +91,7 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the login form module", error);
         });
       break;
+
     case "/profile":
       if (!isLogged) {
         redirectPath('/login');
@@ -103,6 +106,7 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the login form module", error);
         });
       break;
+
     case "/enable-otp":
       contentDiv.innerHTML = enableOtpPage();
       import("/js/scripts/enableOtpForm.js")
@@ -113,17 +117,22 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the enable otp form module", error);
         });
       break;
-    case "/online":
+
+    case "/onlineCreation":
       if (!isLogged) {
         redirectPath('/login');
         return;
       }
-      contentDiv.innerHTML = onlineRoom();
-      import("./js/scripts/onlinePong.js")
+      contentDiv.innerHTML = gameCreation();
+      import("./js/scripts/gameCreationHandler.js")
         .then((module) => {
-          module.initPongGame();
+          module.gameCreationHandler(data);
         })
+        .catch((error) => {
+          console.error("Failed to load the game creation handler module", error);
+        });
       break;
+
     case "/localroom":
       if (!isLogged) {
         redirectPath('/login');
@@ -135,8 +144,9 @@ export default async function pageRouting(data = {}) {
           module.initPongGame();
         })
       break;
+
     case "/friend":
-      if(!logged)
+      if(!isLogged)
       {
         redirectPath('/login');
         return;
@@ -150,51 +160,70 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the contact handler module", error);
         });
       break;
-      case "/update":
-        if(!logged)
-        {
-          redirectPath('/login');
-          return;
-        }
-        contentDiv.innerHTML = updatePage();
-        import("./js/scripts/updateForm.js")
-          .then((module) => {
-            module.updateForm();
-          })
-          .catch((error) => {
-            console.error("Failed to load the login form module", error);
-          });
+
+    case "/update":
+      if(!isLogged)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = updatePage();
+      import("./js/scripts/updateForm.js")
+        .then((module) => {
+          module.updateForm();
+        })
+        .catch((error) => {
+          console.error("Failed to load the login form module", error);
+        });
+      break;
+
+    case "/online":
+      if(!isLogged || !data.gameId)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = onlineRoom({gameId: data.gameId});
+      import("./js/scripts/onlinePong.js")
+        .then((module) => {
+          module.initPongGame({gameId: data.gameId});
+        })
+        .catch((error) => {
+          console.error("Failed to load the online pong module", error);
+        });
         break;
-        case "/tournament":
-          if(!logged)
-          {
-            redirectPath('/login');
-            return;
-          }
-          contentDiv.innerHTML = tournament();
-          import("./js/scripts/tournamentHandler.js")
-            .then((module) => {
-              module.tournamentHandler();
-            })
-            .catch((error) => {
-              console.error("Failed to load the tournament module", error);
-            });
-          break;
-        case "/gamesearch":
-          if(!logged)
-          {
-            redirectPath('/login');
-            return;
-          }
-          contentDiv.innerHTML = gameSearch();
-          import("./js/scripts/gameSearchHandler.js")
-            .then((module) => {
-              module.gameSearchHandler();
-            })
-            .catch((error) => {
-              console.error("Failed to load the game search module", error);
-            });
-          break;
+
+    case "/tournament":
+      if(!isLogged)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = tournament();
+      import("./js/scripts/tournamentHandler.js")
+        .then((module) => {
+          module.tournamentHandler();
+        })
+        .catch((error) => {
+          console.error("Failed to load the tournament module", error);
+        });
+      break;
+
+    case "/gamesearch":
+      if(!isLogged)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = gameSearch();
+      import("./js/scripts/gameSearchHandler.js")
+        .then((module) => {
+          module.gameSearchHandler();
+        })
+        .catch((error) => {
+          console.error("Failed to load the game search module", error);
+        });
+      break;
     default:
       contentDiv.innerHTML = homePage();
       break;

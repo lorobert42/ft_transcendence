@@ -1,5 +1,5 @@
 
-export function initPongGame() {
+export function initPongGame(dataDict = {}) {
     const canvas = document.getElementById('pongCanvas');
     const scoreZone = document.getElementById('scoreZone');
     if (!canvas) {
@@ -8,12 +8,15 @@ export function initPongGame() {
     } else {
         console.log('Canvas element found!');
     }
-    
+
+    let gameId = dataDict.gameId;
+
     // ### Need to change the 0 in the path by the id of the game
     const gameSocket = new WebSocket(
-        'wss://' + location.host + '/ws/game/online/1/?token=' + localStorage.getItem('authToken')
+        'wss://' + location.host + `/ws/game/online/${gameId}/?token=` + localStorage.getItem('authToken')
     );
     
+
     let keyPressed = {"w": false, "s": false};
     let keyMessage = {"w": "UP", "s": "DOWN"};
     function waitConnection() {
@@ -42,18 +45,11 @@ export function initPongGame() {
                     gameSocket.send(JSON.stringify({
                         'start': 'start',
                     }));
+
+                    document.getElementById('button-start').style.display = 'none';
                 });
-<<<<<<< HEAD:frontend/public/pong.js
-        }
-        else
-        {
-            console.log(window.location.pathname);
-            if(window.localStorage.pathname != "/localroom")
-                return ;
-=======
 
         } else {
->>>>>>> main:frontend/public/js/scripts/onlinePong.js
             console.log("waiting to connect");
             waitConnection();
         }
@@ -92,19 +88,28 @@ export function initPongGame() {
         drawPlayer(player2);
         drawBall(ball);
     }
-
+    
+    
+    console.log("Initializing Pong game");
+    
     let data;
     
     gameSocket.onmessage = function(e) {
         data = JSON.parse(e.data);
-    }
-
-    console.log("Initializing Pong game");
-
-
-
+    };
+    
+    console.log('About to fetch game state...');
+    let intervalId = setInterval(UpdateGameState, 16);
+    
     function UpdateGameState() {
         try {
+            if(data == "Game Ended")
+            {
+                console.log("Game CLEAR");
+                gamePatch();
+               clearInterval(intervalId);
+               return ;
+            }
             player1.x = data["P1"]["x"];
             player2.x = data["P2"]["x"];
             player1.y = data["P1"]["y"];
@@ -127,16 +132,40 @@ export function initPongGame() {
         } catch (error) {
             console.error('Failed to fetch coordinates:', error);
         }
-        if(window.location.pathname !== "/localroom") 
+        if(window.location.pathname !== "/online") 
             return ;
         drawEverything();
     }
 
-    console.log('About to fetch game state...');
-    setInterval(UpdateGameState, 16);
-    function gameLoop() {
-        fetchAndUpdateGameState();
-        requestAnimationFrame(gameLoop);
-        console.log('Game loop running');
+    function gamePatch() {
+        fetch(`/api/game/${gameId}/`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+            },
+            body: `{
+                "score1": ${player1.score},
+                "score2": ${player2.score}
+            }`,
+        })
+            .then((response) => {
+                if (response.status === 401) {
+                    console.error('Unauthorized');
+                }
+                return response.json();
+            })
+            .then((data) => {
+                console.log(data);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
     }
+
+    // function gameLoop() {
+    //     fetchAndUpdateGameState();
+    //     requestAnimationFrame(gameLoop);
+    //     console.log('Game loop running');
+    // }
 };

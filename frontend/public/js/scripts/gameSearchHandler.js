@@ -62,7 +62,7 @@ export function gameSearchHandler() {
 
     document.getElementById("create-remote-game").addEventListener("click", (e) => {
         e.preventDefault();
-        history.pushState(null, '', "/online");
+        history.pushState(null, '', "/onlineCreation");
         pageRouting();
     });
 }

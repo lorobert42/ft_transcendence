@@ -1,4 +1,4 @@
-export default async function gameCreation() {
+export default function gameCreation() {
     // let currentUser = localStorage.getItem('user_id');
     // let games = await fetch('/api/game/').then(res => res.json());
     // games.forEach(element => {
@@ -10,18 +10,16 @@ export default async function gameCreation() {
     //     }
     // });
     return `
+    <div class="text-center">
     <h2>Create Your Game</h2>
     <form id="gameForm">
         <div class="mb-3">
             <label for="playerSelect" class="form-label">Choose a Player:</label>
-            <select class="form-select" id="playerSelect">
-                <option selected>Choose...</option>
-                <option value="1">Player 1</option>
-                <option value="2">Player 2</option>
-                <option value="3">Player 3</option>
-                <!-- Add more players as needed -->
+            <input class="form-control mb-1" type="text" id="searchInput" placeholder="Search player...">
+            <select class="form-select" id="playerSelect" size="5">
             </select>
         </div>
-        <button type="submit" class="btn btn-primary">Create Game</button>
-    </form>`;
+        <button type="button" id="gameCreateSubmit" class="btn btn-primary">Create Game</button>
+    </form>
+    </div>`;
 }
