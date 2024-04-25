@@ -28,6 +28,7 @@ export default async function pageRouting() {
   setNavbar(isLogged);
 
   if (isLogged && !Object.hasOwn(gData, "user")) {
+    console.log("Get user info");
     gData.user = await getUserInfo();
   }
 
