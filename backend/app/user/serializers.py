@@ -177,6 +177,21 @@ class OTPDisableSerializer(serializers.Serializer):
         return user
 
 
+def getJWT(user):
+    refresh = RefreshToken.for_user(user)
+
+    refresh['email'] = user.email
+    refresh['name'] = user.name
+    refresh['avatar'] = str(user.avatar)
+    refresh['otp_enabled'] = user.otp_enabled
+    refresh['last_active'] = str(user.last_active)
+
+    return {
+        "refresh": str(refresh),
+        "access": str(refresh.access_token),
+    }
+
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
@@ -204,14 +219,11 @@ class LoginSerializer(serializers.Serializer):
                 "otp": True,
                 "user": user,
             }
-        refresh = RefreshToken.for_user(user)
+        tokens = getJWT(user)
         return {
             "otp": False,
             "user_id": user.id,
-            "tokens": {
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-            }
+            "tokens": tokens
         }
 
 
@@ -234,38 +246,11 @@ class VerifyOTPSerializer(serializers.Serializer):
 
     def create(self, validated_data: dict):
         user: User = validated_data.get("user_object")
-        refresh = RefreshToken.for_user(user)
+        tokens = getJWT(user)
         user.login_otp_used = True
         user.save(update_fields=["login_otp_used"])
-        return {
-            "refresh": str(refresh),
-            "access": str(refresh.access_token),
-        }
+        return tokens
 
-
-class AuthTokenSerializer(serializers.Serializer):
-    """Serializer for the user authentication object"""
-    email = serializers.CharField()
-    password = serializers.CharField(
-        style={'input_type': 'password'},
-        trim_whitespace=False
-    )
-
-    def validate(self, attrs):
-        """Validate and authenticate the user"""
-        email = attrs.get('email')
-        password = attrs.get('password')
-        user = authenticate(
-            request=self.context.get('request'),
-            username=email,
-            password=password,
-        )
-        if not user:
-            msg = _('Unable to authenticate with provided credentials')
-            raise serializers.ValidationError(msg, code='authentication')
-
-        attrs['user'] = user
-        return attrs
 
 class AddFriendSerializer(serializers.Serializer):
     friend_id = serializers.IntegerField()
@@ -276,6 +261,7 @@ class AddFriendSerializer(serializers.Serializer):
         if request and value == request.user.id:
             raise serializers.ValidationError("You cannot add or delete yourself.")
         return value
+
 
 class FriendInvitationSerializer(serializers.ModelSerializer):
     class Meta:
