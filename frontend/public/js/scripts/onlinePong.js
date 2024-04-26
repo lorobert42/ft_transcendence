@@ -36,11 +36,16 @@ export function initPongGame(data) {
                 gameSocket.send(JSON.stringify({
                     'join': 'online',
                 }));
+				// Function to disable start button
+				function disableButtons() {
+					document.getElementById('button-start').disabled = true;
+				}
 
                 document.getElementById('button-start').addEventListener('click', () => {
                     gameSocket.send(JSON.stringify({
                         'start': 'start',
                     }));
+					disableButtons(); // Disable both buttons
                 });
 
         } else {
