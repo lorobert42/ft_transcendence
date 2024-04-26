@@ -8,7 +8,7 @@ import registerPage from "./pages/registerPage.js";
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
 
-import { getUserInfo, isLoggedIn } from "./js/utils/loginHandler.js";
+import { isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
 import tournament from "./pages/tournament.js";
@@ -17,21 +17,18 @@ import { rootPageTraduction } from "./pages/rootPage.js";
 import { setNavbar } from "./js/utils/navbarElements.js";
 import { getLang } from "./js/utils/getLang.js";
 import { printMessage } from "./js/utils/toastMessage.js";
+import { decodeJWT } from "./js/utils/tokenHandler.js";
 
 export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
   rootPageTraduction();
 
-  let isLogged = isLoggedIn();
+  let isLogged = await isLoggedIn();
   setNavbar(isLogged);
-
   if (isLogged) {
-    console.log('is logged in');
-    data.user = await getUserInfo();
-    console.log(data);
-  } else {
-    console.log('is logged out');
+    data.user = decodeJWT(localStorage.getItem("authToken"));
   }
+
   console.log("Path: " + path);
 
   function redirectPath(path) {
@@ -104,6 +101,10 @@ export default async function pageRouting(data = {}) {
         });
       break;
     case "/enable-otp":
+      if (!isLogged) {
+        redirectPath('/login');
+        return;
+      }
       contentDiv.innerHTML = enableOtpPage();
       import("/js/scripts/enableOtpForm.js")
         .then((module) => {
@@ -121,7 +122,7 @@ export default async function pageRouting(data = {}) {
       contentDiv.innerHTML = onlineRoom();
       import("./js/scripts/onlinePong.js")
         .then((module) => {
-          module.initPongGame();
+          module.initPongGame(data);
         })
       break;
     case "/localroom":
@@ -132,7 +133,7 @@ export default async function pageRouting(data = {}) {
       contentDiv.innerHTML = localRoom();
       import("./js/scripts/localPong.js")
         .then((module) => {
-          module.initPongGame();
+          module.initPongGame(data);
         })
       break;
     case "/friend":

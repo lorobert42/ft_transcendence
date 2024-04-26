@@ -17,6 +17,7 @@ from user.serializers import (
     OTPEnableConfirmSerializer,
     OTPDisableSerializer,
     LoginSerializer,
+    CustomTokenRefreshSerializer,
     VerifyOTPSerializer,
     AddFriendSerializer,
     CreateUserSerializer,
@@ -105,11 +106,9 @@ class LoginUserView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response: dict = serializer.save()
-        print(response)
 
         if response["otp"]:
             user = response["user"]
-            print(response)
             return Response(
                 {
                     "success": True,
@@ -120,6 +119,18 @@ class LoginUserView(generics.GenericAPIView):
             )
         response["tokens"]["user_id"] = response["user_id"]
         return Response(response["tokens"], status=200)
+
+
+class RefreshTokenView(generics.GenericAPIView):
+    """Refresh JWT"""
+    permission_classes = [permissions.AllowAny]
+    serializer_class = CustomTokenRefreshSerializer
+
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tokens: dict = serializer.save()
+        return Response(tokens, status=200)
 
 
 class VerifyOTPView(generics.GenericAPIView):
@@ -212,6 +223,7 @@ class DeleteFriendView(generics.GenericAPIView):
         except User.DoesNotExist:
             return Response({"message": "Friend not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
 class FriendInvitationListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = FriendInvitationSerializer
@@ -239,6 +251,7 @@ class FriendInvitationListCreateView(generics.ListCreateAPIView):
             raise ValidationError('An invitation between these users already exists.')
 
         serializer.save()
+
 
 class FriendInvitationUpdateView(generics.UpdateAPIView):
     queryset = FriendInvitation.objects.all()

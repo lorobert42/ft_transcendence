@@ -5,7 +5,7 @@ export const userProfileModule = (() => {
   const setUserProfile = (user) => {
     document.getElementById("userName").textContent = user.name;
     document.getElementById("userEmail").textContent = user.email;
-    if (user.avatar != null)
+    if (user.avatar != '')
       document.getElementById("avatar").src = user.avatar;
   }
 
@@ -35,7 +35,7 @@ export const userProfileModule = (() => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           history.pushState({}, '', '/enable-otp');
-          pageRouting({ 'qr_code': data.qr_code });
+          pageRouting({'qr_code': data.qr_code});
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -64,8 +64,8 @@ export const userProfileModule = (() => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           printMessage('Two-Factor Authentication disabled');
-          user.otp_enabled = false;
-          showOtpOption(user);
+          history.pushState({}, '', '/profile');
+          pageRouting();
         } else {
           throw new Error('Unable to process your request, please retry.');
         }

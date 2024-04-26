@@ -4,17 +4,17 @@ import { printError, printSuccess } from "../utils/toastMessage.js";
 export const otpFormModule = (() => {
   const otpCheck = (data, otp) => {
     console.log("in otp check");
-    let id;
-    if (Object.hasOwn(data, "id")) {
-      id = data.id;
-      console.log('id: ' + id);
+    let user_id;
+    if (Object.hasOwn(data, "user_id")) {
+      user_id = data.user_id;
+      console.log('user_id: ' + user_id);
     }
     fetch("/api/user/otp/verify/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ 'otp': otp, 'user_id': id }),
+      body: JSON.stringify({ 'otp': otp, 'user_id': user_id }),
     })
       .then((response) => {
         if (response.status === 401) {

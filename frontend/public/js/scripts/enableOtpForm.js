@@ -1,3 +1,4 @@
+import { getRefreshToken } from "../utils/loginHandler.js";
 import { printError } from "../utils/toastMessage.js";
 
 export const enableOtpFormModule = (() => {
@@ -29,6 +30,7 @@ export const enableOtpFormModule = (() => {
           });
           const backupDiv = document.getElementById("backup");
           backupDiv.classList.remove("d-none");
+          getRefreshToken();
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -50,10 +52,10 @@ export const enableOtpFormModule = (() => {
       otpForm.addEventListener("submit", function (event) {
         event.preventDefault();
         const otp = document.getElementById("otp").value;
-        otpCheck(data.user.id, otp);
+        otpCheck(data.user.user_id, otp);
       });
     } else {
-      console.error("Login form not found at init time.");
+      console.error("OTP form not found at init time.");
     }
   };
 

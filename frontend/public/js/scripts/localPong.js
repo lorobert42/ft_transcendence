@@ -1,5 +1,4 @@
-
-export function initPongGame() {
+export function initPongGame(data) {
     const canvas = document.getElementById('pongCanvas');
     const scoreZone = document.getElementById('scoreZone');
     if (!canvas) {
@@ -10,7 +9,7 @@ export function initPongGame() {
     }
 
     const gameSocket = new WebSocket(
-        'wss://' + location.host + '/ws/game/local/' + localStorage.getItem('user_id') + '/?token=' + localStorage.getItem('authToken')
+        'wss://' + location.host + '/ws/game/local/' + data.user.user_id + '/?token=' + localStorage.getItem('authToken')
     );
 
     let keyPressed = {"ArrowUp": false, "ArrowDown": false, "w": false, "s": false};
@@ -22,6 +21,7 @@ export function initPongGame() {
                 document.addEventListener('keydown', (e) => {
                     if (e.key in keyPressed) {
                         keyPressed[e.key] = true;
+                        e.preventDefault();
                     }
                     if(e.key.repeat) {
                         return;
