@@ -98,7 +98,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 await self.handle_move_local(td_json['local'])
         if 'move' in td_json:
             await self.handle_move_online(td_json['move'])
-        if 'start' in td_json:
+        if 'start' in td_json and not GameRoomConsumer.game_tab[self.room_id].active:
             await self.handle_start(td_json['start'])
         # If player is a bot initialize and mark as ready
 
