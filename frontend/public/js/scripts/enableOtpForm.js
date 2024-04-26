@@ -1,5 +1,4 @@
-import { gData } from "../../changeContent.js";
-import { getUserInfo } from "../utils/loginHandler.js";
+import { getRefreshToken } from "../utils/loginHandler.js";
 import { printError } from "../utils/toastMessage.js";
 
 export const enableOtpFormModule = (() => {
@@ -18,7 +17,7 @@ export const enableOtpFormModule = (() => {
         }
         return response.json()
       })
-      .then(async (data) => {
+      .then((data) => {
         if (Object.hasOwn(data, "success") && data.success === true) {
           const form = document.getElementById("otpForm");
           form.classList.add("d-none");
@@ -31,8 +30,7 @@ export const enableOtpFormModule = (() => {
           });
           const backupDiv = document.getElementById("backup");
           backupDiv.classList.remove("d-none");
-          delete gData.qr_code;
-          gData.user = await getUserInfo();
+          getRefreshToken();
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -42,10 +40,10 @@ export const enableOtpFormModule = (() => {
       });
   };
 
-  const init = () => {
+  const init = (data) => {
     let src;
-    if (Object.hasOwn(gData, "qr_code")) {
-      src = gData.qr_code;
+    if (Object.hasOwn(data, "qr_code")) {
+      src = data.qr_code;
     }
     const qr_code = document.getElementById("qrCode");
     qr_code.src = src;
@@ -54,7 +52,7 @@ export const enableOtpFormModule = (() => {
       otpForm.addEventListener("submit", function (event) {
         event.preventDefault();
         const otp = document.getElementById("otp").value;
-        otpCheck(gData.user.id, otp);
+        otpCheck(data.user.user_id, otp);
       });
     } else {
       console.error("OTP form not found at init time.");

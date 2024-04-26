@@ -14,6 +14,8 @@ from django.utils.crypto import get_random_string
 
 from rest_framework import serializers, exceptions
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
+from rest_framework_simplejwt.state import token_backend
 import pyotp
 import qrcode
 
@@ -225,6 +227,19 @@ class LoginSerializer(serializers.Serializer):
             "user_id": user.id,
             "tokens": tokens
         }
+
+
+class CustomTokenRefreshSerializer(TokenRefreshSerializer):
+    def validate(self, attrs):
+        payload = token_backend.decode(attrs.get('refresh'), verify=True)
+        user: User = User.objects.filter(id=payload['user_id']).first()
+        attrs['user_object'] = user
+        return attrs
+
+    def create(self, validated_data):
+        user: User = validated_data.get('user_object')
+        tokens = getJWT(user)
+        return tokens
 
 
 class VerifyOTPSerializer(serializers.Serializer):

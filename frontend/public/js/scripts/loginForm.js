@@ -25,7 +25,7 @@ export const loginFormModule = (() => {
           pageRouting();
         } else if (Object.hasOwn(data, "success") && data.success === true) {
           history.pushState({}, '', '/otp');
-          pageRouting({ 'id': data.user });
+          pageRouting({ 'user_id': data.user });
         } else {
           throw new Error('Unable to process your request, please retry.');
         }

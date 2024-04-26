@@ -8,7 +8,7 @@ import registerPage from "./pages/registerPage.js";
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
 
-import { getUserInfo, isLoggedIn } from "./js/utils/loginHandler.js";
+import { isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
 import tournament from "./pages/tournament.js";
@@ -17,19 +17,16 @@ import { rootPageTraduction } from "./pages/rootPage.js";
 import { setNavbar } from "./js/utils/navbarElements.js";
 import { getLang } from "./js/utils/getLang.js";
 import { printMessage } from "./js/utils/toastMessage.js";
+import { decodeJWT } from "./js/utils/tokenHandler.js";
 
-export let gData = {};
-
-export default async function pageRouting() {
+export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
   rootPageTraduction();
 
-  let isLogged = isLoggedIn();
+  let isLogged = await isLoggedIn();
   setNavbar(isLogged);
-
-  if (isLogged && !Object.hasOwn(gData, "user")) {
-    console.log("Get user info");
-    gData.user = await getUserInfo();
+  if (isLogged) {
+    data.user = decodeJWT(localStorage.getItem("authToken"));
   }
 
   console.log("Path: " + path);
@@ -69,7 +66,7 @@ export default async function pageRouting() {
       contentDiv.innerHTML = otpPage();
       import("/js/scripts/otpForm.js")
         .then((module) => {
-          module.otpFormModule.init();
+          module.otpFormModule.init(data);
         })
         .catch((error) => {
           console.error("Failed to load the otp form module", error);
@@ -97,7 +94,7 @@ export default async function pageRouting() {
       contentDiv.innerHTML = profilePage();
       import("/js/scripts/userProfile.js")
         .then((module) => {
-          module.userProfileModule.init();
+          module.userProfileModule.init(data);
         })
         .catch((error) => {
           console.error("Failed to load the login form module", error);
@@ -111,7 +108,7 @@ export default async function pageRouting() {
       contentDiv.innerHTML = enableOtpPage();
       import("/js/scripts/enableOtpForm.js")
         .then((module) => {
-          module.enableOtpFormModule.init();
+          module.enableOtpFormModule.init(data);
         })
         .catch((error) => {
           console.error("Failed to load the enable otp form module", error);
@@ -125,7 +122,7 @@ export default async function pageRouting() {
       contentDiv.innerHTML = onlineRoom();
       import("./js/scripts/onlinePong.js")
         .then((module) => {
-          module.initPongGame(gData);
+          module.initPongGame(data);
         })
       break;
     case "/localroom":
@@ -136,7 +133,7 @@ export default async function pageRouting() {
       contentDiv.innerHTML = localRoom();
       import("./js/scripts/localPong.js")
         .then((module) => {
-          module.initPongGame(gData);
+          module.initPongGame(data);
         })
       break;
     case "/friend":
@@ -272,7 +269,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   document.getElementById("logout-button").addEventListener("click", (e) => {
     e.preventDefault();
     localStorage.clear();
-    gData = {};
     printMessage("Logout Successful");
     history.pushState(null, '', '/');
     pageRouting();

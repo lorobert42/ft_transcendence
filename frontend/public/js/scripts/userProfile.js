@@ -1,12 +1,11 @@
-import pageRouting, { gData } from '../../changeContent.js'
-import { getUserInfo } from '../utils/loginHandler.js';
+import pageRouting from '../../changeContent.js'
 import { printMessage, printError } from '../utils/toastMessage.js';
 
 export const userProfileModule = (() => {
   const setUserProfile = (user) => {
     document.getElementById("userName").textContent = user.name;
     document.getElementById("userEmail").textContent = user.email;
-    if (user.avatar != null)
+    if (user.avatar != '')
       document.getElementById("avatar").src = user.avatar;
   }
 
@@ -36,8 +35,7 @@ export const userProfileModule = (() => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           history.pushState({}, '', '/enable-otp');
-          gData.qr_code = data.qr_code;
-          pageRouting();
+          pageRouting({'qr_code': data.qr_code});
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -62,12 +60,12 @@ export const userProfileModule = (() => {
         }
         return response.json()
       })
-      .then(async (data) => {
+      .then((data) => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           printMessage('Two-Factor Authentication disabled');
-          gData.user = await getUserInfo();
-          showOtpOption(gData.user);
+          history.pushState({}, '', '/profile');
+          pageRouting();
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -110,9 +108,9 @@ export const userProfileModule = (() => {
     }
   };
 
-  const init = () => {
-    setUserProfile(gData.user);
-    showOtpOption(gData.user);
+  const init = (data) => {
+    setUserProfile(data.user);
+    showOtpOption(data.user);
   };
 
   return { init };
