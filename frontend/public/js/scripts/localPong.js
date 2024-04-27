@@ -1,4 +1,4 @@
-export function initPongGame(data) {
+export function initPongGame(routerData) {
     const canvas = document.getElementById('pongCanvas');
     const scoreZone = document.getElementById('scoreZone');
     if (!canvas) {
@@ -9,7 +9,7 @@ export function initPongGame(data) {
     }
 
     const gameSocket = new WebSocket(
-        'wss://' + location.host + '/ws/game/local/' + data.user.user_id + '/?token=' + localStorage.getItem('authToken')
+        'wss://' + location.host + '/ws/game/local/' + routerData.user.user_id + '/?token=' + localStorage.getItem('authToken')
     );
 
     let keyPressed = {"ArrowUp": false, "ArrowDown": false, "w": false, "s": false};
