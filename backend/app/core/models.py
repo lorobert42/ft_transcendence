@@ -1,7 +1,7 @@
 """
 Database models
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 from datetime import timezone as tz
 from django.forms import ValidationError
 
@@ -51,6 +51,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=25)
     is_active = models.BooleanField(default=True)
+    is_playing = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
     avatar = models.ImageField(null=True,  blank=True,  upload_to='user_avatars/',  default='user_avatars/default-avatar.png')
     otp_enabled = models.BooleanField(default=False)
@@ -69,6 +70,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+    @property
+    def is_connected(self):
+        """Determine if the user has been active in the last 5 minutes"""
+        return timezone.now() - self.last_active <= timedelta(minutes=5)
 
     def is_valid_otp(self):
         lifespan_in_seconds = 90 if self.otp_enabled else 300

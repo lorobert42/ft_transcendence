@@ -1,6 +1,7 @@
 """
 Views for user api
 """
+from datetime import datetime, timezone
 from django.db.models import Q
 from django.forms import ValidationError
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -109,6 +110,9 @@ class LoginUserView(generics.GenericAPIView):
 
         if response["otp"]:
             user = response["user"]
+            if user:
+                user.last_active = datetime.now(timezone.utc)
+                user.save(update_fields=['last_active'])
             return Response(
                 {
                     "success": True,
