@@ -11,8 +11,8 @@ from drf_spectacular.utils import extend_schema,  extend_schema, OpenApiParamete
 from django.http import JsonResponse
 import random
 
-from core.models import Game, Tournament, Participation, GameInvitation
-from .serializers import GameSerializer, TournamentSerializer, ParticipationSerializer, GameScoreUpdateSerializer, GameInvitationSerializer
+from core.models import Game, Tournament, Participation, GameInvitation, TournamentInvitation
+from .serializers import GameSerializer, TournamentSerializer, ParticipationSerializer, GameScoreUpdateSerializer, GameInvitationSerializer, TournamentInvitationSerializer
 
 class GameListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = GameSerializer
@@ -76,4 +76,14 @@ class GameInvitationListCreateView(generics.ListCreateAPIView):
 class GameInvitationUpdateView(generics.UpdateAPIView):
     queryset = GameInvitation.objects.all()
     serializer_class = GameInvitationSerializer
+    http_method_names = ['patch']  # Allow only PATCH method
+
+# TournamentInvitation Views
+class TournamentInvitationListCreateView(generics.ListCreateAPIView):
+    queryset = TournamentInvitation.objects.all()
+    serializer_class = TournamentInvitationSerializer
+
+class TournamentInvitationUpdateView(generics.UpdateAPIView):
+    queryset = TournamentInvitation.objects.all()
+    serializer_class = TournamentInvitationSerializer
     http_method_names = ['patch']  # Allow only PATCH method
