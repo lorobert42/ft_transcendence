@@ -126,6 +126,19 @@ class Tournament(models.Model):
         participant_names = ", ".join(p.user.name for p in self.participation_set.all())
         return f"{self.name} with players: {participant_names}"
 
+class TournamentInvitation(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('declined', 'Declined'),
+        ('cancelled', 'Cancelled'),
+    ), default='pending')
+
+    def __str__(self):
+        return f"Invitation for {self.user}: {self.tournament} - Status: {self.status}"
+
 class Participation(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
@@ -159,6 +172,7 @@ class Game(models.Model):
     )
     score1 = models.IntegerField(default=0,)
     score2 = models.IntegerField(default=0,)
+    is_archived = models.BooleanField(default=False)
 
     def clean(self):
         # Custom validation to ensure player1 and player2 are not the same
@@ -186,6 +200,11 @@ class GameInvitation(models.Model):
         ('declined', 'Declined'),
         ('cancelled', 'Cancelled'),
     ), default='pending')
+
+    def __str__(self):
+        return f"Invitation for {self.game}: {self.player1.name} vs {self.player2.name} - Status: {self.status}"
+
+
 
     def __str__(self):
         return f"Invitation for {self.game}: {self.player1.name} vs {self.player2.name} - Status: {self.status}"
