@@ -21,7 +21,7 @@ class GameScoreUpdateSerializer(serializers.ModelSerializer):
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ['id', 'tournament', 'player1', 'player2', 'score1', 'score2']
+        fields = ['id', 'tournament', 'player1', 'player2', 'score1', 'score2', 'is_archived']
 
     def validate(self, data):
         """
