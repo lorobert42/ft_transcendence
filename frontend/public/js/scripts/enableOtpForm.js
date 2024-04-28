@@ -17,7 +17,7 @@ export const enableOtpFormModule = (() => {
         }
         return response.json()
       })
-      .then((data) => {
+      .then(async (data) => {
         if (Object.hasOwn(data, "success") && data.success === true) {
           const form = document.getElementById("otpForm");
           form.classList.add("d-none");
@@ -30,7 +30,7 @@ export const enableOtpFormModule = (() => {
           });
           const backupDiv = document.getElementById("backup");
           backupDiv.classList.remove("d-none");
-          getRefreshToken();
+          await getRefreshToken();
         } else {
           throw new Error('Unable to process your request, please retry.');
         }

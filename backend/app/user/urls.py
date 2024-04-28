@@ -3,10 +3,6 @@ URL mapping for user api
 """
 
 from django.urls import path
-
-from rest_framework_simplejwt.views import TokenRefreshView
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
-
 from user import views
 
 app_name = 'user'
