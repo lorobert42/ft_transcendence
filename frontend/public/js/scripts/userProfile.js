@@ -1,4 +1,5 @@
 import pageRouting from '../../changeContent.js'
+import { getRefreshToken } from '../utils/loginHandler.js';
 import { printMessage, printError } from '../utils/toastMessage.js';
 
 export const userProfileModule = (() => {
@@ -6,7 +7,7 @@ export const userProfileModule = (() => {
     document.getElementById("userName").textContent = user.name;
     document.getElementById("userEmail").textContent = user.email;
     if (user.avatar != '')
-      document.getElementById("avatar").src = user.avatar;
+      document.getElementById("avatar").src = "media/" + user.avatar;
   }
 
   const updateButton = document.getElementById("update-profile");
@@ -60,10 +61,11 @@ export const userProfileModule = (() => {
         }
         return response.json()
       })
-      .then((data) => {
+      .then(async (data) => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           printMessage('Two-Factor Authentication disabled');
+          await getRefreshToken();
           history.pushState({}, '', '/profile');
           pageRouting();
         } else {

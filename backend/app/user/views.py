@@ -4,7 +4,6 @@ Views for user api
 from datetime import datetime, timezone
 from django.db.models import Q
 from django.forms import ValidationError
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from core.models import FriendInvitation, User
@@ -22,12 +21,6 @@ from user.serializers import (
     VerifyOTPSerializer,
     AddFriendSerializer,
 )
-
-
-class UserAvatarUploadView(generics.UpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    parser_classes = (MultiPartParser, FormParser)
 
 
 class CreateUserView(generics.CreateAPIView):

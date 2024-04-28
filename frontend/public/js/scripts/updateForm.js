@@ -1,42 +1,52 @@
+import pageRouting from "../../changeContent.js";
+import { getRefreshToken } from "../utils/loginHandler.js";
+import { printMessage } from "../utils/toastMessage.js";
+
 export function updateForm() {
-    const form = document.getElementById("updateForm");
+  const form = document.getElementById("updateForm");
 
-
-    console.log("in update form");
-
-
-    async function updateUser(name) {
-
-        let authToken = localStorage.getItem("authToken");
-        let response = await fetch("/api/user/add-friend/", {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
-              "Content-Type": "application/json",
-            },
-            body: `{
-                "email": "user@example.com",
-                "name": "string",
-                "avatar": "string",
-                "password": "string",
-                "last_active": "2024-04-17T14:39:52.091Z"
-              }`,
-          }).then((response) => {
-            if (response.status === 401) {
-              console.error("Unauthorized");
-            }
-            return response.json();
-          }).then((data) => {
-            return data;
-          }).catch((error) => {
-            console.error("Error:", error);
-        });
+  function updateUser() {
+    const formData = new FormData();
+    const fileInput = document.getElementById("avatar");
+    if (fileInput.files[0]) {
+      formData.append("avatar", fileInput.files[0]);
     }
-
-    form.addEventListener("submit", (event) => {
-        event.preventDefault();
-        const name = document.getElementById("nameUpdate").value;
-        console.log(name);
-        updateUser(name);
+    const email = document.getElementById("email").value;
+    if (email) {
+      formData.append("email", email);
+    }
+    const name = document.getElementById("name").value;
+    if (name) {
+      formData.append("name", name);
+    }
+    const password = document.getElementById("password").value;
+    if (password) {
+      formData.append("password", password);
+    }
+    let authToken = localStorage.getItem("authToken");
+    fetch("/api/user/me/", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
+      },
+      body: formData,
+    }).then((response) => {
+      if (response.status === 401) {
+        console.error("Unauthorized");
+      }
+      return response.json();
+    }).then(async () => {
+      printMessage("Update successful");
+      await getRefreshToken();
+      history.pushState({}, '', '/profile');
+      pageRouting();
+    }).catch((error) => {
+      console.error("Error:", error);
     });
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    updateUser();
+  });
 }

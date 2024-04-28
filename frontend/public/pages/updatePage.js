@@ -52,18 +52,17 @@ export default function updatePage() {
         <input type="email" class="form-control" id="email" placeholder="${langdict[lang]['enterMail']}">
       </div>
       <div class="form-group">
-        <label for="nameUpadte">${langdict[lang]['nameSpace']}</label>
-        <input type="text" class="form-control" id="nameUpdate" placeholder="${langdict[lang]['enterName']}">
+        <label for="name">${langdict[lang]['nameSpace']}</label>
+        <input type="text" class="form-control" id="name" placeholder="${langdict[lang]['enterName']}">
       </div>
       <div class="form-group">
         <label for="avatar">Avatar</label>
-        <input type="text" class="form-control" id="avatar" placeholder="${langdict[lang]['enterAvatar']}">
+        <input type="file" class="form-control-file" id="avatar" placeholder="${langdict[lang]['enterAvatar']}">
       </div>
       <div class="form-group">
         <label for="password">${langdict[lang]['password']}</label>
         <input type="password" class="form-control" id="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
       </div>
       <button type="sumbit" class="btn btn-primary">${langdict[lang]['profileButton']}</button>
-    </form>
-`;
+    </form>`;
 }

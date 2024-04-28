@@ -5,10 +5,8 @@ Serializers for user api views
 from datetime import datetime, timezone
 from io import BytesIO
 from django.contrib.auth import (
-    get_user_model,
     authenticate,
 )
-from django.utils.translation import gettext as _
 from django.core.files.base import ContentFile
 from django.utils.crypto import get_random_string
 
@@ -49,17 +47,15 @@ class UserSerializer(serializers.ModelSerializer):
         """Update a user, setting the password correctly and return it"""
         password = validated_data.pop('password', None)
         avatar = validated_data.pop('avatar', None)
-
-        # Update fields if they are included in the request
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
+        instance.email = validated_data.get('email', instance.email)
+        instance.name = validated_data.get('name', instance.name)
 
         if password:
             instance.set_password(password)
 
         if avatar:
-            # Assuming avatar is a file, handle file save
-
+            if instance.avatar.name != 'user_avatars/default-avatar.png':
+                instance.avatar.delete()
             instance.avatar = avatar
 
         instance.save()

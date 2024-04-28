@@ -19,8 +19,8 @@ def user_avatar_path(instance, filename):
     Generates a unique file path for storing user avatar images.
     The path includes the user's ID to avoid filename conflicts.
     """
-    # file will be uploaded to MEDIA_ROOT/user_avatars/user_<id>/<filename>
-    return f'user_avatars/user_{instance.id}/{filename}'
+    # file will be uploaded to MEDIA_ROOT/user_avatars/user_<id>_<filename>
+    return f'user_avatars/user_{instance.id}_{filename}'
 
 
 class UserManager(BaseUserManager):
@@ -53,7 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_playing = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    avatar = models.ImageField(upload_to='user_avatars/',  default='media/user_avatars/default-avatar.png')
+    avatar = models.ImageField(upload_to=user_avatar_path,  default='user_avatars/default-avatar.png')
     otp_enabled = models.BooleanField(default=False)
     otp_auth_url = models.CharField(max_length=225, blank=True, null=True)
     qr_code = models.ImageField(upload_to="qrcode/", blank=True, null=True)
