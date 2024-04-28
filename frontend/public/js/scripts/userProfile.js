@@ -10,13 +10,6 @@ export const userProfileModule = (() => {
       document.getElementById("avatar").src = "media/" + user.avatar;
   }
 
-  const updateButton = document.getElementById("update-profile");
-  updateButton.addEventListener("click", function (event) {
-    event.preventDefault();
-    history.pushState({}, '', '/update');
-    pageRouting();
-  });
-
   const otpEnableRequest = (user, password) => {
     fetch("/api/user/otp/activation/", {
       method: "POST",
@@ -36,7 +29,7 @@ export const userProfileModule = (() => {
         console.log(data);
         if (Object.hasOwn(data, "success") && data.success === true) {
           history.pushState({}, '', '/enable-otp');
-          pageRouting({'qr_code': data.qr_code});
+          pageRouting({ 'qr_code': data.qr_code });
         } else {
           throw new Error('Unable to process your request, please retry.');
         }
@@ -111,6 +104,12 @@ export const userProfileModule = (() => {
   };
 
   const init = (data) => {
+    const updateButton = document.getElementById("update-profile");
+    updateButton.addEventListener("click", function (event) {
+      event.preventDefault();
+      history.pushState({}, '', '/update');
+      pageRouting();
+    });
     setUserProfile(data.user);
     showOtpOption(data.user);
   };
