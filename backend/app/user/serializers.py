@@ -22,31 +22,28 @@ import qrcode
 from core.models import User, FriendInvitation
 
 
-class CreateUserSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    """Serializer for the user objects, handling read and update operations."""
     class Meta:
-        model = get_user_model()
-        fields = ['email', 'password', 'name']
+        model = User
+        fields = ['email', 'name', 'id', 'avatar', 'friends', 'password', 'last_active', 'otp_enabled', 'is_connected', 'is_playing']
         extra_kwargs = {
+            'id': {'read_only': True},
+            'avatar': {'allow_null': True},
+            'friends': {'read_only': True},  # Assuming friends are handled separately
             'password': {'write_only': True, 'min_length': 5},
+            'last_active': {'read_only': True},
+            'otp_enabled': {'read_only': True},
+            'is_connected': {'read_only': True},
+            'is_playing': {'read_only': True},
         }
 
     def create(self, validated_data):
         """Create a new user with encrypted password and return it"""
-        user = get_user_model().objects.create_user(**validated_data)
+        user = User.objects.create(**validated_data)
+        user.set_password(validated_data['password'])
         user.save()
         return user
-
-
-class UserSerializer(serializers.ModelSerializer):
-    """Serializer for the user objects, handling read and update operations."""
-
-    class Meta:
-        model = get_user_model()
-        fields = ['email', 'name', 'id', 'avatar', 'friends', 'password', 'last_active', 'otp_enabled', 'is_connected', 'is_playing']
-        extra_kwargs = {
-            'password': {'write_only': True, 'min_length': 5},
-            'friends': {'read_only': True}  # Assuming friends are handled separately
-        }
 
     def update(self, instance, validated_data):
         """Update a user, setting the password correctly and return it"""

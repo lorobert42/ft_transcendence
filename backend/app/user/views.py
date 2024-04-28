@@ -21,7 +21,6 @@ from user.serializers import (
     CustomTokenRefreshSerializer,
     VerifyOTPSerializer,
     AddFriendSerializer,
-    CreateUserSerializer,
 )
 
 
@@ -33,7 +32,7 @@ class UserAvatarUploadView(generics.UpdateAPIView):
 
 class CreateUserView(generics.CreateAPIView):
     """Create a new user in the system"""
-    serializer_class = CreateUserSerializer
+    serializer_class = UserSerializer
 
 
 class OTPEnableRequestView(generics.GenericAPIView):
@@ -150,7 +149,7 @@ class VerifyOTPView(generics.GenericAPIView):
 class ManageUserView(generics.RetrieveUpdateAPIView):
     """Manage the authenticated user"""
     serializer_class = UserSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         """Retrieve and return authenticated user"""
