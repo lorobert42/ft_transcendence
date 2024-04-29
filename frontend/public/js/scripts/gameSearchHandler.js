@@ -65,4 +65,10 @@ export function gameSearchHandler() {
         history.pushState(null, '', "/onlineCreation");
         pageRouting();
     });
+
+    document.getElementById("create-tournament").addEventListener("click", (e) => {
+        e.preventDefault();
+        history.pushState(null, '', "/tournamentCreation");
+        pageRouting();
+    });
 }

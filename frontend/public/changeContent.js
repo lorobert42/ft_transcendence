@@ -16,6 +16,7 @@ import { setNavbar } from "./js/utils/navbarElements.js";
 import { getLang } from "./js/utils/getLang.js";
 import { printMessage } from "./js/utils/toastMessage.js";
 import gameCreation from "./pages/gameCreation.js";
+import tournamentCreation from "./pages/tournamentCreation.js";
 
 export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
@@ -192,6 +193,22 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the online pong module", error);
         });
         break;
+
+    case "/tournamentCreation":
+      if(!isLogged)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = tournamentCreation();
+      import("./js/scripts/tournamentCreationHandler.js")
+        .then((module) => {
+          module.tournamentCreationHandler();
+        })
+        .catch((error) => {
+          console.error("Failed to load the tournament creation module", error);
+        });
+      break;
 
     case "/tournament":
       if(!isLogged)
