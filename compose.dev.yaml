@@ -1,8 +1,5 @@
 services:
-  backend:
-    build:
-      args:
-        - DEV=true
+  backend:      
     volumes:
       - ./backend/app:/app
   frontend:

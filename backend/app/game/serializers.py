@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import Game, Tournament, User, Participation, GameInvitation
+from core.models import Game, Tournament, User, Participation, GameInvitation, TournamentInvitation
 
 class GameUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -21,7 +21,7 @@ class GameScoreUpdateSerializer(serializers.ModelSerializer):
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ['id', 'tournament', 'player1', 'player2', 'score1', 'score2']
+        fields = ['id', 'tournament', 'player1', 'player2', 'score1', 'score2', 'is_archived']
 
     def validate(self, data):
         """
@@ -66,6 +66,14 @@ class TournamentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tournament
         fields = ['id', 'name', 'participants']
+
+class TournamentInvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TournamentInvitation
+        fields = '__all__'
+
+    def validate(self, data):
+        return data
 
 class GameInvitationSerializer(serializers.ModelSerializer):
     class Meta:

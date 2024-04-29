@@ -1,7 +1,7 @@
 """
 Database models
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 from datetime import timezone as tz
 from django.forms import ValidationError
 
@@ -19,8 +19,8 @@ def user_avatar_path(instance, filename):
     Generates a unique file path for storing user avatar images.
     The path includes the user's ID to avoid filename conflicts.
     """
-    # file will be uploaded to MEDIA_ROOT/user_avatars/user_<id>/<filename>
-    return f'user_avatars/user_{instance.id}/{filename}'
+    # file will be uploaded to MEDIA_ROOT/user_avatars/user_<id>_<filename>
+    return f'user_avatars/user_{instance.id}_{filename}'
 
 
 class UserManager(BaseUserManager):
@@ -51,8 +51,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=255, unique=True)
     name = models.CharField(max_length=25)
     is_active = models.BooleanField(default=True)
+    is_playing = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    avatar = models.ImageField(null=True,  blank=True,  upload_to='user_avatars/',  default='user_avatars/default-avatar.png')
+    avatar = models.ImageField(upload_to=user_avatar_path,  default='user_avatars/default-avatar.png')
     otp_enabled = models.BooleanField(default=False)
     otp_auth_url = models.CharField(max_length=225, blank=True, null=True)
     qr_code = models.ImageField(upload_to="qrcode/", blank=True, null=True)
@@ -69,6 +70,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+    @property
+    def is_connected(self):
+        """Determine if the user has been active in the last 5 minutes"""
+        return timezone.now() - self.last_active <= timedelta(minutes=5)
 
     def is_valid_otp(self):
         lifespan_in_seconds = 90 if self.otp_enabled else 300
@@ -120,6 +126,19 @@ class Tournament(models.Model):
         participant_names = ", ".join(p.user.name for p in self.participation_set.all())
         return f"{self.name} with players: {participant_names}"
 
+class TournamentInvitation(models.Model):
+    user = models.ForeignKey('User', on_delete=models.CASCADE)
+    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('declined', 'Declined'),
+        ('cancelled', 'Cancelled'),
+    ), default='pending')
+
+    def __str__(self):
+        return f"Invitation for {self.user}: {self.tournament} - Status: {self.status}"
+
 class Participation(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
@@ -153,6 +172,7 @@ class Game(models.Model):
     )
     score1 = models.IntegerField(default=0,)
     score2 = models.IntegerField(default=0,)
+    is_archived = models.BooleanField(default=False)
 
     def clean(self):
         # Custom validation to ensure player1 and player2 are not the same
@@ -180,6 +200,11 @@ class GameInvitation(models.Model):
         ('declined', 'Declined'),
         ('cancelled', 'Cancelled'),
     ), default='pending')
+
+    def __str__(self):
+        return f"Invitation for {self.game}: {self.player1.name} vs {self.player2.name} - Status: {self.status}"
+
+
 
     def __str__(self):
         return f"Invitation for {self.game}: {self.player1.name} vs {self.player2.name} - Status: {self.status}"

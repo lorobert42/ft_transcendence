@@ -1,5 +1,4 @@
-
-export function initPongGame() {
+export function initPongGame(routerData) {
     const canvas = document.getElementById('pongCanvas');
     const scoreZone = document.getElementById('scoreZone');
     if (!canvas) {
@@ -22,6 +21,7 @@ export function initPongGame() {
                 document.addEventListener('keydown', (e) => {
                     if (e.key in keyPressed) {
                         keyPressed[e.key] = true;
+                        e.preventDefault();
                     }
                     if(e.key.repeat) {
                         return;
@@ -33,9 +33,16 @@ export function initPongGame() {
                         keyPressed[e.key] = false;
                     }
                 });
+				// Function to disable both buttons
+				function disableButtons() {
+					document.getElementById('button-start-human').disabled = true;
+					document.getElementById('button-start-bot').disabled = true;
+				}
+
                 // Attach event listeners to buttons for starting the game
 				document.getElementById('button-start-human').addEventListener('click', () => {
 					startGame('human', 'human');
+					disableButtons(); // Disable both buttons
 				});
 			
 				document.getElementById('button-start-bot').addEventListener('click', () => {
@@ -45,6 +52,7 @@ export function initPongGame() {
 					} else {
 						startGame('human', 'bot');
 					}
+					disableButtons(); // Disable both buttons
 				});
 			
 			
