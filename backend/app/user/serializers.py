@@ -89,6 +89,8 @@ class OTPEnableRequestSerializer(serializers.Serializer):
         stream = BytesIO()
         image = qrcode.make(f"{user.otp_auth_url}")
         image.save(stream)
+        if user.qr_code is not None:
+            user.qr_code.delete()
         user.qr_code = ContentFile(
             stream.getvalue(), name=f"qr-{user.id}-{get_random_string(10)}.png"
         )
