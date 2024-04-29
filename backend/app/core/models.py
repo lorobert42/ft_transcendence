@@ -142,7 +142,12 @@ class TournamentInvitation(models.Model):
 class Participation(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
-    nickname = models.CharField(max_length=512)
+    status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('declined', 'Declined'),
+        ('cancelled', 'Cancelled'),
+    ), default='pending')
 
     class Meta:
         unique_together = ('user', 'tournament')  # Ensuring uniqueness at the database level
@@ -158,21 +163,33 @@ class Game(models.Model):
         null=True,
         blank=True
     )
+    tournamentRound= models.IntegerField(
+        default=0,
+        null=True,
+    )
+    roundGame= models.IntegerField(
+        default=0,
+        null=True,
+    )
     player1 = models.ForeignKey(
         'User',
         default=1,
+        null=True,
         on_delete=models.CASCADE,
         related_name="games_as_player1"
     )
     player2 = models.ForeignKey(
         'User',
         default=2,
+        null=True,
         on_delete=models.CASCADE,
         related_name="games_as_player2"
     )
     score1 = models.IntegerField(default=0,)
     score2 = models.IntegerField(default=0,)
     is_archived = models.BooleanField(default=False)
+    is_draft = models.BooleanField(default=False)
+    is_finished = models.BooleanField(default=False)
 
     def clean(self):
         # Custom validation to ensure player1 and player2 are not the same
