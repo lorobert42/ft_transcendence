@@ -10,7 +10,7 @@ export function initPongGame(data) {
     
     // ### Need to change the 0 in the path by the id of the game
     const gameSocket = new WebSocket(
-        'wss://' + location.host + '/ws/game/online/' + data.user.id + '/?token=' + localStorage.getItem('authToken')
+        'wss://' + location.host + '/ws/game/online1/?token=' + localStorage.getItem('authToken')
     );
     
     let keyPressed = {"w": false, "s": false};
