@@ -13,7 +13,7 @@ export function initPongGame(dataDict = {}) {
 
     // ### Need to change the 0 in the path by the id of the game
     const gameSocket = new WebSocket(
-        'wss://' + location.host + `/ws/game/online/${gameId}/?token=` + localStorage.getItem('authToken')
+        'wss://' + location.host + `/ws/game/online${gameId}/?token=` + localStorage.getItem('authToken')
     );
     
 
@@ -40,13 +40,16 @@ export function initPongGame(dataDict = {}) {
                 gameSocket.send(JSON.stringify({
                     'join': 'online',
                 }));
+				// Function to disable start button
+				function disableButtons() {
+					document.getElementById('button-start').disabled = true;
+				}
 
                 document.getElementById('button-start').addEventListener('click', () => {
                     gameSocket.send(JSON.stringify({
                         'start': 'start',
                     }));
-
-                    document.getElementById('button-start').style.display = 'none';
+					disableButtons(); // Disable both buttons
                 });
 
         } else {

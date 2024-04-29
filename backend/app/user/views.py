@@ -1,9 +1,9 @@
 """
 Views for user api
 """
+from datetime import datetime, timezone
 from django.db.models import Q
 from django.forms import ValidationError
-from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from core.models import FriendInvitation, User
@@ -17,21 +17,15 @@ from user.serializers import (
     OTPEnableConfirmSerializer,
     OTPDisableSerializer,
     LoginSerializer,
+    CustomTokenRefreshSerializer,
     VerifyOTPSerializer,
     AddFriendSerializer,
-    CreateUserSerializer,
 )
-
-
-class UserAvatarUploadView(generics.UpdateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    parser_classes = (MultiPartParser, FormParser)
 
 
 class CreateUserView(generics.CreateAPIView):
     """Create a new user in the system"""
-    serializer_class = CreateUserSerializer
+    serializer_class = UserSerializer
 
 
 class OTPEnableRequestView(generics.GenericAPIView):
@@ -105,11 +99,12 @@ class LoginUserView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         response: dict = serializer.save()
-        print(response)
 
         if response["otp"]:
             user = response["user"]
-            print(response)
+            if user:
+                user.last_active = datetime.now(timezone.utc)
+                user.save(update_fields=['last_active'])
             return Response(
                 {
                     "success": True,
@@ -120,6 +115,18 @@ class LoginUserView(generics.GenericAPIView):
             )
         response["tokens"]["user_id"] = response["user_id"]
         return Response(response["tokens"], status=200)
+
+
+class RefreshTokenView(generics.GenericAPIView):
+    """Refresh JWT"""
+    permission_classes = [permissions.AllowAny]
+    serializer_class = CustomTokenRefreshSerializer
+
+    def post(self, request, format=None):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tokens: dict = serializer.save()
+        return Response(tokens, status=200)
 
 
 class VerifyOTPView(generics.GenericAPIView):
@@ -135,7 +142,7 @@ class VerifyOTPView(generics.GenericAPIView):
 class ManageUserView(generics.RetrieveUpdateAPIView):
     """Manage the authenticated user"""
     serializer_class = UserSerializer
-    permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
         """Retrieve and return authenticated user"""
@@ -212,6 +219,7 @@ class DeleteFriendView(generics.GenericAPIView):
         except User.DoesNotExist:
             return Response({"message": "Friend not found"}, status=status.HTTP_404_NOT_FOUND)
 
+
 class FriendInvitationListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = FriendInvitationSerializer
@@ -239,6 +247,7 @@ class FriendInvitationListCreateView(generics.ListCreateAPIView):
             raise ValidationError('An invitation between these users already exists.')
 
         serializer.save()
+
 
 class FriendInvitationUpdateView(generics.UpdateAPIView):
     queryset = FriendInvitation.objects.all()
