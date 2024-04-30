@@ -109,6 +109,30 @@ export async function tournamentCreationHandler(dataDict = {}) {
       }).catch((error) => {
           console.error("Error:", error);
       });
+
+      selectedPlayersList.forEach((player) => {
+          fetch("/api/game/tournament-invitations/", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${authToken}`,
+              },
+              body: `{
+                  "name": ${users.find((user) => user.id === player).name},
+              }`,
+          }).then((response) => {
+              if (response.status === 401) {
+                  console.error("Unauthorized");
+              }
+              return response.json();
+          }).then((data) => {
+              return data;
+          }).catch((error) => {
+              console.error("Error:", error);
+          });
+      }
+      );
+
       printSuccess(`Tournament created successfully with ${selectedPlayersList.length} players`, "success");
       history.pushState(null, '', "/tournament");
       pageRouting();

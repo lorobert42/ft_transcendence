@@ -18,6 +18,7 @@ import { printMessage } from "./js/utils/toastMessage.js";
 import gameCreation from "./pages/gameCreation.js";
 import tournamentCreation from "./pages/tournamentCreation.js";
 import { decodeJWT } from "./js/utils/tokenHandler.js";
+import gameResults from "./pages/gameResults.js";
 
 export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
@@ -185,10 +186,10 @@ export default async function pageRouting(data = {}) {
         redirectPath('/login');
         return;
       }
-      contentDiv.innerHTML = onlineRoom({gameId: data.gameId});
+      contentDiv.innerHTML = onlineRoom();
       import("./js/scripts/onlinePong.js")
         .then((module) => {
-          module.initPongGame({gameId: data.gameId});
+          module.initPongGame(data);
         })
         .catch((error) => {
           console.error("Failed to load the online pong module", error);
@@ -236,12 +237,28 @@ export default async function pageRouting(data = {}) {
       contentDiv.innerHTML = gameSearch();
       import("./js/scripts/gameSearchHandler.js")
         .then((module) => {
-          module.gameSearchHandler();
+          module.gameSearchHandler(data);
         })
         .catch((error) => {
           console.error("Failed to load the game search module", error);
         });
       break;
+
+    case "/results":
+      if(!isLogged)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = gameResults();
+      import("./js/scripts/resultsHandler.js")
+        .then((module) => {
+          module.resultsHandler(data);
+        })
+        .catch((error) => {
+          console.error("Failed to load the results module", error);
+        });
+      break;  
     default:
       contentDiv.innerHTML = homePage();
       break;
@@ -292,6 +309,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
   });
 
   document.querySelector("#tournament-link").addEventListener("click", (e) => {
+    e.preventDefault();
+    history.pushState(null, '', e.target.href);
+    pageRouting();
+  });
+
+  document.querySelector("#gamesearch-link").addEventListener("click", (e) => {
     e.preventDefault();
     history.pushState(null, '', e.target.href);
     pageRouting();
