@@ -7,7 +7,7 @@ function login() {
         \"email\": \"${email}\",
         \"password\": \"${password}\"
     }"
-    local response=$(curl --location --insecure --request POST 'https://localhost:8080/api/user/login/' \
+    local response=$(curl --location --insecure --request POST "https://${host}:8080/api/user/login/" \
     --header 'Content-Type: application/json' \
     --data "${data}")
     local access=$(jq -r '.access' <<< "${response}")
@@ -16,12 +16,13 @@ function login() {
 
 function get_user_id() {
     local access="$1"
-    local response=$(curl --location --insecure --request GET 'https://localhost:8080/api/user/me/' \
+    local response=$(curl --location --insecure --request GET "https://${host}:8080/api/user/me/" \
     --header "Authorization: Bearer ${access}")
     local id=$(jq -r '.id' <<< "${response}")
     echo "${id}"
 }
 
+read -p "Enter server IP: " host
 read -p "Enter your email: " email
 read -sp "Enter your password: " password
 
@@ -48,4 +49,4 @@ while true; do
             echo '{"local":"P1_DOWN"}'
         fi
     fi
-done > >(websocat -k "wss://localhost:8080/ws/game/local/${id}/?token=${access}")
+done > >(websocat -k "wss://${host}:8080/ws/game/local${id}/?token=${access}")
