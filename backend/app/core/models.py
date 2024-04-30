@@ -232,12 +232,6 @@ def get_system_user():
 class FriendInvitation(models.Model):
     user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend_invitations_as_user1', default=get_system_user)
     user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend_invitations_as_user2', default=get_system_user)
-    status = models.CharField(max_length=20, choices=(
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
-        ('declined', 'Declined'),
-        ('cancelled', 'Cancelled'),
-    ), default='pending')
 
     def __str__(self):
-        return f"Friend Invitation from {self.user1.name} to {self.user2.name} - Status: {self.status}"
+        return f"Friend Invitation from {self.user1.name} to {self.user2.name}"
