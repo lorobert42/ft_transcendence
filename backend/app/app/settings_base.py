@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     'core',
     'rest_framework',
     'drf_spectacular',
-    'chat.apps.ChatConfig',
     'channels',
     'user',
     'corsheaders',

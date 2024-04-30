@@ -161,59 +161,7 @@ export function initPongGame(dataDict = {}) {
         drawEverything();
     }
 
-    async function gamePatch() {
-        await fetch(`/api/game/${gameId}/`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-            },
-            body: `{
-                "score1": ${player1.score},
-                "score2": ${player2.score},
-                "is_archived": true
-            }`,
-        })
-            .then((response) => {
-                if (response.status === 401) {
-                    console.error('Unauthorized');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-
-        await fetch(`/api/game/game-invitations/${dataDict.invitationId}/`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-            },
-            body: `{
-                "status": "finished",
-                "player1": ${dataDict.player1},
-                "player2": ${dataDict.player2},
-                "game": ${gameId}
-            }`,
-        })
-            .then((response) => {
-                if (response.status === 401) {
-                    console.error('Unauthorized');
-                }
-                return response.json();
-            })
-            .then((data) => {
-                console.log(data);
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-
-
+    function gamePatch() {
         let winner = player1.score > player2.score ? dataDict.player1 : dataDict.player2;
         let winnerScore = player1.score > player2.score ? player1.score : player2.score;
         let looser = player1.score < player2.score ? dataDict.player1 : dataDict.player2;
@@ -226,10 +174,4 @@ export function initPongGame(dataDict = {}) {
             score2: looserScore,
         });
     }
-
-    // function gameLoop() {
-    //     fetchAndUpdateGameState();
-    //     requestAnimationFrame(gameLoop);
-    //     console.log('Game loop running');
-    // }
 };

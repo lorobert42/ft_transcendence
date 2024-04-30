@@ -2,7 +2,9 @@
 import json
 import time
 import asyncio
+from core.models import Game
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
 from .game import GameClass, Ball, Paddle
 import random
@@ -26,16 +28,13 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.room_id = self.scope['url_route']['kwargs']['id']
         self.game_room_group = 'game_%s' % self.room_id
         self.current_user = self.scope['user'].email
-
-        '''
-        print("User connectiton")
-        ic(self.scope['user'].email)
-        """ Test to see if the game is created when is none existant. (can be deleted)"""
-        try:
-            print(GameRoomConsumer.game_tab[self.room_id].count)
+        try :
+            room_id = self.room_id
+            self.game_type = "online"
+            self.game = await self.get_game(room_id)
         except:
-            print("no value in dic")
-        '''
+            self.game_type = "local"
+
         await self.channel_layer.group_add(
             self.game_room_group,
             self.channel_name,
@@ -134,21 +133,16 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     async def handle_move_local(self, message):
         if message == "P1_UP":
             await self.handle_paddle_move(KEY_P1_UP)
-            #print("P1 UP")
         elif message == "P1_DOWN":
             await self.handle_paddle_move(KEY_P1_DOWN)
-            #print("P1 DOWN")
         elif message == "P2_UP":
             await self.handle_paddle_move(KEY_P2_UP)
-            #print("P2 UP")
         elif message == "P2_DOWN":
             await self.handle_paddle_move(KEY_P2_DOWN)
-            #print("P2 DOWN")
 
     async def handle_start(self, message):
         if message == "start":
             if GameRoomConsumer.game_tab[self.room_id].p1['state'] == True and GameRoomConsumer.game_tab[self.room_id].p2['state'] == True:
-                #print("game started")
                 GameRoomConsumer.game_tab[self.room_id].active = True
                 GameRoomConsumer.game_tab[self.room_id].task = asyncio.create_task(self.loop(
                 GameRoomConsumer.game_tab[self.room_id].max_score
@@ -188,11 +182,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             if self.reset_game == True or self.hit_paddle == True:
                 end_time = time.time()
                 elapsed_time = end_time - start_time
-                if (self.reset_game == True):
-                    print("Resetting game")
-                if (self.hit_paddle == True):
-                    print("Hitting paddle")
-                print(f"Elapsed time: {elapsed_time} seconds")
                 start_time = time.time()
 
                 self.observation = self.get_observation()  # Update observation
@@ -200,8 +189,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 self.reset_game = False
                 self.hit_paddle = False
             else:
-                #self.observation[4] = GameRoomConsumer.game_tab[self.room_id].paddle_r.y / HEIGHT
-                #self.observation[5] = GameRoomConsumer.game_tab[self.room_id].paddle_l.y / HEIGHT
                 self.observation[0] = (self.save_ball_x + self.observation[2]) / WIDTH
                 self.observation[1] = (self.save_ball_y + self.observation[3]) / HEIGHT
                 self.save_ball_x = self.observation[0] * WIDTH
@@ -215,7 +202,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             if GameRoomConsumer.game_tab[self.room_id].p1_type == 'bot':
                 action = self.decide_bot_action('left', self.observation)
                 await self.handle_paddle_move(action)
-                #self.observation[4] += (10 / HEIGHT)
                 if (action == KEY_P1_UP):
                     self.observation[5] -= (10 / HEIGHT)
                 elif (action == KEY_P1_DOWN):
@@ -293,6 +279,10 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 await asyncio.sleep(0.01)
             else:
                 print("Game ended, end of the main loop.")
+                if self.game_type is "online":
+                    self.game.score1 = GameRoomConsumer.game_tab[self.room_id].score_p1
+                    self.game.score2 = GameRoomConsumer.game_tab[self.room_id].score_p2
+                    await database_sync_to_async(self.game.save)()
                 await self.channel_layer.group_send(
                     self.game_room_group,
                     {
@@ -353,3 +343,17 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         """ Function that a message to the front when the game haas ended. """
         message = event['message']
         await self.send(text_data=json.dumps(message))
+
+    @database_sync_to_async
+    def get_game(self, id):
+        games = Game.objects.all()
+        for i in range(0, games.count()):
+            if games[i].id == id:
+                return games[i]
+
+    @database_sync_to_async
+    def get_player1(self, id):
+        games = Game.objects.all()
+        for i in range(0, games.count()):
+            if games[i].id == id:
+                return games[i].player1.name

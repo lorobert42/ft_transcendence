@@ -33,25 +33,13 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
-@admin.register(models.Room)
-class RoomAdmin(admin.ModelAdmin):
-    list_display = ['name', 'id', 'view_participants_link']
 
-    def view_participants_link(self, obj):
-        count = obj.participants.count()
-        url = (
-            reverse("admin:core_user_changelist")
-            + "?"
-            + urlencode({"room__id": f"{obj.id}"})
-        )
-        return format_html('<a href="{}">{} participants</a>', url, count)
 
-    view_participants_link.short_description = "participants"
+@admin.register(models.Game)
+class GameAdmin(admin.ModelAdmin):
+    list_display = ['id']
 
 admin.site.register(models.User, UserAdmin)
-admin.site.register(models.GameInvitation)
-admin.site.register(models.Game)
 admin.site.register(models.Tournament)
 admin.site.register(models.Participation)
-admin.site.register(models.TournamentInvitation)
 admin.site.register(models.FriendInvitation)

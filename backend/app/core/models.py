@@ -85,59 +85,16 @@ class User(AbstractBaseUser, PermissionsMixin):
             return False
         return True
 
-
-class Room(models.Model):
-    name = models.CharField(max_length=128)
-    participants = models.ManyToManyField(User, related_name='chat_rooms')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def get_participants_count(self):
-        return self.participants.count()
-
-    def join(self, user):
-        self.participants.add(user)
-        self.save()
-
-    def leave(self, user):
-        self.participants.remove(user)
-        self.save()
-
-    def __str__(self):
-        return f'{self.name} ({self.get_participants_count()})'
-
-
-class Message(models.Model):
-    user = models.ForeignKey(to=User, on_delete=models.CASCADE)
-    room = models.ForeignKey(to=Room, on_delete=models.CASCADE)
-    content = models.CharField(max_length=512)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f'{self.user.email}: {self.content} [{self.timestamp}]'
-
-
 class Tournament(models.Model):
     name = models.CharField(max_length=512)
     participants = models.ManyToManyField('User', through='Participation')
-
+    has_started = models.BooleanField(default=False)
 
 
     def __str__(self):
         participant_names = ", ".join(p.user.name for p in self.participation_set.all())
         return f"{self.name} with players: {participant_names}"
 
-class TournamentInvitation(models.Model):
-    user = models.ForeignKey('User', on_delete=models.CASCADE)
-    tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20, choices=(
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
-        ('declined', 'Declined'),
-        ('cancelled', 'Cancelled'),
-    ), default='pending')
-
-    def __str__(self):
-        return f"Invitation for {self.user}: {self.tournament} - Status: {self.status}"
 
 class Participation(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
@@ -185,12 +142,27 @@ class Game(models.Model):
         on_delete=models.CASCADE,
         related_name="games_as_player2"
     )
+    player1_status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending'),
+        ('playing', 'Playing'),
+    ), default='pending')
+    player2_status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending'),
+        ('playing', 'Playing'),
+    ), default='pending')
+    game_status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending'),
+        ('running', 'Running'),
+        ('canceled', 'Canceled'),
+        ('finished', 'Finished'),
+    ), default='pending')
+
     score1 = models.IntegerField(default=0,)
     score2 = models.IntegerField(default=0,)
-    is_archived = models.BooleanField(default=False)
-    is_draft = models.BooleanField(default=False)
-    is_finished = models.BooleanField(default=False)
+    start_time = models.DateTimeField(null=True, default=None)
 
+    def get_name(self):
+        return f"{self.player1.name} vs {self.player2.name}"
     def clean(self):
         # Custom validation to ensure player1 and player2 are not the same
         if self.player1 == self.player2:
@@ -205,26 +177,6 @@ class Game(models.Model):
     def __str__(self):
         game_type = "Tournament Game" if self.tournament else "One-Off Game"
         return f"{self.player1.name} vs {self.player2.name}: {game_type}, Score [{self.score1} - {self.score2}]"
-
-class GameInvitation(models.Model):
-    game = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='invitations')
-    player1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='game_invitations_as_player1')
-    player2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='game_invitations_as_player2')
-    status = models.CharField(max_length=20, choices=(
-        ('pending', 'Pending'),
-        ('running', 'Running'),
-        ('finished', 'Finished'),
-        ('declined', 'Declined'),
-        ('cancelled', 'Cancelled'),
-    ), default='pending')
-
-    def __str__(self):
-        return f"Invitation for {self.game}: {self.player1.name} vs {self.player2.name} - Status: {self.status}"
-
-
-
-    def __str__(self):
-        return f"Invitation for {self.game}: {self.player1.name} vs {self.player2.name} - Status: {self.status}"
 
 def get_system_user():
     return User.objects.get_or_create(email='system@user.com', defaults={'name': 'System User'})[0].pk
