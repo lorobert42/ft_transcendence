@@ -74,37 +74,16 @@ export async function gameSearchHandler(dataDict = {}) {
             joinButton.textContent = 'Join';
             joinButton.addEventListener('click', () => {
                 console.log(`Joining ${gameRoom.name}`);
-                fetch(`/api/game/game-invitations/${gameRoom.id}/`, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-                    },
-                    body: `{
-                        "status": "running",
-                        "player1": ${gameRoom.player1},
-                        "player2": ${gameRoom.player2},
-                        "game": ${gameRoom.game}
-                    }`,
-                }).then((response) => {
-                    if (response.status === 401) {
-                        console.error("Unauthorized");
-                    }
-                    return response.json();
-                }
-                ).then((data) => {
-                    history.pushState(null, '', '/online');
-                    pageRouting({
-                        gameId: gameRoom.game,
-                        player1: gameRoom.player1,
-                        player2: gameRoom.player2,
-                        invitationId: gameRoom.id
-                    });
-                }).catch((error) => {
-                    console.error("Error:", error);
+                history.pushState(null, '', '/online');
+                pageRouting({
+                    gameId: gameRoom.game,
+                    player1: gameRoom.player1,
+                    player2: gameRoom.player2,
+                    invitationId: gameRoom.id
                 });
                 filterRooms();
             });
+
 
             //create deny button
             const denyButton = document.createElement('button');
