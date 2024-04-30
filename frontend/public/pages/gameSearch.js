@@ -30,7 +30,7 @@ export default function gameSearch() {
 		}
     }`);
 
-	return `<div class="row">
+    return `<div class="row">
         <div class="col-md-6">
             <h1>${langdict[lang]['pendinggames']}</h1>
             <input type="text" id="game-search" class="form-control mb-3" placeholder="${langdict[lang]['search']}">

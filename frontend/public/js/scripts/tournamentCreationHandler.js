@@ -90,7 +90,7 @@ export async function tournamentCreationHandler(dataDict = {}) {
       });
 
       let tournamentName = document.getElementById("tournament-name").value;
-      fetch("/api/tournament/", {
+      let tournamentInfo = fetch("/api/tournament/", {
           method: "POST",
           headers: {
               "Content-Type": "application/json",
@@ -111,14 +111,15 @@ export async function tournamentCreationHandler(dataDict = {}) {
       });
 
       selectedPlayersList.forEach((player) => {
-          fetch("/api/game/tournament-invitations/", {
+          fetch("/api/game/participant/", {
               method: "POST",
               headers: {
                   "Content-Type": "application/json",
                   Authorization: `Bearer ${authToken}`,
               },
               body: `{
-                  "name": ${users.find((user) => user.id === player).name},
+                  "tournament": ${tournamentInfo.id},
+                  "status": "pending"
               }`,
           }).then((response) => {
               if (response.status === 401) {
