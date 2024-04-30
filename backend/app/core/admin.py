@@ -35,8 +35,11 @@ class UserAdmin(BaseUserAdmin):
 
 
 
+@admin.register(models.Game)
+class GameAdmin(admin.ModelAdmin):
+    list_display = ['id']
+
 admin.site.register(models.User, UserAdmin)
-admin.site.register(models.Game)
 admin.site.register(models.Tournament)
 admin.site.register(models.Participation)
 admin.site.register(models.FriendInvitation)

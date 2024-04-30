@@ -2,7 +2,9 @@
 import json
 import time
 import asyncio
+from core.models import Game
 from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
 from .game import GameClass, Ball, Paddle
 import random
@@ -26,16 +28,8 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.room_id = self.scope['url_route']['kwargs']['id']
         self.game_room_group = 'game_%s' % self.room_id
         self.current_user = self.scope['user'].email
+        self.game = await self.get_game(int(self.room_id))
 
-        '''
-        print("User connectiton")
-        ic(self.scope['user'].email)
-        """ Test to see if the game is created when is none existant. (can be deleted)"""
-        try:
-            print(GameRoomConsumer.game_tab[self.room_id].count)
-        except:
-            print("no value in dic")
-        '''
         await self.channel_layer.group_add(
             self.game_room_group,
             self.channel_name,
@@ -293,6 +287,9 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 await asyncio.sleep(0.01)
             else:
                 print("Game ended, end of the main loop.")
+                self.game.score1 = GameRoomConsumer.game_tab[self.room_id].score_p1
+                self.game.score2 = GameRoomConsumer.game_tab[self.room_id].score_p2
+                await database_sync_to_async(self.game.save)()
                 await self.channel_layer.group_send(
                     self.game_room_group,
                     {
@@ -353,3 +350,17 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         """ Function that a message to the front when the game haas ended. """
         message = event['message']
         await self.send(text_data=json.dumps(message))
+
+    @database_sync_to_async
+    def get_game(self, id):
+        games = Game.objects.all()
+        for i in range(0, games.count()):
+            if games[i].id == id:
+                return games[i]
+
+    @database_sync_to_async
+    def get_player1(self, id):
+        games = Game.objects.all()
+        for i in range(0, games.count()):
+            if games[i].id == id:
+                return games[i].player1.name
