@@ -125,14 +125,14 @@ class TournamentSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'participants']
 
     def validate_participants(self, participants):
-        if len(set(participants)) not in [4, 8]:
-            raise serializers.ValidationError("A tournament must have exactly 4 or 8 unique participants.")
+        if len(set(participants)) < 3 or len(set(participants)) > 8:
+            raise serializers.ValidationError("A tournament must have between 3 and 8 unique participants.")
         return participants
 
     def create(self, validated_data):
         participants_data = validated_data.pop('participants')
-        if len(participants_data) not in [4, 8]:
-            raise serializers.ValidationError("A tournament must have either four or eight participants.")
+        if not (3 <= len(participants_data) <= 8):
+            raise serializers.ValidationError("A tournament must have between three and eight participants.")
 
         with transaction.atomic():
             tournament = Tournament.objects.create(**validated_data)
@@ -143,6 +143,16 @@ class TournamentSerializer(serializers.ModelSerializer):
                 Participation.objects.create(user=user, tournament=tournament)
 
         return tournament
+
+    def create_initial_games(self, tournament, participants):
+        random.shuffle(participants)  # Randomize participants or sort them as needed
+        # Create games based on number of participants
+        games = []
+        for i in range(0, len(participants) - 1, 2):
+            if i+1 < len(participants):  # Check if there's a pair available
+                game = Game.objects.create(tournament=tournament, player1=participants[i], player2=participants[i+1])
+                games.append(game)
+        # If odd number of participants, last one gets a bye (no game created)
 
     def create_initial_games(self, tournament, participants):
         random.shuffle(participants)  # Randomize participants or sort them as needed
