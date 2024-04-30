@@ -8,7 +8,7 @@ export async function gameSearchHandler(dataDict = {}) {
     await updateGames();
     console.log("Games :  ", games);
 
-    let roomsList = await fetch("/api/game/game-invitations/", {
+    let roomsList = await fetch("/api/game/", {
         method: "GET",
         headers: {
             "Content-Type": "application/json",

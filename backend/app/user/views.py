@@ -163,17 +163,35 @@ class ListUsersView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
-from icecream import ic
-
 class AddFriendView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = AddFriendSerializer
+    serializer_class = UserSerializer  # This is for responses, keep as is if you are returning user data.
+    request_serializer = AddFriendSerializer  # Define request serializer explicitly
 
+    @extend_schema(
+        request=AddFriendSerializer,  # Use the dedicated request serializer
+        responses={201: {"description": "Friend added successfully"}, 400: {"description": "Bad request"}},
+        description="Allows authenticated users to add other users as friends by providing the friend's user ID."
+    )
     def post(self, request, *args, **kwargs):
-        serializer = self.get_serializer(context = {"request": request}, data=request.data)
+        user = request.user
+        serializer = self.request_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        invitation = serializer.save()
-        return Response(invitation.id, status=status.HTTP_201_CREATED)
+        friend_id = serializer.validated_data['friend_id']
+
+        if friend_id == user.id:
+            return Response({"message": "You cannot add yourself as a friend"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            friend = User.objects.get(pk=friend_id)
+            # if friend in user.friends.all():
+            #     return Response({"message": "This user is already your friend"}, status=status.HTTP_400_BAD_REQUEST)
+            user.friends.add(friend)
+            user.save()
+            response_serializer = UserSerializer(user)
+            return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+        except User.DoesNotExist:
+            return Response({"message": "Friend not found"}, status=status.HTTP_404_NOT_FOUND)
 
 
 class DeleteFriendView(generics.GenericAPIView):
@@ -213,6 +231,22 @@ class FriendInvitationListCreateView(generics.ListCreateAPIView):
         """
         user = self.request.user
         return FriendInvitation.objects.filter(Q(user1=user) | Q(user2=user))
+
+    def perform_create(self, serializer):
+        """
+        Prevent creating an invitation if one already exists between the same two users,
+        regardless of the order of user1 and user2.
+        """
+        user1 = serializer.validated_data['user1']
+        user2 = serializer.validated_data['user2']
+
+        # Check if there is already an invitation between these two users in any order
+        if FriendInvitation.objects.filter(
+            (Q(user1=user1) & Q(user2=user2)) | (Q(user1=user2) & Q(user2=user1))
+        ).exists():
+            raise ValidationError('An invitation between these users already exists.')
+
+        serializer.save()
 
 
 class FriendInvitationUpdateView(generics.UpdateAPIView):

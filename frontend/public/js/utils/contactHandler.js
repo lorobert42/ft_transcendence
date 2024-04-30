@@ -90,13 +90,16 @@ export async function contactHandler() {
 
     
     async function addFriend(id) {
-        let response = await fetch("/api/user/friend/", {
+        let response = await fetch("/api/user/friend-invitations/", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({"friend_id": id}),
+            body: `{
+              "user1": ${userId},
+              "user2": ${id}
+            }`,
           }).then((response) => {
             if (response.status === 401) {
               console.error("Unauthorized");
@@ -391,7 +394,7 @@ async function deleteFriend(id) {
     const search = document.getElementById("pending-search").value.toLowerCase();
   
     function generatePendingUserList() {
-      let pendingList = pending;
+      let pendingList = pending.filter((invite) => invite["status"] == "pending");
       console.log("Pending List: ", pendingList);
       pendingList = pendingList.map((invite) => getUserEmailFromId(invite[`${invite.user1!= userId ? "user1" : "user2"}`]));
       return pendingList;
@@ -399,7 +402,8 @@ async function deleteFriend(id) {
 
     function filterPending() {
       const search = document.getElementById("pending-search").value.toLowerCase();
-      let newPending = pending.filter((invite) => invite["user1"] == userId || invite["user2"] == userId);
+      let newPending = pending.filter((invite) => invite["status"] == "pending");
+      newPending = newPending.filter((invite) => invite["user1"] == userId || invite["user2"] == userId);
       newPending = newPending.filter((invite) => {
         if(invite.user1 == userId)
         {

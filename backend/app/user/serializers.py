@@ -9,7 +9,6 @@ from django.contrib.auth import (
 )
 from django.core.files.base import ContentFile
 from django.utils.crypto import get_random_string
-from django.db.models import Q
 
 from rest_framework import serializers, exceptions
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -263,34 +262,15 @@ class VerifyOTPSerializer(serializers.Serializer):
         return tokens
 
 
-from icecream import ic
-
 class AddFriendSerializer(serializers.Serializer):
     friend_id = serializers.IntegerField()
 
-    def validate(self, attrs: dict):
-        friend_id = attrs.get("friend_id")
-        user: User = self.context["request"].user
-        if user.id == friend_id:
-            raise serializers.ValidationError("You cannot add yourself.")
-        friend: User = User.objects.filter(id=friend_id).first()
-        if User.objects.filter(Q(id=user.id) and Q(friends__id=friend.id)):
-            raise serializers.ValidationError("You are already friends.")
-        if (FriendInvitation.objects.filter(
-            (Q(user1=user.id) and Q(user2=friend.id)) or
-            (Q(user2=user.id) and Q(user1=friend.id))
-            ).exists()):
-            raise serializers.ValidationError("Invitation already sent.")
-        attrs["user_object"] = user
-        attrs["friend_object"] = friend
-        return super().validate(attrs)
-    
-    def create(self, validated_data: dict):
-        user: User = validated_data.get("user_object")
-        friend: User = validated_data.get("friend_object")
-        invitation: FriendInvitation = FriendInvitation.objects.create(user1=user, user2=friend)
-        invitation.save()
-        return invitation
+    def validate_friend_id(self, value):
+        # Check that the context has the request and then compare user IDs
+        request = self.context.get('request')
+        if request and value == request.user.id:
+            raise serializers.ValidationError("You cannot add or delete yourself.")
+        return value
 
 
 class FriendInvitationSerializer(serializers.ModelSerializer):
