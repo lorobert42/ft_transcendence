@@ -1,8 +1,9 @@
 from rest_framework import serializers
 from django.db import transaction
 import random
+import math
 
-from core.models import Game, Tournament, User, Participation, GameInvitation
+from core.models import Game, Tournament, User, Participation
 
 class GameUserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,55 +15,36 @@ class GameUserSerializer(serializers.ModelSerializer):
 class GameScoreUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ['score1', 'score2', 'is_draft', 'is_finished']  # Only include the fields that can be updated
+        fields = ['score1', 'score2',  'game_status']
         extra_kwargs = {
             'score1': {'required': False},
             'score2': {'required': False},
-            'is_draft' : {'required': False},
-            'is_finished' : {'required': False},
-        }
-
-
-class GameScoreUpdateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Game
-        fields = ['score1', 'score2',  'is_finished']
-        extra_kwargs = {
-            'score1': {'required': False},
-            'score2': {'required': False},
-            'is_finished': {'required': False},
+            'game_status' : {'required': False},
         }
 
     def update(self, instance, validated_data):
         # Update the current game instance first
         instance = super().update(instance, validated_data)
 
-        # Check if the game just finished and it's a part of a tournament
-        if instance.is_finished and instance.tournament:
-            # Logic to update the next game with winners
-            self.set_next_game_players(instance)
 
-        return instance
 
-    def set_next_game_players(self, finished_game):
-        tournament = finished_game.tournament
-        games = Game.objects.filter(tournament=tournament).order_by('id')
-
-        if finished_game == games[0]:  # If it's the first game
-            next_game = games[2]  # Final game in a 4-player setup
-            winner = finished_game.player1 if finished_game.score1 > finished_game.score2 else finished_game.player2
-            next_game.player1 = winner
-        elif finished_game == games[1]:  # If it's the second game
-            next_game = games[2]  # Final game in a 4-player setup
-            winner = finished_game.player1 if finished_game.score1 > finished_game.score2 else finished_game.player2
-            next_game.player2 = winner
-
-        next_game.save()
 
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ['id', 'tournament', 'player1', 'player2', 'score1', 'score2', 'is_draft', 'is_finished']
+        fields = ['id',
+                  'tournament',
+                  'tournamentRound',
+                  'roundGame',
+                  'player1',
+                  'player2',
+                  'score1',
+                  'score2',
+                  'player1_status',
+                  'player2_status',
+                  'game_status',
+                  'start_time',
+                  ]
 
 
     def validate(self, data):
@@ -83,14 +65,13 @@ class GameSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.score1 = validated_data.get('score1', instance.score1)
         instance.score2 = validated_data.get('score2', instance.score2)
-        instance.is_finished = validated_data.get('is_finished', instance.is_finished)
         instance.save()
         return instance
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'email']  # Adjust fields based on the actual User model
+        fields = ['id', 'name']  # Adjust fields based on the actual User model
 
 
 class ParticipationSerializer(serializers.ModelSerializer):
@@ -122,7 +103,10 @@ class TournamentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tournament
-        fields = ['id', 'name', 'participants']
+        fields = ['id', 'name','has_started', 'participants', ]
+        extra_kwargs = {
+            'has_started': {'read_only': False}
+        }
 
     def validate_participants(self, participants):
         if len(set(participants)) < 3 or len(set(participants)) > 8:
@@ -131,46 +115,20 @@ class TournamentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         participants_data = validated_data.pop('participants')
-        if not (3 <= len(participants_data) <= 8):
-            raise serializers.ValidationError("A tournament must have between three and eight participants.")
 
         with transaction.atomic():
             tournament = Tournament.objects.create(**validated_data)
-            self.create_initial_games(tournament, participants_data)
 
-            # Add participants to the tournament through Participation instances
+            # Create Participation instances
+            seen = set()
             for user in participants_data:
+                if user in seen:
+                    raise serializers.ValidationError(f"Duplicate entry for user {user.id} found.")
+                seen.add(user)
                 Participation.objects.create(user=user, tournament=tournament)
 
         return tournament
 
-    def create_initial_games(self, tournament, participants):
-        random.shuffle(participants)  # Randomize participants or sort them as needed
-        # Create games based on number of participants
-        games = []
-        for i in range(0, len(participants) - 1, 2):
-            if i+1 < len(participants):  # Check if there's a pair available
-                game = Game.objects.create(tournament=tournament, player1=participants[i], player2=participants[i+1])
-                games.append(game)
-        # If odd number of participants, last one gets a bye (no game created)
-
-    def create_initial_games(self, tournament, participants):
-        random.shuffle(participants)  # Randomize participants or sort them as needed
-        if len(participants) == 4:
-            game1 = Game.objects.create(tournament=tournament, player1=participants[0], player2=participants[1])
-            game2 = Game.objects.create(tournament=tournament, player1=participants[2], player2=participants[3])
-            # Final game placeholder
-            game_final = Game.objects.create(tournament=tournament, player1=None, player2=None)
-        elif len(participants) == 8:
-            # Set up quarter-finals
-            games = []
-            for i in range(0, 8, 2):
-                game = Game.objects.create(tournament=tournament, player1=participants[i], player2=participants[i+1])
-                games.append(game)
-            # Semi-finals and final game placeholders
-            game_semi_final_1 = Game.objects.create(tournament=tournament, player1=None, player2=None)
-            game_semi_final_2 = Game.objects.create(tournament=tournament, player1=None, player2=None)
-            game_final = Game.objects.create(tournament=tournament, player1=None, player2=None)
 
     def to_representation(self, instance):
         # Custom representation to show participants
@@ -180,14 +138,90 @@ class TournamentSerializer(serializers.ModelSerializer):
         return representation
 
 
-
-
-class GameInvitationSerializer(serializers.ModelSerializer):
+class TournamentPatchSerializer(serializers.ModelSerializer):
     class Meta:
-        model = GameInvitation
-        fields = '__all__'
+        model = Tournament
+        fields = ['has_started']
+        extra_kwargs = {
+            'has_started': {'read_only': False}
+        }
 
-    def validate(self, data):
-        if data['player1'] == data['player2']:
-            raise serializers.ValidationError("Player1 and Player2 cannot be the same person.")
-        return data
+    def validate_has_started(self, value):
+        if value == True:
+            # Count the number of accepted participants
+            accepted_participants_count = self.instance.participation_set.filter(status='accepted').count()
+            if accepted_participants_count < 3:
+                raise serializers.ValidationError("At least three participants must have accepted to start the tournament.")
+        return value
+
+    def update(self, instance, validated_data):
+        has_started = validated_data.get('has_started')
+
+        if has_started and not instance.has_started:
+            # Ensure the condition is met before setting has_started to True
+            with transaction.atomic():
+                instance.has_started = has_started
+                instance.save()
+
+                # Optional: Trigger any actions that should occur once the tournament starts
+                # For example, you could call a method here to set up the initial games if that's
+                # not already handled by another mechanism:
+                # self.create_initial_games(instance)
+
+        return instance
+
+    # Example method to be invoked after setting has_started to True
+    def create_initial_games(self, tournament):
+        participants = list(tournament.participations.filter(status='accepted').values_list('user', flat=True))
+        if participants:
+            self.create_complete_bracket(tournament, participants)
+
+    def create_complete_bracket(self, tournament, participants):
+        random.shuffle(participants)
+        num_rounds = math.ceil(math.log2(len(participants)))
+        num_initial_games = int(math.pow(2, num_rounds - 1))
+
+        current_round = 1
+        games = []
+        round_game_counter = 1
+
+        # Create initial games
+        for i in range(0, len(participants), 2):
+            if i+1 < len(participants):
+                game = Game.objects.create(
+                    tournament=tournament,
+                    player1=participants[i],
+                    player2=participants[i+1],
+                    tournamentRound=current_round,
+                    roundGame=round_game_counter
+                )
+                games.append(game)
+                round_game_counter += 1
+            else:
+                game = Game.objects.create(
+                    tournament=tournament,
+                    player1=participants[i],
+                    player2=None,
+                    tournamentRound=current_round,
+                    roundGame=round_game_counter
+                )
+                games.append(game)
+
+        # Create placeholder games for subsequent rounds
+        while len(games) > 1:
+            new_round = []
+            round_game_counter = 1
+            current_round += 1
+            for i in range(0, len(games), 2):
+                if i+1 < len(games):
+                    game = Game.objects.create(
+                        tournament=tournament,
+                        player1=None,
+                        player2=None,
+                        tournamentRound=current_round,
+                        roundGame=round_game_counter
+                    )
+                    new_round.append(game)
+                    round_game_counter += 1
+            games = new_round
+
