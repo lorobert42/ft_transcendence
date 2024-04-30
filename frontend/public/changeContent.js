@@ -4,10 +4,8 @@ import otpPage from "./pages/otpPage.js";
 import profilePage from "./pages/profilePage.js";
 import enableOtpPage from "./pages/enableOtpPage.js";
 import registerPage from "./pages/registerPage.js";
-
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
-
 import { isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
@@ -17,7 +15,10 @@ import { rootPageTraduction } from "./pages/rootPage.js";
 import { setNavbar } from "./js/utils/navbarElements.js";
 import { getLang } from "./js/utils/getLang.js";
 import { printMessage } from "./js/utils/toastMessage.js";
+import gameCreation from "./pages/gameCreation.js";
+import tournamentCreation from "./pages/tournamentCreation.js";
 import { decodeJWT } from "./js/utils/tokenHandler.js";
+import gameResults from "./pages/gameResults.js";
 
 export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
@@ -32,11 +33,11 @@ export default async function pageRouting(data = {}) {
   console.log("Path: " + path);
 
   function redirectPath(path) {
-    // history.pushState(null, '', path);
-    // pageRouting();
-  }
+    history.pushState(null, '', path);
+    pageRouting();
+  } 
 
-
+  console.log("data: ", data);
 
   // if path is /home, send load content with function
   let contentDiv = document.getElementById("content");
@@ -44,6 +45,7 @@ export default async function pageRouting(data = {}) {
     case "/":
       contentDiv.innerHTML = homePage();
       break;
+
     case "/login":
       if (isLogged) {
         redirectPath('/profile');
@@ -58,6 +60,7 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the login form module", error);
         });
       break;
+
     case "/otp":
       if (isLogged) {
         redirectPath('/profile');
@@ -72,6 +75,7 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the otp form module", error);
         });
       break;
+
     case "/register":
       if (isLogged) {
         redirectPath('/profile');
@@ -86,6 +90,7 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the login form module", error);
         });
       break;
+
     case "/profile":
       if (!isLogged) {
         redirectPath('/login');
@@ -100,6 +105,7 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the login form module", error);
         });
       break;
+
     case "/enable-otp":
       if (!isLogged) {
         redirectPath('/login');
@@ -114,17 +120,22 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the enable otp form module", error);
         });
       break;
-    case "/online":
+
+    case "/onlineCreation":
       if (!isLogged) {
         redirectPath('/login');
         return;
       }
-      contentDiv.innerHTML = onlineRoom();
-      import("./js/scripts/onlinePong.js")
+      contentDiv.innerHTML = gameCreation();
+      import("./js/scripts/gameCreationHandler.js")
         .then((module) => {
-          module.initPongGame(data);
+          module.gameCreationHandler(data);
         })
+        .catch((error) => {
+          console.error("Failed to load the game creation handler module", error);
+        });
       break;
+
     case "/localroom":
       if (!isLogged) {
         redirectPath('/login');
@@ -136,8 +147,10 @@ export default async function pageRouting(data = {}) {
           module.initPongGame(data);
         })
       break;
+
     case "/friend":
-      if (!isLogged) {
+      if(!isLogged)
+      {
         redirectPath('/login');
         return;
       }
@@ -150,8 +163,10 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the contact handler module", error);
         });
       break;
+
     case "/update":
-      if (!isLogged) {
+      if(!isLogged)
+      {
         redirectPath('/login');
         return;
       }
@@ -164,8 +179,42 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the login form module", error);
         });
       break;
+
+    case "/online":
+      if(!isLogged || !data.gameId)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = onlineRoom();
+      import("./js/scripts/onlinePong.js")
+        .then((module) => {
+          module.initPongGame(data);
+        })
+        .catch((error) => {
+          console.error("Failed to load the online pong module", error);
+        });
+        break;
+
+    case "/tournamentCreation":
+      if(!isLogged)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = tournamentCreation();
+      import("./js/scripts/tournamentCreationHandler.js")
+        .then((module) => {
+          module.tournamentCreationHandler();
+        })
+        .catch((error) => {
+          console.error("Failed to load the tournament creation module", error);
+        });
+      break;
+
     case "/tournament":
-      if (!isLogged) {
+      if(!isLogged)
+      {
         redirectPath('/login');
         return;
       }
@@ -178,20 +227,38 @@ export default async function pageRouting(data = {}) {
           console.error("Failed to load the tournament module", error);
         });
       break;
+
     case "/gamesearch":
-      if (!isLogged) {
+      if(!isLogged)
+      {
         redirectPath('/login');
         return;
       }
       contentDiv.innerHTML = gameSearch();
       import("./js/scripts/gameSearchHandler.js")
         .then((module) => {
-          module.gameSearchHandler();
+          module.gameSearchHandler(data);
         })
         .catch((error) => {
           console.error("Failed to load the game search module", error);
         });
       break;
+
+    case "/results":
+      if(!isLogged)
+      {
+        redirectPath('/login');
+        return;
+      }
+      contentDiv.innerHTML = gameResults();
+      import("./js/scripts/resultsHandler.js")
+        .then((module) => {
+          module.resultsHandler(data);
+        })
+        .catch((error) => {
+          console.error("Failed to load the results module", error);
+        });
+      break;  
     default:
       contentDiv.innerHTML = homePage();
       break;
@@ -242,6 +309,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
   });
 
   document.querySelector("#tournament-link").addEventListener("click", (e) => {
+    e.preventDefault();
+    history.pushState(null, '', e.target.href);
+    pageRouting();
+  });
+
+  document.querySelector("#gamesearch-link").addEventListener("click", (e) => {
     e.preventDefault();
     history.pushState(null, '', e.target.href);
     pageRouting();

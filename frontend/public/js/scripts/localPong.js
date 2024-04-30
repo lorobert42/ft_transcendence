@@ -12,6 +12,8 @@ export function initPongGame(routerData) {
         'wss://' + location.host + '/ws/game/local' + localStorage.getItem('user_id') + '/?token=' + localStorage.getItem('authToken')
     );
 
+    let disconnect = false;
+
     let keyPressed = {"ArrowUp": false, "ArrowDown": false, "w": false, "s": false};
     let keyMessage = {"ArrowUp": "P2_UP", "ArrowDown": "P2_DOWN", "w": "P1_UP", "s": "P1_DOWN"};
     function waitConnection() {
@@ -57,6 +59,11 @@ export function initPongGame(routerData) {
 			
 			
             } else {
+                if(window.location.pathname !== "/localroom")
+                {
+                    disconnect = true; 
+                    return ;
+                }
                 console.log("waiting to connect");
                 waitConnection();
             }
@@ -76,6 +83,8 @@ export function initPongGame(routerData) {
     console.log("Connected");
     waitConnection();
 
+    if(disconnect)
+        return ;
 
         
     const ctx = canvas.getContext('2d');
@@ -113,8 +122,12 @@ export function initPongGame(routerData) {
 
     console.log("Initializing Pong game");
 
+    let intervalId = setInterval(UpdateGameState, 16);
+
     function UpdateGameState() {
         try {
+
+
             player1.x = data["P1"]["x"];
             player2.x = data["P2"]["x"];
             player1.y = data["P1"]["y"];
@@ -136,14 +149,13 @@ export function initPongGame(routerData) {
         } catch (error) {
             console.error('Failed to fetch coordinates:', error);
         }
+        if(window.location.pathname !== "/localroom")
+        {
+            clearInterval(intervalId);
+            return ;
+        }
         drawEverything();
     }
 
     console.log('About to fetch game state...');
-    setInterval(UpdateGameState, 16);
-    function gameLoop() {
-        fetchAndUpdateGameState();
-        requestAnimationFrame(gameLoop);
-        console.log('Game loop running');
-    }
 };

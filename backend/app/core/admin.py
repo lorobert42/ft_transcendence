@@ -49,7 +49,9 @@ class RoomAdmin(admin.ModelAdmin):
     view_participants_link.short_description = "participants"
 
 admin.site.register(models.User, UserAdmin)
-admin.site.register(models.Message)
+admin.site.register(models.GameInvitation)
 admin.site.register(models.Game)
 admin.site.register(models.Tournament)
 admin.site.register(models.Participation)
+admin.site.register(models.TournamentInvitation)
+admin.site.register(models.FriendInvitation)
