@@ -191,6 +191,8 @@ class Game(models.Model):
     is_draft = models.BooleanField(default=False)
     is_finished = models.BooleanField(default=False)
 
+    def get_name(self):
+        return f"{self.player1.name} vs {self.player2.name}"
     def clean(self):
         # Custom validation to ensure player1 and player2 are not the same
         if self.player1 == self.player2:
@@ -217,11 +219,6 @@ class GameInvitation(models.Model):
         ('declined', 'Declined'),
         ('cancelled', 'Cancelled'),
     ), default='pending')
-
-    def __str__(self):
-        return f"Invitation for {self.game}: {self.player1.name} vs {self.player2.name} - Status: {self.status}"
-
-
 
     def __str__(self):
         return f"Invitation for {self.game}: {self.player1.name} vs {self.player2.name} - Status: {self.status}"
