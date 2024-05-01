@@ -1,13 +1,34 @@
-export function tournamentHandler() {
+export async function tournamentHandler(dataDict = {}) {
+  let games = [];
+  await updateGames();
+
   let userList = [
     { name: "user1", status: "accepted", tournamentPos: 1 },
     { name: "user2", status: "accepted", tournamentPos: 2 },
     { name: "user3", status: "accepted", tournamentPos: 3 },
     { name: "user4", status: "accepted", tournamentPos: 4 },
-    { name: "user5", status: "accepted", tournamentPos: 5 },
   ]
 
-  generateBrackets(userList);
+  async function updateGames() {
+    games = await fetch("/api/game/", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+      },
+    }).then((response) => {
+      if (response.status === 401) {
+        console.error("Unauthorized");
+      }
+      return response.json();
+    }).then((data) => {
+      return data;
+    }).catch((error) => {
+      console.error("Error:", error);
+    });
+  }
+
+  generateBrackets(userList, dataDict);
 }
 
 class Slot {
@@ -37,9 +58,9 @@ class Slot {
     if (round) {
       if (this.#player && this.player.status === "accepted") {
         this.li.innerText = player.name;
-      } else if (this.previousRound1 == null && this.previousRound2 == null) {
+      } else if (this.previousRound1.player == null && this.previousRound2.player == null) {
         this.li.innerText = "Waiting for previous round...";
-      } else if (this.player && this.previousRound1 && this.previousRound2) {
+      } else if (this.previousRound1 && this.previousRound2 && this.previousRound1.player && this.previousRound2.player) {
         this.li.innerText = `${this.previousRound1.player.name} - ${this.previousRound2.player.name}`;
       }
     }
@@ -71,7 +92,7 @@ class Slot {
 
 }
 
-function generateBrackets(playerList) {
+function generateBrackets(playerList, dataDict = {}) {
   let numPlayers = playerList.length;
   const roundsValues = ((2 * numPlayers) - 1);
   const round1Bracket = document.getElementById('round1-list');
@@ -124,77 +145,25 @@ function generateBrackets(playerList) {
 
     let round2 = generateRound(round1);
     console.log(round2);
-    for (let i = 0; i < round2.length; i++) {
-      round3Bracket.appendChild(round2[i].li);
+    for (let i = 0, j = 0; i < (8 * 2) - 1; i++) {
+
+      if ((i % 8) - 3 == 0 && j < round2.length) {
+        round3Bracket.appendChild(round2[j].li);
+        j++;
+      } else
+        round3Bracket.appendChild(new Slot(null, 0, 0, 0).li);
     }
 
     if (playerList.length > 4) {
       let round3 = generateRound(round2);
       console.log(round3);
-      for (let i = 0; i < round3.length; i++) {
-        round4Bracket.appendChild(round3[i].li);
+      for (let i = 0, j = 0; i < (8 * 2) - 1; i++) {
+        if ((i % 16) - 7 == 0 && j < round3.length) {
+          round4Bracket.appendChild(round3[j].li);
+          j++;
+        } else
+          round4Bracket.appendChild(new Slot(null, 0, 0, 0).li);
       }
     }
-
-
-    // // Generate Round 2
-
-    // let slotArray2 = [];
-
-    // for (let i = 0, j = 0; i < (playerList.length * 2) - 1; i++) {
-    //   if ((i % 4) - 1 == 0) {
-    //     j++;
-    //     slotArray2.push(new Slot(playerList[j++], 0, 1, j));
-    //   }
-    //   else
-    //     slotArray2.push(new Slot(null, 0, 1));
-    // }
-
-    // for (let i = 0; i < roundsValues; i++) {
-    //   const li = document.createElement('li');
-    //   li.className = "fixed-size-list-item d-flex justify-content-between align-items-center";
-
-    //   if ((i % 4) - 1 == 0) {
-    //     li.innerText = "User";
-    //     const span = document.createElement('span');
-    //     span.className = "badge text-bg-primary rounded-pill";
-    //     span.innerText = "0";
-    //     li.appendChild(span);
-    //   }
-    //   else
-    //     li.innerText = "";
-    //   round2Bracket.appendChild(li);
-    // }
-
-    //   // Generate Round 3
-    //   for (let i = 0; i < roundsValues; i++) {
-    //     const li = document.createElement('li');
-    //     li.className = "fixed-size-list-item d-flex justify-content-between align-items-center";
-    //     if ((i % 8) - 3 == 0) {
-    //       li.innerText = "User";
-    //       const span = document.createElement('span');
-    //       span.className = "badge text-bg-primary rounded-pill";
-    //       span.innerText = "0";
-    //       li.appendChild(span);
-    //     }
-    //     else
-    //       li.innerText = "";
-    //     round3Bracket.appendChild(li);
-    //   }
-
-    //   // Generate Round 4
-    //   for (let i = 0; i < roundsValues; i++) {
-    //     const li = document.createElement('li');
-    //     li.className = "fixed-size-list-item d-flex justify-content-between align-items-center";
-    //     if ((i % 16) - 7 == 0)
-    //       li.innerText = "User";
-    //     else
-    //       li.innerText = "";
-    //     round4Bracket.appendChild(li);
-    //   }
-
-    // }
-
-    // Example usage:
   }
 }
