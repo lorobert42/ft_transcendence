@@ -201,7 +201,7 @@ export default async function pageRouting(data = {}) {
       contentDiv.innerHTML = tournamentCreation();
       import("./js/scripts/tournamentCreationHandler.js")
         .then((module) => {
-          module.tournamentCreationHandler();
+          module.tournamentCreationHandler(data);
         })
         .catch((error) => {
           console.error("Failed to load the tournament creation module", error);

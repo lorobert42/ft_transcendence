@@ -100,8 +100,8 @@ export async function tournamentCreationHandler(dataDict = {}) {
         Authorization: `Bearer ${authToken}`,
       },
       body: JSON.stringify({
-        name: tournamentName ? tournamentName : "Tournament by " + dataDict.user,
-        participants: selectedPlayersList,
+        name: tournamentName ? tournamentName : "Tournament by " + dataDict.user.name,
+        participants: selectedPlayersList.concat(dataDict.user.user_id),
       }),
     }).then((response) => {
       if (response.status === 401) {
@@ -116,7 +116,7 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
     printSuccess(`Tournament created successfully with ${selectedPlayersList.length} players`, "success");
     history.pushState(null, '', "/tournament");
-    pageRouting();
+    pageRouting(dataDict);
   });
 
 
