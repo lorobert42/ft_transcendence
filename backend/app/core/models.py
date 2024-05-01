@@ -87,7 +87,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Tournament(models.Model):
     name = models.CharField(max_length=512)
-    participants = models.ManyToManyField('User', through='Participation')
+    participants = models.ManyToManyField('User', through='Participation', related_name='tournaments')
     has_started = models.BooleanField(default=False)
 
 
