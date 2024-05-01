@@ -35,7 +35,7 @@ export default async function pageRouting(data = {}) {
   function redirectPath(path) {
     history.pushState(null, '', path);
     pageRouting();
-  } 
+  }
 
   console.log("data: ", data);
 
@@ -149,8 +149,7 @@ export default async function pageRouting(data = {}) {
       break;
 
     case "/friend":
-      if(!isLogged)
-      {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
@@ -165,8 +164,7 @@ export default async function pageRouting(data = {}) {
       break;
 
     case "/update":
-      if(!isLogged)
-      {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
@@ -181,8 +179,7 @@ export default async function pageRouting(data = {}) {
       break;
 
     case "/online":
-      if(!isLogged || !data.gameId)
-      {
+      if (!isLogged || !data.gameId) {
         redirectPath('/login');
         return;
       }
@@ -194,18 +191,17 @@ export default async function pageRouting(data = {}) {
         .catch((error) => {
           console.error("Failed to load the online pong module", error);
         });
-        break;
+      break;
 
     case "/tournamentCreation":
-      if(!isLogged)
-      {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
       contentDiv.innerHTML = tournamentCreation();
       import("./js/scripts/tournamentCreationHandler.js")
         .then((module) => {
-          module.tournamentCreationHandler();
+          module.tournamentCreationHandler(data);
         })
         .catch((error) => {
           console.error("Failed to load the tournament creation module", error);
@@ -213,15 +209,14 @@ export default async function pageRouting(data = {}) {
       break;
 
     case "/tournament":
-      if(!isLogged)
-      {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
       contentDiv.innerHTML = tournament();
       import("./js/scripts/tournamentHandler.js")
         .then((module) => {
-          module.tournamentHandler();
+          module.tournamentHandler(data);
         })
         .catch((error) => {
           console.error("Failed to load the tournament module", error);
@@ -229,8 +224,7 @@ export default async function pageRouting(data = {}) {
       break;
 
     case "/gamesearch":
-      if(!isLogged)
-      {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
@@ -245,8 +239,7 @@ export default async function pageRouting(data = {}) {
       break;
 
     case "/results":
-      if(!isLogged)
-      {
+      if (!isLogged) {
         redirectPath('/login');
         return;
       }
@@ -258,7 +251,7 @@ export default async function pageRouting(data = {}) {
         .catch((error) => {
           console.error("Failed to load the results module", error);
         });
-      break;  
+      break;
     default:
       contentDiv.innerHTML = homePage();
       break;

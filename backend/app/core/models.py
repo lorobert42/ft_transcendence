@@ -88,7 +88,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Tournament(models.Model):
     name = models.CharField(max_length=512)
-    participants = models.ManyToManyField('User', through='Participation')
+    participants = models.ManyToManyField('User', through='Participation', related_name='tournaments')
     has_started = models.BooleanField(default=False)
 
     def __str__(self):
@@ -110,7 +110,7 @@ class Participation(models.Model):
         unique_together = ('user', 'tournament')  # Ensuring uniqueness at the database level
 
     def __str__(self):
-        return f"{self.nickname} ({self.user.name})"
+        return f"({self.user.name}) - ({self.tournament.name})"
 
 
 class Game(models.Model):
