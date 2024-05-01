@@ -110,7 +110,7 @@ class Participation(models.Model):
         unique_together = ('user', 'tournament')  # Ensuring uniqueness at the database level
 
     def __str__(self):
-        return f"{self.nickname} ({self.user.name})"
+        return f"({self.user.name}) - ({self.tournament.name})"
 
 class Game(models.Model):
     tournament = models.ForeignKey(
