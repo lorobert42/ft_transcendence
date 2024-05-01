@@ -68,6 +68,17 @@ class GameSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+
+class ParticipationStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participation
+        fields = ['status']  # Only include the status field
+
+    def update(self, instance, validated_data):
+        instance.status = validated_data.get('status', instance.status)
+        instance.save()
+        return instance
+
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -100,6 +111,7 @@ class TournamentSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True
     )
+    has_started = serializers.BooleanField(default=False)
 
     class Meta:
         model = Tournament
@@ -163,26 +175,26 @@ class TournamentPatchSerializer(serializers.ModelSerializer):
                 instance.has_started = has_started
                 instance.save()
 
-                # Optional: Trigger any actions that should occur once the tournament starts
-                # For example, you could call a method here to set up the initial games if that's
-                # not already handled by another mechanism:
-                # self.create_initial_games(instance)
+                 # If the tournament is now starting, create initial games
+                self.create_initial_games(instance)
 
         return instance
 
     # Example method to be invoked after setting has_started to True
     def create_initial_games(self, tournament):
-        participants = list(tournament.participations.filter(status='accepted').values_list('user', flat=True))
+        participants = list(tournament.participation_set.filter(status='accepted').values_list('user', flat=True))
         if participants:
             self.create_complete_bracket(tournament, participants)
 
-    def create_complete_bracket(self, tournament, participants):
+    def create_complete_bracket(self, tournament, participant_ids):
+        participants = list(User.objects.filter(id__in=participant_ids))
         random.shuffle(participants)
         num_rounds = math.ceil(math.log2(len(participants)))
         num_initial_games = int(math.pow(2, num_rounds - 1))
 
         current_round = 1
         games = []
+        pending_participant = []
         round_game_counter = 1
 
         # Create initial games
@@ -198,14 +210,8 @@ class TournamentPatchSerializer(serializers.ModelSerializer):
                 games.append(game)
                 round_game_counter += 1
             else:
-                game = Game.objects.create(
-                    tournament=tournament,
-                    player1=participants[i],
-                    player2=None,
-                    tournamentRound=current_round,
-                    roundGame=round_game_counter
-                )
-                games.append(game)
+                pending_ids
+
 
         # Create placeholder games for subsequent rounds
         while len(games) > 1:
