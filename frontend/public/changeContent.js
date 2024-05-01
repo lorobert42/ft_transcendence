@@ -6,7 +6,7 @@ import enableOtpPage from "./pages/enableOtpPage.js";
 import registerPage from "./pages/registerPage.js";
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
-import { isLoggedIn } from "./js/utils/loginHandler.js";
+import { getRefreshToken, isLoggedIn } from "./js/utils/loginHandler.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
 import tournament from "./pages/tournament.js";
@@ -155,7 +155,7 @@ export default async function pageRouting(data = {}) {
         return;
       }
       contentDiv.innerHTML = contacts();
-      import("./js/utils/contactHandler.js")
+      import("./js/script/contactHandler.js")
         .then((module) => {
           module.contactHandler();
         })
@@ -346,6 +346,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     history.pushState(null, '', '/');
     pageRouting();
   });
+
+  setInterval(getRefreshToken, 270000);
 
   dropDownLanguage();
   pageRouting();

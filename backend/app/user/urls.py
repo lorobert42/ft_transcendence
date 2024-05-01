@@ -15,11 +15,6 @@ urlpatterns = [
     path("otp/verify/", views.VerifyOTPView.as_view(), name="verify-otp"),
     path("otp/disable/", views.OTPDisableView.as_view(), name="disable-otp"),
     path("token/refresh/", views.RefreshTokenView.as_view(), name='token_refresh'),
-    path('friend/', views.AddFriendView.as_view(), name='add-friend'),
-    path('friend/<int:pk>/', views.DeleteFriendView.as_view(), name='delete-friend'),
     path("me/", views.ManageUserView.as_view(), name="me"),
     path('users/', views.ListUsersView.as_view(), name='user-list'),
-
-    path('friend-invitations/', views.FriendInvitationListCreateView.as_view(), name='create-friend-invitation'),
-    path('friend-invitations/<int:pk>/', views.FriendInvitationUpdateView.as_view(), name='update-friend-invitation'),
 ]
