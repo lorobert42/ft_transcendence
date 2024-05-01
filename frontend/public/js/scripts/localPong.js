@@ -154,6 +154,7 @@ export function initPongGame(routerData) {
         }
         if (window.location.pathname !== "/localroom") {
             clearInterval(intervalId);
+            gameSocket.close()
             return;
         }
         drawEverything();

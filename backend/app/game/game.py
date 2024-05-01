@@ -3,7 +3,7 @@ WIDTH, HEIGHT = 1000, 700  # Game size
 PADDLE_WIDTH, PADDLE_HEIGHT = 25, 125  # Paddle size
 D_BALL_RAD = 10  # Radius of the ball
 
-class GameClass:
+class GameClass():
     def __init__(self, game_id, player1_type='human', player2_type='human'):
         self.id = game_id
         self.p1_type = player1_type
