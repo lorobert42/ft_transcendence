@@ -1,3 +1,0 @@
-
-2) Once game done need to set 'score1' ,'score2' and 
-4) create a life time for games
