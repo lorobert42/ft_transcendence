@@ -3,6 +3,8 @@ from django.db import transaction
 import random
 import math
 
+
+
 from core.models import Game, Tournament, User, Participation
 
 class GameUserSerializer(serializers.ModelSerializer):
@@ -189,45 +191,30 @@ class TournamentPatchSerializer(serializers.ModelSerializer):
     def create_complete_bracket(self, tournament, participant_ids):
         participants = list(User.objects.filter(id__in=participant_ids))
         random.shuffle(participants)
-        num_rounds = math.ceil(math.log2(len(participants)))
-        num_initial_games = int(math.pow(2, num_rounds - 1))
 
         current_round = 1
-        games = []
-        pending_participant = []
         round_game_counter = 1
+        games = []
+        stack = []
 
-        # Create initial games
-        for i in range(0, len(participants), 2):
-            if i+1 < len(participants):
+        for participant in participants:
+            stack.append(participant)
+
+        while len(stack) != 1 or len(games) != 0:
+            while len(stack) >= 2:
+                first_participant = stack.pop(0)
+                second_participant = stack.pop(0)
                 game = Game.objects.create(
-                    tournament=tournament,
-                    player1=participants[i],
-                    player2=participants[i+1],
-                    tournamentRound=current_round,
-                    roundGame=round_game_counter
-                )
-                games.append(game)
-                round_game_counter += 1
-            else:
-                pending_ids
-
-
-        # Create placeholder games for subsequent rounds
-        while len(games) > 1:
-            new_round = []
-            round_game_counter = 1
-            current_round += 1
-            for i in range(0, len(games), 2):
-                if i+1 < len(games):
-                    game = Game.objects.create(
                         tournament=tournament,
-                        player1=None,
-                        player2=None,
+                        player1=first_participant if isinstance(first_participant, User) else None,
+                        player2=second_participant if isinstance(second_participant, User) else None,
                         tournamentRound=current_round,
                         roundGame=round_game_counter
                     )
-                    new_round.append(game)
-                    round_game_counter += 1
-            games = new_round
+                games.append(game)
+                round_game_counter += 1
+            round_game_counter = 1
+            current_round += 1
+            while len(games) > 0:
+                stack.insert(0, games.pop())
 
