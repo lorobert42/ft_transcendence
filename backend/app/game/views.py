@@ -12,7 +12,7 @@ from django.http import JsonResponse
 import random
 
 from core.models import Game, Tournament, Participation
-from .serializers import GameSerializer, TournamentSerializer, ParticipationSerializer, GameScoreUpdateSerializer, TournamentPatchSerializer
+from .serializers import GameSerializer, ParticipationStatusUpdateSerializer, TournamentSerializer, ParticipationSerializer, GameScoreUpdateSerializer, TournamentPatchSerializer, Participation
 
 class GameListCreateAPIView(generics.ListCreateAPIView):
     serializer_class = GameSerializer
@@ -68,6 +68,27 @@ class TournamentAPIView(generics.ListCreateAPIView):
 class ParticipationAPIView(generics.ListCreateAPIView):
     queryset = Participation.objects.all()
     serializer_class = ParticipationSerializer
+
+class GameListByTournamentAPIView(generics.ListAPIView):
+    serializer_class = GameSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        This view returns a list of all the games for a specific tournament.
+        """
+        tournament_id = self.kwargs['tournament_id']
+        return Game.objects.filter(tournament__id=tournament_id)
+
+class ParticipationStatusUpdateView(generics.UpdateAPIView):
+    queryset = Participation.objects.all()
+    serializer_class = ParticipationStatusUpdateSerializer
+    http_method_names = ['patch']  # Restrict this view to only handle PATCH requests
+
+    # Optional: Define get_object to handle object fetching if you need custom behavior
+    def get_object(self):
+        # Custom logic to retrieve the object
+        return super().get_object()
 
 
 
