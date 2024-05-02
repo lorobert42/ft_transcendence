@@ -1,4 +1,7 @@
 import pageRouting from "../../changeContent.js";
+import { getGames } from "../fetchers/gamesFetcher.js";
+import { getTournaments } from "../fetchers/tournamentsFetcher.js";
+import { getUsers } from "../fetchers/usersFetcher.js";
 
 export async function gameSearchHandler(dataDict = {}) {
     const gameList = document.getElementById("game-list");
@@ -11,22 +14,7 @@ export async function gameSearchHandler(dataDict = {}) {
     console.log("Games :  ", games);
     console.log("Tournaments : ", tournaments);
 
-    let roomsList = await fetch("/api/game/", {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-    }).then((response) => {
-        if (response.status === 401) {
-            console.error("Unauthorized");
-        }
-        return response.json();
-    }).then((data) => {
-        return data;
-    }).catch((error) => {
-        console.error("Error:", error);
-    });
+    let roomsList = await getGames();
 
     console.log("Rooms list : ", roomsList);
 
@@ -104,60 +92,15 @@ export async function gameSearchHandler(dataDict = {}) {
 
 
     async function updateUsers() {
-        users = await fetch("/api/user/users/", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-        }).then((response) => {
-            if (response.status === 401) {
-                console.error("Unauthorized");
-            }
-            return response.json();
-        }).then((data) => {
-            return data;
-        }).catch((error) => {
-            console.error("Error:", error);
-        });
+        users = await getUsers();
     }
 
     async function updateGames() {
-        games = await fetch("/api/game/", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-        }).then((response) => {
-            if (response.status === 401) {
-                console.error("Unauthorized");
-            }
-            return response.json();
-        }).then((data) => {
-            return data;
-        }).catch((error) => {
-            console.error("Error:", error);
-        });
+        games = await getGames();
     }
 
     async function updateTournaments() {
-        tournaments = await fetch("/api/game/tournament/", {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-            },
-        }).then((response) => {
-            if (response.status === 401) {
-                console.error("Unauthorized");
-            }
-            return response.json();
-        }).then((data) => {
-            return data;
-        }).catch((error) => {
-            console.error("Error:", error);
-        });
+        tournaments = await getTournaments();
     }
 
     document.getElementById("create-local-game").addEventListener("click", (e) => {

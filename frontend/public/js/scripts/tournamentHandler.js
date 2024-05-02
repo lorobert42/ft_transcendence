@@ -1,3 +1,5 @@
+import { getGames } from "../fetchers/gamesFetcher.js";
+
 export async function tournamentHandler(dataDict = {}) {
   let games = [];
   await updateGames();
@@ -10,22 +12,7 @@ export async function tournamentHandler(dataDict = {}) {
   ]
 
   async function updateGames() {
-    games = await fetch("/api/game/", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      },
-    }).then((response) => {
-      if (response.status === 401) {
-        console.error("Unauthorized");
-      }
-      return response.json();
-    }).then((data) => {
-      return data;
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
+    games = await getGames();
   }
 
   generateBrackets(userList, dataDict);
