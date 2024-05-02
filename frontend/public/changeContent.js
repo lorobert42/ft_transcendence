@@ -21,6 +21,8 @@ import { decodeJWT } from "./js/utils/tokenHandler.js";
 import gameResults from "./pages/gameResults.js";
 import { getRefreshToken } from "./js/fetchers/usersFetcher.js";
 
+export let dataSave = {};
+
 export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
   rootPageTraduction();
@@ -35,13 +37,13 @@ export default async function pageRouting(data = {}) {
 
   function redirectPath(path) {
     history.pushState(null, '', path);
-    pageRouting();
+    pageRouting(data);
   }
 
-  console.log("data: ", data);
 
   // if path is /home, send load content with function
   let contentDiv = document.getElementById("content");
+  dataSave = data;
   switch (path) {
     case "/":
       contentDiv.innerHTML = homePage();
@@ -99,8 +101,8 @@ export default async function pageRouting(data = {}) {
       }
       contentDiv.innerHTML = profilePage();
       import("/js/scripts/userProfile.js")
-        .then((module) => {
-          module.userProfileModule.init(data);
+        .then(async (module) => {
+          module.userProfileModule(data);
         })
         .catch((error) => {
           console.error("Failed to load the login form module", error);
@@ -329,7 +331,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       document.cookie = `lang=${item.innerText}; samesite=strict`;
       dropDownLanguage();
       history.pushState(null, '', window.location.href);
-      pageRouting();
+      pageRouting(dataSave);
     });
   });
 
