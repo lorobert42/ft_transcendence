@@ -85,10 +85,29 @@ export default function profilePage() {
           </div>
         </div>
         <div class="col-sm text-center">
-          <h2>History</h2>
-          <input type="text" id="historySearch" class="form-control" placeholder="Search by adversary name...">
-          <div class="mt-3" style="max-height: 400px; overflow-y: scroll;">
-              <ul id="historyList" class="list-group"></ul>
+          <div>
+            <h2>Stats</h2>
+            <div class="container">
+              <div class="row">
+                <div class="col">
+                  <h3>Wins</h3>
+                  <p id="wins">0</p>
+                </div>
+                <div class="col">
+                  <h3>Losses</h3>
+                  <p id="losses">0</p>
+                </div>
+                <div class="col">
+                  <h3>Played</h3>
+                  <p id="played">0</p>
+              </div>
+          </div>
+          <div>
+            <h2>History</h2>
+            <input type="text" id="historySearch" class="form-control" placeholder="Search by adversary name...">
+            <div class="mt-3" style="max-height: 400px; overflow-y: scroll;">
+                <ul id="historyList" class="list-group"></ul>
+            </div>
           </div>
         </div>
       </div>

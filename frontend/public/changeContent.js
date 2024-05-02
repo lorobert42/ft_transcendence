@@ -100,8 +100,8 @@ export default async function pageRouting(data = {}) {
       }
       contentDiv.innerHTML = profilePage();
       import("/js/scripts/userProfile.js")
-        .then((module) => {
-          module.userProfileModule.init(data);
+        .then(async (module) => {
+          module.userProfileModule(data);
         })
         .catch((error) => {
           console.error("Failed to load the login form module", error);
