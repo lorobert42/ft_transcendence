@@ -176,7 +176,7 @@ class Game(models.Model):
 
     def __str__(self):
         game_type = "Tournament Game" if self.tournament else "One-Off Game"
-        return f"{self.player1.name} vs {self.player2.name}: {game_type}, Score [{self.score1} - {self.score2}]"
+        return "game"
 
 def get_system_user():
     return User.objects.get_or_create(email='system@user.com', defaults={'name': 'System User'})[0].pk
