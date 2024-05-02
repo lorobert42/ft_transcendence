@@ -13,32 +13,62 @@ class GameUserSerializer(serializers.ModelSerializer):
         fields = ['id', 'email']  # Adjust fields based on the actual User model
 
 
+
+class GameScoreUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Game
+        fields = ['score1', 'score2',  'game_status']
+        extra_kwargs = {
+            'score1': {'required': False},
+            'score2': {'required': False},
+            'game_status' : {'required': False},
+        }
+
+    def update(self, instance, validated_data):
+        # Update the current game instance first
+        instance = super().update(instance, validated_data)
+
+
+
+
 class GameSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
-        fields = ['id', 'tournament', 'tournamentRound', 'roundGame', 'player1', 'player2', 'score1', 'score2',
-                  'player1_status', 'player2_status', 'game_status', 'start_time']
-        read_only_fields = ['id', 'tournament', 'tournamentRound', 'roundGame', 'player1', 'score1', 'score2',
-                            'player1_status', 'player2_status', 'game_status', 'start_time']  # Assuming these should not be set directly
+        fields = ['id',
+                  'tournament',
+                  'tournamentRound',
+                  'roundGame',
+                  'player1',
+                  'player2',
+                  'score1',
+                  'score2',
+                  'player1_status',
+                  'player2_status',
+                  'game_status',
+                  'start_time',
+                  ]
 
-    def validate_player2(self, value):
-        """
-        Ensure that player2 is not the same as the authenticated user.
-        """
-        request_user = self.context['request'].user
-        if value == request_user:
-            raise serializers.ValidationError("Player1 and Player2 cannot be the same person.")
-        return value
 
     def validate(self, data):
         """
-        Ensure that player2 is in the tournament if applicable.
+        Check that the two players are not the same and that both are in the tournament if applicable.
         """
-        tournament = data.get('tournament')
-        if tournament and 'player2' in data:
-            if data['player2'] not in tournament.participants.all():
-                raise serializers.ValidationError("Player2 must be a participant in the tournament.")
+        if data['player1'] is not None and data['player2'] is not None and data['player1'] == data['player2']:
+            raise serializers.ValidationError("Player1 and Player2 cannot be the same person.")
+
+        tournament = data.get('tournament')  # Use .get() to avoid KeyError
+        if tournament:
+            tournament_participants = tournament.participants.all()
+            if not (data['player1'] in tournament_participants and data['player2'] in tournament_participants):
+                raise serializers.ValidationError("Both players must be participants in the tournament.")
+
         return data
+
+    def update(self, instance, validated_data):
+        instance.score1 = validated_data.get('score1', instance.score1)
+        instance.score2 = validated_data.get('score2', instance.score2)
+        instance.save()
+        return instance
 
 
 class ParticipationStatusUpdateSerializer(serializers.ModelSerializer):
