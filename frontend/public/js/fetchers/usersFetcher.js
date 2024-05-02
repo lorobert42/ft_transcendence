@@ -2,7 +2,7 @@ import { printMessage, printError, printSuccess } from '../utils/toastMessage.js
 import pageRouting from '../../changeContent.js'
 
 export async function getUsers() {
-  return await fetch("/api/user/users/", {
+  return await fetch("/api/user/", {
     method: "GET",
     headers: {
       Authorization: `Bearer ${localStorage.getItem('authToken')}`,
@@ -33,7 +33,7 @@ export async function getUserInfo() {
 }
 
 export async function createUser(formData) {
-  fetch("/api/user/create/", {
+  fetch("/api/user/", {
     method: "POST",
     body: formData,
   }).then((response) => {

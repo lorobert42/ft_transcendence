@@ -432,3 +432,4 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     'game': games[i]
                 }
                 self.tournament.games[self.max_game] = game
+

@@ -1,6 +1,6 @@
 import pageRouting from '../../changeContent.js';
 import { getFriends } from '../fetchers/friendsFetcher.js';
-import { createGame, createGameInvitation, getGames } from '../fetchers/gamesFetcher.js';
+import { createGame, getGames } from '../fetchers/gamesFetcher.js';
 
 export async function gameCreationHandler(dataDict = {}) {
   //fetch all friends
