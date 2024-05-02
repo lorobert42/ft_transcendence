@@ -1,5 +1,7 @@
 import pageRouting from '../../changeContent.js'
+import { getGames } from '../fetchers/gamesFetcher.js';
 import { disableMfa, requestMfaActivation } from '../fetchers/mfaFetcher.js';
+import { getUsers } from '../fetchers/usersFetcher.js';
 
 export async function userProfileModule(dataDict = {}) {
   const setUserProfile = (user) => {
@@ -65,11 +67,9 @@ export async function userProfileModule(dataDict = {}) {
 
   let historyList = document.getElementById("historyList");
   let userList = await getUsers();
-  let historyRequest = await fetchHistory();
-
+  let historyRequest = await getGames();
   let wins = 0;
   let losses = 0;
-  let played = 0;
 
   historyRequest.forEach((element) => {
     if (element.game_status == "finished") {
@@ -90,44 +90,6 @@ export async function userProfileModule(dataDict = {}) {
   document.getElementById("played").textContent = wins + losses;
 
   displayItem(filterItems(historyRequest));
-
-  async function fetchHistory() {
-    try {
-      const response = await fetch("/api/game/", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
-        },
-      });
-      if (response.status === 401) {
-        throw new Error('Unauthorized');
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      printError(error);
-    }
-  }
-
-  async function getUsers() {
-    try {
-      const response = await fetch("/api/user/users/", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application",
-          "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
-        },
-      });
-      if (response.status === 401) {
-        throw new Error('Unauthorized');
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      printError(error);
-    }
-  }
 
   function filterItems(items) {
     let historySearch = document.getElementById("historySearch");
