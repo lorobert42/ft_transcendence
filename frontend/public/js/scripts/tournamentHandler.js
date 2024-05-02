@@ -38,8 +38,10 @@ export async function tournamentHandler(dataDict = {}) {
         leftdiv.innerText = this.player1 ? this.player1.name : "...";
         rightdiv.innerText = this.player2 ? this.player2.name : "...";
       } else if (this.status == "finished" || this.status == "running") {
-        leftdiv.innerText = this.player1.name;
-        rightdiv.innerText = this.player2.name;
+        if (this.player1)
+          leftdiv.innerText = this.player1.name;
+        if (this.player2)
+          rightdiv.innerText = this.player2.name;
       }
 
       li.appendChild(leftdiv);

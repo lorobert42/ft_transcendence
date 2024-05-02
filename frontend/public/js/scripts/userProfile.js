@@ -2,7 +2,7 @@ import pageRouting from '../../changeContent.js'
 import { getRefreshToken } from '../utils/loginHandler.js';
 import { printMessage, printError } from '../utils/toastMessage.js';
 
-export const userProfileModule = (() => {
+export async function userProfileModule() {
   const setUserProfile = (user) => {
     document.getElementById("userName").textContent = user.name;
     document.getElementById("userEmail").textContent = user.email;
@@ -117,27 +117,29 @@ export const userProfileModule = (() => {
   let historyList = document.getElementById("historyList");
   let historySearch = document.getElementById("historySearch");
 
-  let historyRequest =
+  let historyRequest = await fetchHistory();
+  console.log(historyRequest);
 
 
-    async function fetchHistory() {
-      try {
-        const response = await fetch("/api/game/", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
-          },
-        });
-        if (response.status === 401) {
-          throw new Error('Unauthorized');
-        }
-        const data = await response.json();
-        return response.json();
-      } catch (error) {
-        printError(error);
+
+  async function fetchHistory() {
+    try {
+      const response = await fetch("/api/game/", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
+        },
+      });
+      if (response.status === 401) {
+        throw new Error('Unauthorized');
       }
+      const data = await response.json();
+      return response.json();
+    } catch (error) {
+      printError(error);
     }
+  }
 
   // function displayItem(items) {
   //   historyList.innerHTML = "";
@@ -147,4 +149,4 @@ export const userProfileModule = (() => {
   // }
 
   return { init };
-})();
+}
