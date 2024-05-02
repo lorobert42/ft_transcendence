@@ -6,7 +6,7 @@ import random
 import asyncio
 from datetime import datetime, timezone
 from asyncio import CancelledError
-from core.models import Game ,Tournament
+from core.models import Game ,Tournament, User
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
@@ -399,9 +399,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         if TournamentConsumer.tournament_tab.get(self.room_id) == None:
             TournamentConsumer.tournament_tab[self.room_id] = TournamentClass()
-            await self.get_games(int(self.room_id))
             TournamentConsumer.tournament_tab[self.room_id].task = asyncio.create_task(self.loop())
-
 
         await self.channel_layer.group_add(
             self.tournament_group,
@@ -412,51 +410,95 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, message):
         if TournamentConsumer.tournament_tab[self.room_id].task.done():
+            await TournamentConsumer.tournament_tab[self.room_id].task
             TournamentConsumer.tournament_tab.pop(self.room_id)
         await self.channel_layer.group_discard(
-            self.game_room_group,
+            self.tournament_group,
             self.channel_name,
         )
 
     async def loop(self):
         loop = True
-        ic("loop started")
         while loop:
+            ic("before get_game")
+            tab = await self.get_games(int(self.room_id))
             now = time.time()
-            for i in range(0, TournamentConsumer.tournament_tab[self.room_id].max_game):
-                ic(f"from loop:{i}")
-                game = TournamentConsumer.tournament_tab[self.room_id].games[i]
-                if (game['game'].player1_status == "pending" or game['game'].player2_status == "pending") \
-                and game['game'].game_status == "pending":
-                    if game['time'] == None:
-                        game['time'] = time.time()
-                    if now - game['time'] >= 5:
-                        game['game'].game_status = "canceled"
-                        await database_sync_to_async(game['game'].save)()
-                if game['game'].game_status == "started" and game['game'].start_time == None:
-                    game['game'].start_time = datetime.now()
-                    await database_sync_to_async(game['game'].save)()
-
-
-
-                ic(game['game'].start_time)
-                ic(game['game'].id)
-                ic(game['game'].player1_status)
-                ic(game['game'].player2_status)
+            ic("after get_game")
+            ic(len(tab))
+            for i in range(0, len(tab)):
+                ic(f"{i}:")
+                if tab[i]['player1'] is not None:
+                    ic(tab[i].player1)
+                else:
+                    ic("player1 is None")
+                if tab[i]['player2'] is not None:
+                    ic(tab[i].player1)
+                else:
+                    ic("player2 is None")
+                if tab[i]['player1'] is not None and tab[i]['player2'] is not None \
+                and tab[i]['game'].game_status == "pending":
+                    ic("pending game")
+                    if tab[i]['time'] == None:
+                        tab[i]['time'] = time.time()
+                    #if now - tab['time'] < 0:
+                    ic("game canceled")
+                    tab[i]['game'].game_status = "canceled"
+                    await database_sync_to_async(tab[i]['game'].save)()
+                    await self.set_winner_rand(tab[i]['game'], tab[i]['round'], tab[i]['pos'])
+                elif tab[i]['game'].game_status == "started" and tab[i]['game'].start_time == None:
+                    tab[i]['game'].start_time = datetime.now()
+                    await database_sync_to_async(tab[i]['game'].save)()
+                tab[i]['game'].game_status = "pending"
+                await database_sync_to_async(tab[i]['game'].save)()
             loop = False
         ic("loop ended")
+
+    async def set_winner_rand(self, game, round, pos):
+        ic("in set_winner_rand")
+        ic(game) #crash here
+        if round == 1 and game == 1:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r1g1 = self.winner_random(game)
+
+    async def winner_random(self, game):
+        random.seed(time.time())
+        if random.randint(1, 2) == 1:
+            pass #return player1
+        else:
+            pass #return player2
+        return None
 
     @database_sync_to_async
     def get_games(self, tournament_id):
         games = Game.objects.all()
+        tab = []
         for i in range(0, games.count()):
             if games[i].tournament.id == tournament_id:
-                game = {
-                    'round': games[i].tournamentRound,
-                    'pos': games[i].roundGame,
+                player1 = self.get_player(games[i].player1.id)
+                player2 = self.get_player(games[i].player2.id)
+                tab.append({
                     'game': games[i],
-                    'time': None,
-                    'winner': False
+                    'player1': player1,
+                    'player2': player2,
+                    'time': None
+                })
+        return tab
+
+
+    @database_sync_to_async
+    def get_player(self, id_user):
+        users = User.objects.all()
+        for i in range(0, users.count()):
+            if id_user == users[i].id:
+                return users[i]
+    """
+                data = {
+                    'round,game': {
+                    'game_id': "id",
+                    'player1': "player1.name",
+                    'player2': "player2.name",
+                    'score1': "score1",
+                    'score2': "score2",
+                    'state': "game_status"
+                    }
                 }
-                TournamentConsumer.tournament_tab[self.room_id].games[i] = game
-                TournamentConsumer.tournament_tab[self.room_id].max_game += 1
+                """
