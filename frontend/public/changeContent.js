@@ -156,7 +156,7 @@ export default async function pageRouting(data = {}) {
       contentDiv.innerHTML = contacts();
       import("./js/scripts/friendsHandler.js")
         .then((module) => {
-          module.friendsHandler();
+          module.initFriendsHandler();
         })
         .catch((error) => {
           console.error("Failed to load the contact handler module", error);

@@ -6,7 +6,20 @@ let users = [];
 let invites = [];
 let currentUser;
 
-export async function friendsHandler() {
+export function initFriendsHandler() {
+  document.querySelector("#pending-search").addEventListener("input", (e) => {
+    mapInvites();
+  });
+  document.querySelector("#user-search").addEventListener("input", (e) => {
+    mapUsers();
+  });
+  document.querySelector("#friend-search").addEventListener("input", (e) => {
+    mapFriends();
+  });
+  friendsHandler();
+}
+
+async function friendsHandler() {
   currentUser = await getUserInfo();
   friends = await getFriends();
   mapFriends();
@@ -19,7 +32,11 @@ export async function friendsHandler() {
 function mapFriends() {
   let friendList = document.getElementById("friend-list");
   friendList.innerHTML = "";
-  friends.forEach((friend) => {
+  const search = document.getElementById("friend-search").value.toLowerCase();
+  const filteredFriends = friends.filter((friend) => {
+    return friend.email.toLowerCase().includes(search);
+  });
+  filteredFriends.forEach((friend) => {
     const li = document.createElement("li");
     li.className = "list-group-item d-flex align-content-center";
     const txt = document.createElement("p");
@@ -50,7 +67,11 @@ function mapFriends() {
 function mapInvites() {
   let invitesList = document.getElementById("pending-list");
   invitesList.innerHTML = "";
-  invites.forEach((invite) => {
+  const search = document.getElementById("pending-search").value.toLowerCase();
+  const filteredInvites = invites.filter((invite) => {
+    return invite.user1.email.toLowerCase().includes(search) || invite.user2.email.toLowerCase().includes(search);
+  });
+  filteredInvites.forEach((invite) => {
     const li = document.createElement("li");
     li.className = "list-group-item d-flex justify-content-between align-items-center";
     const item = document.createElement("p");
@@ -123,7 +144,11 @@ function getInvitesAndFriendsEmails() {
 function mapUsers() {
   let userList = document.getElementById("user-list");
   userList.innerHTML = "";
-  users.forEach((user) => {
+  const search = document.getElementById("user-search").value.toLowerCase();
+  const filteredUsers = users.filter((user) => {
+    return user.email.toLowerCase().includes(search);
+  });
+  filteredUsers.forEach((user) => {
     const li = document.createElement("li");
     li.className = "list-group-item d-flex justify-content-between align-items-center";
     const txt = document.createElement("p");
