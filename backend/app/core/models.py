@@ -168,7 +168,10 @@ class Game(models.Model):
     start_time = models.DateTimeField(null=True, default=None)
 
     def get_name(self):
-        return f"{self.player1.name} vs {self.player2.name}"
+        # Uses conditional expressions to handle possible None values for players
+        player1_name = self.player1.name if self.player1 else "No Player"
+        player2_name = self.player2.name if self.player2 else "No Player"
+        return f"{player1_name} vs {player2_name}"
     def clean(self):
         # Custom validation to ensure player1 and player2 are not the same
         if self.player1 == self.player2:
@@ -182,7 +185,9 @@ class Game(models.Model):
 
     def __str__(self):
         game_type = "Tournament Game" if self.tournament else "One-Off Game"
-        return f"{self.player1.name} vs {self.player2.name}: {game_type}, Score [{self.score1} - {self.score2}]"
+        player1_name = self.player1.name if self.player1 else "No Player"
+        player2_name = self.player2.name if self.player2 else "No Player"
+        return f"{player1_name} vs {player2_name}: {game_type}, Score [{self.score1} - {self.score2}]"
 
 def get_system_user():
     return User.objects.get_or_create(email='system@user.com', defaults={'name': 'System User'})[0].pk
