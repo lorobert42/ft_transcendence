@@ -1,5 +1,5 @@
-import { getUsers, getFriends, getInvites, sendFriendInvitation, removeFriend, respondFriendInvitation } from "../utils/friendsManagement.js";
-import { getUserInfo } from "../utils/loginHandler.js";
+import { getFriends, getInvites, sendFriendInvitation, removeFriend, respondFriendInvitation } from "../fetchers/friendsFetcher.js";
+import { getUserInfo, getUsers } from "../fetchers/usersFetcher.js";
 
 let friends = [];
 let users = [];
