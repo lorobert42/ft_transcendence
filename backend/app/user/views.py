@@ -11,7 +11,6 @@ from rest_framework import status
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from user.serializers import (
-    FriendInvitationSerializer,
     UserSerializer,
     UserListSerializer,
     OTPEnableRequestSerializer,
@@ -20,7 +19,6 @@ from user.serializers import (
     LoginSerializer,
     CustomTokenRefreshSerializer,
     VerifyOTPSerializer,
-    AddFriendSerializer,
 )
 
 

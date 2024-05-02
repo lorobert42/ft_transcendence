@@ -17,7 +17,7 @@ from rest_framework_simplejwt.state import token_backend
 import pyotp
 import qrcode
 
-from core.models import User, FriendInvitation
+from core.models import User
 
 
 class UserListSerializer(serializers.ModelSerializer):
@@ -38,7 +38,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['email', 'name', 'id', 'avatar', 'friends', 'password', 'last_active', 'otp_enabled', 'is_connected', 'is_playing']
         extra_kwargs = {
             'id': {'read_only': True},
-            'avatar': {'allow_null': True},
+            'avatar': {'read_only': True},
             'friends': {'read_only': True},  # Assuming friends are handled separately
             'password': {'write_only': True, 'min_length': 5},
             'last_active': {'read_only': True},
@@ -276,25 +276,3 @@ class VerifyOTPSerializer(serializers.Serializer):
         user.login_otp_used = True
         user.save(update_fields=["login_otp_used"])
         return tokens
-
-
-class AddFriendSerializer(serializers.Serializer):
-    friend_id = serializers.IntegerField()
-
-    def validate_friend_id(self, value):
-        # Check that the context has the request and then compare user IDs
-        request = self.context.get('request')
-        if request and value == request.user.id:
-            raise serializers.ValidationError("You cannot add or delete yourself.")
-        return value
-
-
-class FriendInvitationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = FriendInvitation
-        fields = '__all__'
-
-    def validate(self, data):
-        if data['user1'] == data['user2']:
-            raise serializers.ValidationError("User1 and User2 cannot be the same person.")
-        return data
