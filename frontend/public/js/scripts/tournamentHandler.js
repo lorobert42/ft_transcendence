@@ -42,37 +42,32 @@ export async function tournamentHandler(dataDict = {}) {
         rightdiv.innerText = this.player2.name;
       }
 
-      li.apction displayItem(items) {
-        //   historyList.innerHTML = "";
-        //   items.forEach(() => { });
+      li.appendChild(leftdiv);
+      li.appendChild(rightdiv);
 
-
-        // }pendChild(leftdiv);
-        li.appendChild(rightdiv);
-
-        return li;
-      }
-
+      return li;
     }
+
+  }
 
   dataDict.tournamentId = 4;
 
   let usersData = await fetch(`/api/user/users/`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      },
-    }).then((response) => {
-      if (response.status === 401) {
-        console.error("Unauthorized");
-      }
-      return response.json();
-    }).then((data) => {
-      return data;
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+    },
+  }).then((response) => {
+    if (response.status === 401) {
+      console.error("Unauthorized");
+    }
+    return response.json();
+  }).then((data) => {
+    return data;
+  }).catch((error) => {
+    console.error("Error:", error);
+  });
 
 
   let tournamentData = await fetch(`/api/game/tournament/`, {
