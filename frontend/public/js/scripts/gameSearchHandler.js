@@ -1,4 +1,5 @@
 import pageRouting from "../../changeContent.js";
+import { dataSave } from "../../changeContent.js";
 
 export async function gameSearchHandler(dataDict = {}) {
     const gameList = document.getElementById("game-list");

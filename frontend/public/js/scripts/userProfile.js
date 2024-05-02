@@ -114,5 +114,37 @@ export const userProfileModule = (() => {
     showOtpOption(data.user);
   };
 
+  let historyList = document.getElementById("historyList");
+  let historySearch = document.getElementById("historySearch");
+
+  let historyRequest =
+
+
+    async function fetchHistory() {
+      try {
+        const response = await fetch("/api/game/", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
+          },
+        });
+        if (response.status === 401) {
+          throw new Error('Unauthorized');
+        }
+        const data = await response.json();
+        return response.json();
+      } catch (error) {
+        printError(error);
+      }
+    }
+
+  // function displayItem(items) {
+  //   historyList.innerHTML = "";
+  //   items.forEach(() => { });
+
+
+  // }
+
   return { init };
 })();
