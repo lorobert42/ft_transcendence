@@ -1,8 +1,8 @@
 """
 Serializers for user api views
 """
-
-from datetime import datetime, timezone
+from drf_spectacular.utils import extend_schema, extend_schema_field
+from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from django.contrib.auth import (
     authenticate,
@@ -20,8 +20,19 @@ import qrcode
 from core.models import User, FriendInvitation
 
 
+class UserListSerializer(serializers.ModelSerializer):
+    is_connected = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['is_connected', 'id', 'email', 'name', 'is_playing']
+
+    def get_is_connected(self, obj):
+        return (datetime.now(timezone.utc) - obj.last_active) <= timedelta(minutes=5)
+
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the user objects, handling read and update operations."""
+    is_connected = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = ['email', 'name', 'id', 'avatar', 'friends', 'password', 'last_active', 'otp_enabled', 'is_connected', 'is_playing']
@@ -35,6 +46,11 @@ class UserSerializer(serializers.ModelSerializer):
             'is_connected': {'read_only': True},
             'is_playing': {'read_only': True},
         }
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_is_connected(self, obj):
+        """Property method to return boolean based on last active time."""
+        return obj.is_connected
 
     def create(self, validated_data):
         """Create a new user with encrypted password and return it"""

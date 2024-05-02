@@ -1,18 +1,19 @@
 """
 Views for user api
 """
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from django.db.models import Q
 from django.forms import ValidationError
 from rest_framework import generics, permissions
 from rest_framework.response import Response
 from core.models import FriendInvitation, User
 from rest_framework import status
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view
 
 from user.serializers import (
     FriendInvitationSerializer,
     UserSerializer,
+    UserListSerializer,
     OTPEnableRequestSerializer,
     OTPEnableConfirmSerializer,
     OTPDisableSerializer,
@@ -23,9 +24,6 @@ from user.serializers import (
 )
 
 
-class CreateUserView(generics.CreateAPIView):
-    """Create a new user in the system"""
-    serializer_class = UserSerializer
 
 
 class OTPEnableRequestView(generics.GenericAPIView):
@@ -143,6 +141,7 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
     """Manage the authenticated user"""
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
+    http_method_names = ['get', 'patch']
 
     def get_object(self):
         """Retrieve and return authenticated user"""
@@ -154,13 +153,46 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
         return self.partial_update(request, *args, **kwargs)
 
 
-class ListUsersView(generics.ListAPIView):
-    """List all users in the system"""
-    serializer_class = UserSerializer
+
+@extend_schema_view(
+    get=extend_schema(
+        operation_id='List Users',
+        tags=['user'],
+        summary='List All Users',
+        description='Returns a list of all users if authenticated.',
+        responses={200: UserListSerializer(many=True)}
+    ),
+    post=extend_schema(
+        operation_id='Create User',
+        tags=['user'],
+        summary='Create New User',
+        description='Creates a new user. Open for unauthenticated users.',
+        responses={201: UserSerializer}
+    )
+)
+class UserListCreateView(generics.ListCreateAPIView):
+    """
+    Endpoint for listing all users and creating a new user.
+    """
     queryset = User.objects.all()
-    # You can add authentication and permission classes as needed
-    # For example, restrict this view to admin users only
-    permission_classes = [permissions.IsAuthenticated]
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return UserSerializer
+        return UserListSerializer
+
+    def get_permissions(self):
+        # Dynamically assign permissions based on the request type
+        if self.request.method == 'POST':
+            return [permissions.AllowAny()]
+        else:
+            return [permissions.IsAuthenticated()]
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
 
 
 class AddFriendView(generics.GenericAPIView):

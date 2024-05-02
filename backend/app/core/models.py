@@ -74,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_connected(self):
         """Determine if the user has been active in the last 5 minutes"""
-        return timezone.now() - self.last_active <= timedelta(minutes=5)
+        return (timezone.now() - self.last_active) <= timedelta(minutes=5)
 
     def is_valid_otp(self):
         lifespan_in_seconds = 90 if self.otp_enabled else 300
@@ -89,6 +89,12 @@ class Tournament(models.Model):
     name = models.CharField(max_length=512)
     participants = models.ManyToManyField('User', through='Participation', related_name='tournaments')
     has_started = models.BooleanField(default=False)
+    status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending'),
+        ('running', 'Running'),
+        ('finished', 'Finished'),
+        ('cancelled', 'Cancelled'),
+    ), default='pending')
 
 
     def __str__(self):
