@@ -1,3 +1,4 @@
+import { getUsers, getFriends, getInvites } from "../utils/friendsManagement.js";
 import { getUserInfo } from "../utils/loginHandler.js";
 import { printError } from "../utils/toastMessage.js";
 
@@ -8,33 +9,12 @@ let currentUser;
 
 export async function friendsHandler() {
   currentUser = await getUserInfo();
-  await updateFriends();
+  friends = await getFriends();
   mapFriends();
-  await updateInvites();
+  invites = await getInvites();
   mapInvites();
   await updateUsers();
   mapUsers();
-  getInvitesAndFriendsEmails();
-}
-
-async function updateFriends() {
-  const friendsObject = await fetch("/api/friends/", {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-    },
-  }).then((response) => {
-    if (response.status === 401) {
-      printError("Unauthorized");
-    }
-    return response.json();
-  }).then((data) => {
-
-    return data;
-  }).catch((error) => {
-    printError(error);
-  });
-  friends = friendsObject['friends'];
 }
 
 function mapFriends() {
@@ -65,25 +45,6 @@ function mapFriends() {
     li.appendChild(buttonContainer);
 
     friendList.appendChild(li);
-  });
-}
-
-async function updateInvites() {
-  invites = await fetch("/api/friends/invitations/", {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-    },
-  }).then((response) => {
-    if (response.status === 401) {
-      printError("Unauthorized");
-    }
-    return response.json();
-  }).then((data) => {
-
-    return data;
-  }).catch((error) => {
-    printError(error);
   });
 }
 
@@ -135,22 +96,7 @@ function mapInvites() {
 }
 
 async function updateUsers() {
-  users = await fetch("/api/user/users/", {
-    method: "GET",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-    },
-  }).then((response) => {
-    if (response.status === 401) {
-      printError("Unauthorized");
-    }
-    return response.json();
-  }).then((data) => {
-
-    return data;
-  }).catch((error) => {
-    printError(error);
-  });
+  users = await getUsers();
   const usersToRemove = getInvitesAndFriendsEmails();
   users = users.filter((user) => {
     if (user.email === currentUser.email) {
