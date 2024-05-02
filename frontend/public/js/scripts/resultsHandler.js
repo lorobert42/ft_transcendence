@@ -1,5 +1,4 @@
 import pageRouting from "../../changeContent.js";
-import { getUsers } from "../fetchers/usersFetcher.js";
 
 export async function resultsHandler(dataDict = {}) {
     if(!dataDict.winner)
@@ -32,6 +31,21 @@ export async function resultsHandler(dataDict = {}) {
     });
 
     async function updateUsers() {
-        users = await getUsers();
+        users = await fetch("/api/user/users/", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+        }).then((response) => {
+            if (response.status === 401) {
+                console.error("Unauthorized");
+            }
+            return response.json();
+        }).then((data) => {
+            return data;
+        }).catch((error) => {
+            console.error("Error:", error);
+        });
     }
 }

@@ -1,26 +1,43 @@
-import { confirmMfaActivation } from "../fetchers/mfaFetcher.js";
-import { getRefreshToken } from "../fetchers/usersFetcher.js";
+import { getRefreshToken } from "../utils/loginHandler.js";
 import { printError } from "../utils/toastMessage.js";
 
 export const enableOtpFormModule = (() => {
-  const otpCheck = async (id, otp) => {
-    let data = await confirmMfaActivation(id, otp);
-    if (Object.hasOwn(data, "success") && data.success === true) {
-      const form = document.getElementById("otpForm");
-      form.classList.add("d-none");
-      const backupList = document.getElementById("backupList");
-      data.backup_codes.map((code) => {
-        const backupCode = document.createElement("li");
-        backupCode.innerText = code;
-        backupCode.className = "list-group-item";
-        backupList.appendChild(backupCode);
+  const otpCheck = (id, otp) => {
+    fetch("/api/user/otp/activation/confirm/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
+      },
+      body: JSON.stringify({ 'user_id': id, 'otp': otp }),
+    })
+      .then((response) => {
+        if (response.status === 401) {
+          throw new Error('Invalid token');
+        }
+        return response.json()
+      })
+      .then(async (data) => {
+        if (Object.hasOwn(data, "success") && data.success === true) {
+          const form = document.getElementById("otpForm");
+          form.classList.add("d-none");
+          const backupList = document.getElementById("backupList");
+          data.backup_codes.map((code) => {
+            const backupCode = document.createElement("li");
+            backupCode.innerText = code;
+            backupCode.className = "list-group-item";
+            backupList.appendChild(backupCode);
+          });
+          const backupDiv = document.getElementById("backup");
+          backupDiv.classList.remove("d-none");
+          await getRefreshToken();
+        } else {
+          throw new Error('Unable to process your request, please retry.');
+        }
+      })
+      .catch((error) => {
+        printError(error);
       });
-      const backupDiv = document.getElementById("backup");
-      backupDiv.classList.remove("d-none");
-      await getRefreshToken();
-    } else {
-      printError('Unable to process your request, please retry.');
-    }
   };
 
   const init = (data) => {

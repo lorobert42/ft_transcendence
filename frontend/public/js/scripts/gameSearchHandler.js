@@ -1,43 +1,45 @@
 import pageRouting from "../../changeContent.js";
-import { getGames } from "../fetchers/gamesFetcher.js";
-import { getTournaments } from "../fetchers/tournamentsFetcher.js";
-import { getUsers } from "../fetchers/usersFetcher.js";
 
 export async function gameSearchHandler(dataDict = {}) {
     const gameList = document.getElementById("game-list");
     let users = [];
     let games = [];
-    let tournaments = [];
     await updateUsers();
     await updateGames();
-    await updateTournaments();
     console.log("Games :  ", games);
-    console.log("Tournaments : ", tournaments);
 
-    let roomsList = await getGames();
+    let roomsList = await fetch("/api/game/", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+        },
+    }).then((response) => {
+        if (response.status === 401) {
+            console.error("Unauthorized");
+        }
+        return response.json();
+    }).then((data) => {
+        return data;
+    }).catch((error) => {
+        console.error("Error:", error);
+    });
 
     console.log("Rooms list : ", roomsList);
 
     roomsList.forEach((room) => {
-        room.name = `Gameroom vs ${users.find((user) => user.id === room.player1).name}`;
+        room.name = `Gameroom by ${users.find((user) => user.id === room.player1).name}`;
     });
 
     roomsList = roomsList.filter((room) => room.player1 === dataDict.user.user_id ||
         room.player2 === dataDict.user.user_id);
 
-    console.log("Game rooms : ", roomsList);
-
-    roomsList = roomsList.filter((room) => room.game_status === "pending" || room.game_status === "running");
+    roomsList = roomsList.filter((room) => room.status === "pending" || room.status === "running");
 
     console.log("Room list : ", roomsList);
     function filterRooms() {
         const input = document.getElementById("game-search").value;
         let filteredRooms = roomsList.filter((room) => room.name.toLowerCase().includes(input.toLowerCase()));
-        filteredRooms = roomsList.filter((room) => room.tournament === null);
-        let filteredTournaments = tournaments.filter((tournament) => tournament.name.toLowerCase().includes(input.toLowerCase()));
-        filteredTournaments = filteredTournaments.filter((tournament) => tournament.participants.includes(dataDict.user.user_id));
-        filteredRooms = filteredRooms.concat(filteredTournaments);
-        console.log("Filtered rooms : ", filteredRooms);
         generateTenGameRooms(filteredRooms);
     }
 
@@ -49,16 +51,19 @@ export async function gameSearchHandler(dataDict = {}) {
         gameRooms.forEach((gameRoom) => {
             if (count >= 10)
                 return;
-            if (gameRoom.game_status == "finished" ||
+            let game = games.find((game) => game.id === gameRoom.game);
+            if (game == undefined)
+                return;
+            if (game.is_archived ||
                 (gameRoom.player1 != dataDict.user.user_id &&
                     gameRoom.player2 != dataDict.user.user_id) ||
-                (gameRoom.game_status != "pending" && gameRoom.game_status != "running")) {
+                (gameRoom.status != "pending" && gameRoom.status != "running")) {
                 return;
             }
             count++;
             const gameRoomElement = document.createElement("li");
             gameRoomElement.className = "list-group-item d-flex justify-content-between align-items-center";
-            gameRoomElement.innerText = `Gameroom vs ${(gameRoom.player1 == dataDict.user.user_id ? gameRoom.player2 : gameRoom.player1)}`;
+            gameRoomElement.innerText = gameRoom.name;
 
             const buttonContainer = document.createElement("div");
             buttonContainer.classList.add("d-flex");
@@ -71,12 +76,48 @@ export async function gameSearchHandler(dataDict = {}) {
                 console.log(`Joining ${gameRoom.name}`);
                 history.pushState(null, '', '/online');
                 pageRouting({
-                    gameId: gameRoom.id,
+                    gameId: gameRoom.game,
                     player1: gameRoom.player1,
                     player2: gameRoom.player2,
+                    invitationId: gameRoom.id
                 });
                 filterRooms();
             });
+
+
+            //create deny button
+            const denyButton = document.createElement('button');
+            denyButton.className = 'btn btn-danger btn-sm';
+            denyButton.textContent = 'Deny';
+            denyButton.addEventListener('click', () => {
+                console.log(`Denying ${gameRoom.name}`);
+                fetch(`/api/game/game-invitations/${gameRoom.id}/`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+                    },
+                    body: `{
+                        "status": "declined",
+                        "player1": ${gameRoom.player1},
+                        "player2": ${gameRoom.player2},
+                        "game": ${gameRoom.game}
+                    }`,
+                }).then((response) => {
+                    if (response.status === 401) {
+                        console.error("Unauthorized");
+                    }
+                    return response.json();
+                }
+                ).then((data) => {
+                    return data;
+                }).catch((error) => {
+                    console.error("Error:", error);
+                });
+                filterRooms();
+            });
+
+            buttonContainer.appendChild(denyButton);
 
             buttonContainer.appendChild(joinButton);
 
@@ -92,15 +133,41 @@ export async function gameSearchHandler(dataDict = {}) {
 
 
     async function updateUsers() {
-        users = await getUsers();
+        users = await fetch("/api/user/users/", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+        }).then((response) => {
+            if (response.status === 401) {
+                console.error("Unauthorized");
+            }
+            return response.json();
+        }).then((data) => {
+            return data;
+        }).catch((error) => {
+            console.error("Error:", error);
+        });
     }
 
     async function updateGames() {
-        games = await getGames();
-    }
-
-    async function updateTournaments() {
-        tournaments = await getTournaments();
+        games = await fetch("/api/game/", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+            },
+        }).then((response) => {
+            if (response.status === 401) {
+                console.error("Unauthorized");
+            }
+            return response.json();
+        }).then((data) => {
+            return data;
+        }).catch((error) => {
+            console.error("Error:", error);
+        });
     }
 
     document.getElementById("create-local-game").addEventListener("click", (e) => {
