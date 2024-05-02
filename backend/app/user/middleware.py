@@ -2,7 +2,7 @@ from django.utils import timezone
 from core.models import User
 
 
-class UpdateLastActivityMiddleware:
+class UpdateLastActiveMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 

@@ -1,4 +1,6 @@
-import { editUser } from "../fetchers/usersFetcher.js";
+import pageRouting from "../../changeContent.js";
+import { getRefreshToken } from "../utils/loginHandler.js";
+import { printMessage } from "../utils/toastMessage.js";
 
 export function updateForm() {
   const form = document.getElementById("updateForm");
@@ -21,7 +23,26 @@ export function updateForm() {
     if (password) {
       formData.append("password", password);
     }
-    editUser(formData);
+    let authToken = localStorage.getItem("authToken");
+    fetch("/api/user/me/", {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
+      },
+      body: formData,
+    }).then((response) => {
+      if (response.status === 401) {
+        console.error("Unauthorized");
+      }
+      return response.json();
+    }).then(async () => {
+      printMessage("Update successful");
+      await getRefreshToken();
+      history.pushState({}, '', '/profile');
+      pageRouting();
+    }).catch((error) => {
+      console.error("Error:", error);
+    });
   }
 
   form.addEventListener("submit", (event) => {

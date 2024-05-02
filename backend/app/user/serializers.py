@@ -1,8 +1,8 @@
 """
 Serializers for user api views
 """
-
-from datetime import datetime, timezone
+from drf_spectacular.utils import extend_schema, extend_schema_field
+from datetime import datetime, timedelta, timezone
 from io import BytesIO
 from django.contrib.auth import (
     authenticate,
@@ -17,17 +17,28 @@ from rest_framework_simplejwt.state import token_backend
 import pyotp
 import qrcode
 
-from core.models import User
+from core.models import User, FriendInvitation
 
+
+class UserListSerializer(serializers.ModelSerializer):
+    is_connected = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['is_connected', 'id', 'email', 'name', 'is_playing']
+
+    def get_is_connected(self, obj):
+        return (datetime.now(timezone.utc) - obj.last_active) <= timedelta(minutes=5)
 
 class UserSerializer(serializers.ModelSerializer):
     """Serializer for the user objects, handling read and update operations."""
+    is_connected = serializers.SerializerMethodField()
     class Meta:
         model = User
         fields = ['email', 'name', 'id', 'avatar', 'friends', 'password', 'last_active', 'otp_enabled', 'is_connected', 'is_playing']
         extra_kwargs = {
             'id': {'read_only': True},
-            'avatar': {'read_only': True},
+            'avatar': {'allow_null': True},
             'friends': {'read_only': True},  # Assuming friends are handled separately
             'password': {'write_only': True, 'min_length': 5},
             'last_active': {'read_only': True},
@@ -35,6 +46,11 @@ class UserSerializer(serializers.ModelSerializer):
             'is_connected': {'read_only': True},
             'is_playing': {'read_only': True},
         }
+
+    @extend_schema_field(serializers.BooleanField())
+    def get_is_connected(self, obj):
+        """Property method to return boolean based on last active time."""
+        return obj.is_connected
 
     def create(self, validated_data):
         """Create a new user with encrypted password and return it"""
@@ -260,3 +276,25 @@ class VerifyOTPSerializer(serializers.Serializer):
         user.login_otp_used = True
         user.save(update_fields=["login_otp_used"])
         return tokens
+
+
+class AddFriendSerializer(serializers.Serializer):
+    friend_id = serializers.IntegerField()
+
+    def validate_friend_id(self, value):
+        # Check that the context has the request and then compare user IDs
+        request = self.context.get('request')
+        if request and value == request.user.id:
+            raise serializers.ValidationError("You cannot add or delete yourself.")
+        return value
+
+
+class FriendInvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FriendInvitation
+        fields = '__all__'
+
+    def validate(self, data):
+        if data['user1'] == data['user2']:
+            raise serializers.ValidationError("User1 and User2 cannot be the same person.")
+        return data
