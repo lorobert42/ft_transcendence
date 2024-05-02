@@ -59,7 +59,6 @@ class AcceptInvitationSerializer(serializers.Serializer):
 
 class AddFriendSerializer(serializers.Serializer):
     user_id = serializers.IntegerField(write_only=True)
-    invitation = InvitationSerializer(read_only=True)
 
     def validate(self, attrs: dict):
         friend_id = attrs.get("user_id")
@@ -81,4 +80,5 @@ class AddFriendSerializer(serializers.Serializer):
     def create(self, validated_data: dict):
         validated_data.pop("user_id")
         invitation = FriendInvitation.objects.create(**validated_data)
-        return invitation
+        sInvitation = InvitationSerializer(invitation)
+        return sInvitation.data
