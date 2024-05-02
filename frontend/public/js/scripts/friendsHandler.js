@@ -1,6 +1,5 @@
-import { getUsers, getFriends, getInvites } from "../utils/friendsManagement.js";
+import { getUsers, getFriends, getInvites, sendFriendInvitation, removeFriend, respondFriendInvitation } from "../utils/friendsManagement.js";
 import { getUserInfo } from "../utils/loginHandler.js";
-import { printError } from "../utils/toastMessage.js";
 
 let friends = [];
 let users = [];
@@ -153,90 +152,21 @@ function mapUsers() {
 }
 
 async function addFriend(id) {
-  await fetch(`/api/friends/`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-      "Content-Type": "application/json",
-    },
-    body: `{
-        "user_id": ${id}
-      }`,
-  }).then((response) => {
-    if (response.status === 401) {
-      printError("Unauthorized");
-    }
-    return response.json();
-  }).then((data) => {
-    return data;
-  }).catch((error) => {
-    printError(error);
-  });
+  await sendFriendInvitation(id);
   await friendsHandler();
 }
 
 async function deleteFriend(id) {
-  await fetch(`/api/friends/${id}/`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-    },
-  }).then((response) => {
-    if (response.status === 401) {
-      printError("Unauthorized");
-    }
-    return response.json();
-  }).then((data) => {
-
-    return data;
-  }).catch((error) => {
-    printError(error);
-  });
+  await removeFriend(id);
   await friendsHandler();
 }
 
 async function acceptInvitation(invite) {
-  await fetch(`/api/friends/invitations/${invite.id}/`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-      "Content-Type": "application/json",
-    },
-    body: `{
-        "response": "accept"
-      }`,
-  }).then((response) => {
-    if (response.status === 401) {
-      printError("Unauthorized");
-    }
-    return response.json();
-  }).then((data) => {
-    return data;
-  }).catch((error) => {
-    printError(error);
-  });
+  await respondFriendInvitation(invite, 'accept');
   await friendsHandler();
 }
 
 async function refuseInvitation(invite) {
-  await fetch(`/api/friends/invitations/${invite.id}/`, {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-      "Content-Type": "application/json",
-    },
-    body: `{
-        "response": "refuse"
-      }`,
-  }).then((response) => {
-    if (response.status === 401) {
-      printError("Unauthorized");
-    }
-    return response.json();
-  }).then((data) => {
-    return data;
-  }).catch((error) => {
-    printError(error);
-  });
+  await respondFriendInvitation(invite, 'refuse');
   await friendsHandler();
 }
