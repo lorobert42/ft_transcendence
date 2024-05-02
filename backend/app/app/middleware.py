@@ -6,8 +6,6 @@ from urllib.parse import parse_qsl
 from jwt import decode as jwt_decode
 from django.conf import settings
 
-
-
 User = get_user_model()
 
 
@@ -45,5 +43,3 @@ class JwtAuthMiddleware(BaseMiddleware):
 
 def JwtAuthMiddlewareStack(inner):
     return JwtAuthMiddleware(AuthMiddlewareStack(inner))
-
-
