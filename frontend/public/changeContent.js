@@ -6,7 +6,7 @@ import enableOtpPage from "./pages/enableOtpPage.js";
 import registerPage from "./pages/registerPage.js";
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
-import { isLoggedIn } from "./js/utils/loginHandler.js";
+import { isLoggedIn } from "./js/utils/isLoggedIn.js";
 import contacts from "./pages/contacts.js";
 import updatePage from "./pages/updatePage.js";
 import tournament from "./pages/tournament.js";
@@ -19,6 +19,7 @@ import gameCreation from "./pages/gameCreation.js";
 import tournamentCreation from "./pages/tournamentCreation.js";
 import { decodeJWT } from "./js/utils/tokenHandler.js";
 import gameResults from "./pages/gameResults.js";
+import { getRefreshToken } from "./js/fetchers/usersFetcher.js";
 
 export let dataSave = {};
 
@@ -156,9 +157,9 @@ export default async function pageRouting(data = {}) {
         return;
       }
       contentDiv.innerHTML = contacts();
-      import("./js/utils/contactHandler.js")
+      import("./js/scripts/friendsHandler.js")
         .then((module) => {
-          module.contactHandler();
+          module.initFriendsHandler();
         })
         .catch((error) => {
           console.error("Failed to load the contact handler module", error);
@@ -341,6 +342,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     history.pushState(null, '', '/');
     pageRouting();
   });
+
+  setInterval(getRefreshToken, 270000);
 
   dropDownLanguage();
   pageRouting();

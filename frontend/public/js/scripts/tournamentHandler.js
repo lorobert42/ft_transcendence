@@ -1,3 +1,5 @@
+import { getGames } from "../fetchers/gamesFetcher.js";
+
 export async function tournamentHandler(dataDict = {}) {
 
   class Slot {
@@ -149,22 +151,7 @@ export async function tournamentHandler(dataDict = {}) {
   await updateGames();
 
   async function updateGames() {
-    games = await fetch(`/api/game/games/tournament/${dataDict.tournamentId}/`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-      },
-    }).then((response) => {
-      if (response.status === 401) {
-        console.error("Unauthorized");
-      }
-      return response.json();
-    }).then((data) => {
-      return data;
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
+    games = await getGames();
   }
 
   let matrix = [[], [], []];

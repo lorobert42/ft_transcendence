@@ -1,13 +1,12 @@
 import pageRouting from '../../changeContent.js';
+import { getFriends } from '../fetchers/friendsFetcher.js';
+import { createGame, createGameInvitation, getGames } from '../fetchers/gamesFetcher.js';
 
 export async function gameCreationHandler(dataDict = {}) {
   //fetch all friends
-  let authToken = localStorage.getItem('authToken');
   let friends = [];
-  let users = [];
   let games = [];
 
-  await updateUsers();
   await updateFriends();
 
   let playerSelect = document.getElementById("playerSelect");
@@ -17,7 +16,7 @@ export async function gameCreationHandler(dataDict = {}) {
     console.log(friend);
     let option = document.createElement("option");
     option.value = val++;
-    option.text = users.find(user => user.id == friend).name;
+    option.text = friend.name;
     playerSelect.add(option);
   });
 
@@ -60,95 +59,25 @@ export async function gameCreationHandler(dataDict = {}) {
     if (foundGame) { return; }
     //create a new game
 
-    let resultId = 0;
-    await fetch("/api/game/", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
-        'Content-Type': 'application/json',
-      },
-      body: `{
-                "player1": ${dataDict.user.user_id},
-                "player2": ${friends[playerSelect.value]},
-                "score1": 0,
-                "score2": 0
-            }`,
-    }).then((response) => {
-      if (response.status === 401) {
-        console.error("Unauthorized");
-      }
-      return response.json();
-    }).then((data) => {
-      resultId = data.id;
-      console.log(data);
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
+    let result = await createGame(dataDict.user.user_id, friends[playerSelect.value].id);
+    let resultId = result.id;
 
     //TODO HANDLE GAME NOT FOUND
-    console.log("posting invitation")
-
     console.log("Result: ", resultId);
     history.pushState(null, '', '/online');
     pageRouting({
       gameId: resultId,
       player1: dataDict.user.user_id,
-      player2: friends[playerSelect.value]
+      player2: friends[playerSelect.value],
     });
     return;
   });
 
   async function updateFriends() {
-    friends = await fetch("/api/user/me/", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
-      },
-    }).then((response) => {
-      if (response.status === 401) {
-        console.error("Unauthorized");
-      }
-      return response.json();
-    }).then((data) => {
-      return data["friends"];
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
-  }
-
-  async function updateUsers() {
-    users = await fetch("/api/user/users/", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
-      },
-    }).then((response) => {
-      if (response.status === 401) {
-        console.error("Unauthorized");
-      }
-      return response.json();
-    }).then((data) => {
-      return data;
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
+    friends = await getFriends();
   }
 
   async function updateGames() {
-    games = await fetch("/api/game/", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
-      },
-    }).then((response) => {
-      if (response.status === 401) {
-        console.error("Unauthorized");
-      }
-      return response.json();
-    }).then((data) => {
-      return data;
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
+    games = await getGames();
   }
 }

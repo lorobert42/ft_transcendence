@@ -34,6 +34,7 @@ export function initPongGame(dataDict = {}) {
                 document.addEventListener('keydown', (e) => {
                     if (e.key in keyPressed) {
                         keyPressed[e.key] = true;
+                        e.preventDefault();
                     }
                     
                     if(e.key.repeat) {

@@ -1,6 +1,5 @@
 import pageRouting from '../../changeContent.js'
-import { getRefreshToken } from '../utils/loginHandler.js';
-import { printMessage, printError } from '../utils/toastMessage.js';
+import { disableMfa, requestMfaActivation } from '../fetchers/mfaFetcher.js';
 
 export async function userProfileModule(dataDict = {}) {
   const setUserProfile = (user) => {
@@ -10,64 +9,12 @@ export async function userProfileModule(dataDict = {}) {
       document.getElementById("avatar").src = "media/" + user.avatar;
   }
 
-  const otpEnableRequest = (user, password) => {
-    fetch("/api/user/otp/activation/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
-      },
-      body: JSON.stringify({ 'email': user.email, 'password': password }),
-    })
-      .then((response) => {
-        if (response.status === 401) {
-          throw new Error('Invalid credentials');
-        }
-        return response.json()
-      })
-      .then((data) => {
-        console.log(data);
-        if (Object.hasOwn(data, "success") && data.success === true) {
-          history.pushState({}, '', '/enable-otp');
-          pageRouting({ 'qr_code': data.qr_code });
-        } else {
-          throw new Error('Unable to process your request, please retry.');
-        }
-      })
-      .catch((error) => {
-        printError(error);
-      });
+  const otpEnableRequest = async (user, password) => {
+    await requestMfaActivation(user.email, password);
   };
 
-  const otpDisableRequest = (user, password, otp) => {
-    fetch("/api/user/otp/disable/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
-      },
-      body: JSON.stringify({ 'email': user.email, 'password': password, 'otp': otp }),
-    })
-      .then((response) => {
-        if (response.status === 401) {
-          throw new Error('Invalid credentials');
-        }
-        return response.json()
-      })
-      .then(async (data) => {
-        console.log(data);
-        if (Object.hasOwn(data, "success") && data.success === true) {
-          printMessage('Two-Factor Authentication disabled');
-          await getRefreshToken();
-          history.pushState({}, '', '/profile');
-          pageRouting();
-        } else {
-          throw new Error('Unable to process your request, please retry.');
-        }
-      })
-      .catch((error) => {
-        printError(error);
-      });
+  const otpDisableRequest = async (user, password, otp) => {
+    await disableMfa(user.email, password, otp);
   };
 
   const showOtpOption = (user) => {

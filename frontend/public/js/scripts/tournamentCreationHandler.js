@@ -1,9 +1,11 @@
 import pageRouting from '../../changeContent.js';
-import { printMessage, printError, printSuccess } from '../utils/toastMessage.js';
+import { getFriends } from '../fetchers/friendsFetcher.js';
+import { createTournament } from '../fetchers/tournamentsFetcher.js';
+import { getUsers } from '../fetchers/usersFetcher.js';
+import { printError, printSuccess } from '../utils/toastMessage.js';
 
 export async function tournamentCreationHandler(dataDict = {}) {
   //fetch all friends
-  let authToken = localStorage.getItem('authToken');
   let friends = [];
   let users = [];
   let available = [];
@@ -68,8 +70,9 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
   function initAvailable() {
     const search = document.getElementById("available-search").value.toLowerCase();
-    let filteredFriends = users.filter((user) => user.email.toLowerCase().includes(search));
-    filteredFriends = filteredFriends.filter((user) => friends.includes(user.id));
+    console.log(friends);
+    let filteredFriends = friends.filter((friend) => friend.email.toLowerCase().includes(search));
+    console.log(filterFriends);
     available = filteredFriends;
     firstTenFriends(filteredFriends);
   }
@@ -78,7 +81,7 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
   initAvailable();
 
-  document.getElementById("create-tournament").addEventListener("click", (e) => {
+  document.getElementById("create-tournament").addEventListener("click", async (e) => {
     e.preventDefault();
 
     if (selectedPlayers.childNodes.length < 2 && selectedPlayers.childNodes.length > 7) {
@@ -88,31 +91,12 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
     let selectedPlayersList = [];
     selectedPlayers.childNodes.forEach((child) => {
-      selectedPlayersList.push(users.find((user) => user.name === child.textContent).id);
+      selectedPlayersList.push(friends.find((user) => user.name === child.textContent).id);
     });
 
     let tournamentName = document.getElementById("tournament-name").value;
     console.log(dataDict.user);
-    let tournamentInfo = fetch("/api/game/tournament/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${authToken}`,
-      },
-      body: JSON.stringify({
-        name: tournamentName ? tournamentName : "Tournament by " + dataDict.user.name,
-        participants: selectedPlayersList.concat(dataDict.user.user_id),
-      }),
-    }).then((response) => {
-      if (response.status === 401) {
-        console.error("Unauthorized");
-      }
-      return response.json();
-    }).then((data) => {
-      return data;
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
+    let tournamentInfo = await createTournament(tournamentName, dataDict.user.name, selectedPlayersList.concat(dataDict.user.user_id));
 
     printSuccess(`Tournament created successfully with ${selectedPlayersList.length} players`, "success");
     history.pushState(null, '', "/tournament");
@@ -122,38 +106,10 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
 
   async function updateFriends() {
-    friends = await fetch("/api/user/me/", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
-      },
-    }).then((response) => {
-      if (response.status === 401) {
-        console.error("Unauthorized");
-      }
-      return response.json();
-    }).then((data) => {
-      return data["friends"];
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
+    friends = await getFriends();
   }
 
   async function updateUsers() {
-    users = await fetch("/api/user/users/", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${authToken}`, // Use the appropriate header according to your backend's auth scheme
-      },
-    }).then((response) => {
-      if (response.status === 401) {
-        console.error("Unauthorized");
-      }
-      return response.json();
-    }).then((data) => {
-      return data;
-    }).catch((error) => {
-      console.error("Error:", error);
-    });
+    users = await getUsers();
   }
 }
