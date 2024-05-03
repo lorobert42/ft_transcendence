@@ -44,7 +44,7 @@ export async function createTournament(tournamentName, username, users) {
 }
 
 export async function getParticipations() {
-  return fetch("/api/game/my-participations/", {
+  return fetch("/api/games/my-participations/", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -64,7 +64,7 @@ export async function getParticipations() {
 }
 
 export async function joinTournament(tournamentId) {
-  fetch(`/api/game/participation/${tournamentId}/status`, {
+  fetch(`/api/games/participation/${tournamentId}/status`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

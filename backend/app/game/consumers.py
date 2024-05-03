@@ -135,7 +135,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
     async def add_user(self, mode):
         if mode == "online":
-            if await self.get_current_player_pos(self.game.id, self.user.id):
+            if await self.get_current_player_pos(self.game.id, self.user.id) == 1:
                 GameRoomConsumer.game_tab[self.room_id].p1['name'] = self.user.email
                 GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
                 self.game.player1_status = "playing"
