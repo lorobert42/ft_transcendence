@@ -52,7 +52,7 @@ export async function tournamentHandler(dataDict = {}) {
 
   }
 
-  dataDict.tournamentId = 1;
+  dataDict.tournamentId = 2;
 
   let usersData = await fetch(`/api/user/users/`, {
     method: "GET",

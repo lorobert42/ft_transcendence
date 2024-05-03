@@ -39,7 +39,10 @@ class UserAdmin(BaseUserAdmin):
 class GameAdmin(admin.ModelAdmin):
     list_display = ['id']
 
+@admin.register(models.Tournament)
+class TournamentAdmin(admin.ModelAdmin):
+    list_display = ['name', 'id']
+
 admin.site.register(models.User, UserAdmin)
-admin.site.register(models.Tournament)
 admin.site.register(models.Participation)
 admin.site.register(models.FriendInvitation)
