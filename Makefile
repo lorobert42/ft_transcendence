@@ -5,7 +5,7 @@ up:
 	docker compose run --rm backend sh -c "python manage.py collectstatic --no-input"
 
 mac:
-	docker compose up --build -d
+	docker compose up -f compose.yaml -f compose.dev.yaml --build -d
 	docker compose run --rm backend sh -c "python manage.py makemigrations"
 	docker compose run --rm backend sh -c "python manage.py migrate"
 	docker compose run --rm backend sh -c "python manage.py collectstatic --no-input"
