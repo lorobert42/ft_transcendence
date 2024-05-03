@@ -33,8 +33,6 @@ export default async function pageRouting(data = {}) {
     data.user = decodeJWT(localStorage.getItem("authToken"));
   }
 
-  console.log("Path: " + path);
-
   function redirectPath(path) {
     history.pushState(null, '', path);
     pageRouting(data);

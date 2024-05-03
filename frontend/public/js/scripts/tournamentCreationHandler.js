@@ -97,10 +97,9 @@ export async function tournamentCreationHandler(dataDict = {}) {
     let tournamentName = document.getElementById("tournament-name").value;
     console.log(dataDict.user);
     let tournamentInfo = await createTournament(tournamentName, dataDict.user.name, selectedPlayersList.concat(dataDict.user.user_id));
-
     printSuccess(`Tournament created successfully with ${selectedPlayersList.length} players`, "success");
     history.pushState(null, '', "/tournament");
-    pageRouting(dataDict);
+    pageRouting({ tournamentId: tournamentInfo.id });
   });
 
 
