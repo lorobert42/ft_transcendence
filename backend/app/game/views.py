@@ -38,10 +38,24 @@ class GameListCreateAPIView(generics.ListCreateAPIView):
 
 
 
-# ViewSet for Tournament
+@extend_schema(tags=['Tournament'])
 class TournamentAPIView(generics.ListCreateAPIView):
     queryset = Tournament.objects.all()
     serializer_class = TournamentSerializer
+
+    @extend_schema(
+        summary="List all Tournaments",
+        responses={200: TournamentSerializer(many=True)}
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Create a new Tournament",
+        responses={201: TournamentSerializer}
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 
 class GameListByTournamentAPIView(generics.ListAPIView):
