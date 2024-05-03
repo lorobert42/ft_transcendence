@@ -417,7 +417,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         loop_count = 0
         while loop:
             ic(loop_count)
-            loop_count += 1 
+            loop_count += 1
             ic("checking game")
             tab = await self.get_games(int(self.room_id))
             participants = await self.get_participants(int(self.room_id))
