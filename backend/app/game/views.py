@@ -4,17 +4,20 @@ from django.db.models import Q
 from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework import generics, viewsets
+from rest_framework.permissions import IsAuthenticated
 from drf_spectacular.utils import extend_schema,  extend_schema, OpenApiParameter, OpenApiExample
 
 # Create your views here.
 
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 import random
 
 from core.models import Game, Tournament, Participation
-from .serializers import GameSerializer, ParticipationStatusUpdateSerializer, TournamentSerializer, ParticipationSerializer, GameScoreUpdateSerializer, TournamentPatchSerializer, Participation
+from .serializers import GameSerializer, ParticipationStatusUpdateSerializer, TournamentSerializer, ParticipationSerializer,  TournamentPatchSerializer, Participation
+
 
 class GameListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Game.objects.all()
     serializer_class = GameSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -24,50 +27,22 @@ class GameListCreateAPIView(generics.ListCreateAPIView):
         where the currently authenticated user is either player1 or player2.
         """
         user = self.request.user
-        # return Game.objects.filter(Q(player1=user) | Q(player2=user))
-        return Game.objects.all()
+        return Game.objects.filter(Q(player1=user) | Q(player2=user))
 
     def perform_create(self, serializer):
         """
-        Override this method if you need to perform custom actions
-        before saving the new object.
+        Automatically set player1 as the authenticated user when creating a new game.
         """
-        serializer.save()
+        serializer.save(player1=self.request.user)
 
 
-class GameUpdateAPIView(generics.GenericAPIView):
-    queryset = Game.objects.all()
-    serializer_class = GameSerializer
-    http_method_names = ['patch']  # Allow only PATCH method
 
-
-    @extend_schema(
-        request=GameScoreUpdateSerializer,  # Specify the request serializer for PATCH
-        responses={200: GameSerializer},  # Response might still use the full game serializer
-        methods=['PATCH'],
-        description="Updates the scores of a game. Only 'score1' and 'score2' can be updated."
-    )
-    def patch(self, request, *args, **kwargs):
-        game = self.get_object()
-        serializer = GameScoreUpdateSerializer(game, data=request.data, partial=True)  # partial=True allows for partial updates
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def get_object(self):
-        game_id = self.kwargs.get('pk')
-        return generics.get_object_or_404(Game, pk=game_id)
 
 # ViewSet for Tournament
 class TournamentAPIView(generics.ListCreateAPIView):
     queryset = Tournament.objects.all()
     serializer_class = TournamentSerializer
 
-# ViewSet for Participation
-class ParticipationAPIView(generics.ListCreateAPIView):
-    queryset = Participation.objects.all()
-    serializer_class = ParticipationSerializer
 
 class GameListByTournamentAPIView(generics.ListAPIView):
     serializer_class = GameSerializer
@@ -75,21 +50,71 @@ class GameListByTournamentAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         """
-        This view returns a list of all the games for a specific tournament.
+        Returns a list of all the games for a specific tournament only if the authenticated
+        user is a participant in the tournament with an accepted status.
         """
         tournament_id = self.kwargs['tournament_id']
+        user = self.request.user
+        # Check if the user is a participant in the given tournament
+        if not Participation.objects.filter(user=user, tournament__id=tournament_id).exists():
+            raise Http404("You are not a participant in this tournament.")
+
+        # Return games only for the tournament the user is a participant in
         return Game.objects.filter(tournament__id=tournament_id)
+
+    def list(self, request, *args, **kwargs):
+        """
+        Overriding the list method to handle situations where the user might not be an accepted participant,
+        which is checked in get_queryset.
+        """
+        response = super().list(request, *args, **kwargs)
+        return response
+
+class UserParticipationListAPIView(generics.ListAPIView):
+    serializer_class = ParticipationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        This method returns a queryset of Participation objects where the authenticated
+        user is the participant, regardless of the participation status.
+        """
+        user = self.request.user
+        if user.is_authenticated:
+            return Participation.objects.filter(user=user)
+        else:
+            raise permissions.PermissionDenied("You must be logged in to view your participations.")
+
+    def list(self, request, *args, **kwargs):
+        """
+        Optionally override the list method to add any specific handling or logging
+        that might be needed.
+        """
+        return super().list(request, *args, **kwargs)
 
 class ParticipationStatusUpdateView(generics.UpdateAPIView):
     queryset = Participation.objects.all()
     serializer_class = ParticipationStatusUpdateSerializer
+    permission_classes = [IsAuthenticated]  # Ensure user is authenticated
     http_method_names = ['patch']  # Restrict this view to only handle PATCH requests
 
-    # Optional: Define get_object to handle object fetching if you need custom behavior
-    def get_object(self):
-        # Custom logic to retrieve the object
-        return super().get_object()
+    def get_queryset(self):
+        # Filter queryset to only include the authenticated user's participation
+        user = self.request.user
+        return self.queryset.filter(user=user)
 
+    # Optional: If you want to ensure even more security, override get_object too
+    def get_object(self):
+        # Attempt to retrieve the participation instance for the logged-in user
+        try:
+            # Ensure the participation belongs to the logged-in user and is for the specific tournament
+            participation = Participation.objects.get(
+                pk=self.kwargs.get('pk'),
+                user=self.request.user
+            )
+            return participation
+        except Participation.DoesNotExist:
+            raise Http404("You do not have permission to modify this participation.")
 
 
 class TournamentDetailView(generics.UpdateAPIView):

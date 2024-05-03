@@ -74,7 +74,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_connected(self):
         """Determine if the user has been active in the last 5 minutes"""
-        return timezone.now() - self.last_active <= timedelta(minutes=5)
+        return (timezone.now() - self.last_active) <= timedelta(minutes=5)
 
     def is_valid_otp(self):
         lifespan_in_seconds = 90 if self.otp_enabled else 300
@@ -85,11 +85,17 @@ class User(AbstractBaseUser, PermissionsMixin):
             return False
         return True
 
+
 class Tournament(models.Model):
     name = models.CharField(max_length=512)
     participants = models.ManyToManyField('User', through='Participation', related_name='tournaments')
     has_started = models.BooleanField(default=False)
-
+    status = models.CharField(max_length=20, choices=(
+        ('pending', 'Pending'),
+        ('running', 'Running'),
+        ('finished', 'Finished'),
+        ('cancelled', 'Cancelled'),
+    ), default='pending')
 
     def __str__(self):
         participant_names = ", ".join(p.user.name for p in self.participation_set.all())
@@ -112,6 +118,7 @@ class Participation(models.Model):
     def __str__(self):
         return f"({self.user.name}) - ({self.tournament.name})"
 
+
 class Game(models.Model):
     tournament = models.ForeignKey(
         Tournament,
@@ -120,11 +127,11 @@ class Game(models.Model):
         null=True,
         blank=True
     )
-    tournamentRound= models.IntegerField(
+    tournamentRound = models.IntegerField(
         default=0,
         null=True,
     )
-    roundGame= models.IntegerField(
+    roundGame = models.IntegerField(
         default=0,
         null=True,
     )
@@ -162,7 +169,10 @@ class Game(models.Model):
     start_time = models.DateTimeField(null=True, default=None)
 
     def get_name(self):
-        return f"{self.player1.name} vs {self.player2.name}"
+        # Uses conditional expressions to handle possible None values for players
+        player1_name = self.player1.name if self.player1 else "No Player"
+        player2_name = self.player2.name if self.player2 else "No Player"
+        return f"{player1_name} vs {player2_name}"
     def clean(self):
         # Custom validation to ensure player1 and player2 are not the same
         if self.player1 == self.player2:
@@ -176,20 +186,17 @@ class Game(models.Model):
 
     def __str__(self):
         game_type = "Tournament Game" if self.tournament else "One-Off Game"
-        return "game"
+        player1_name = self.player1.name if self.player1 else "No Player"
+        player2_name = self.player2.name if self.player2 else "No Player"
+        return f"{player1_name} vs {player2_name}: {game_type}, Score [{self.score1} - {self.score2}]"
 
 def get_system_user():
     return User.objects.get_or_create(email='system@user.com', defaults={'name': 'System User'})[0].pk
 
+
 class FriendInvitation(models.Model):
     user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend_invitations_as_user1', default=get_system_user)
     user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend_invitations_as_user2', default=get_system_user)
-    status = models.CharField(max_length=20, choices=(
-        ('pending', 'Pending'),
-        ('accepted', 'Accepted'),
-        ('declined', 'Declined'),
-        ('cancelled', 'Cancelled'),
-    ), default='pending')
 
     def __str__(self):
-        return f"Friend Invitation from {self.user1.name} to {self.user2.name} - Status: {self.status}"
+        return f"Friend Invitation from {self.user1.name} to {self.user2.name}"

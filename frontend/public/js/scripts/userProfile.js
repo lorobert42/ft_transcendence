@@ -1,8 +1,9 @@
 import pageRouting from '../../changeContent.js'
-import { getRefreshToken } from '../utils/loginHandler.js';
-import { printMessage, printError } from '../utils/toastMessage.js';
+import { getGames } from '../fetchers/gamesFetcher.js';
+import { disableMfa, requestMfaActivation } from '../fetchers/mfaFetcher.js';
+import { getUsers } from '../fetchers/usersFetcher.js';
 
-export async function userProfileModule() {
+export async function userProfileModule(dataDict = {}) {
   const setUserProfile = (user) => {
     document.getElementById("userName").textContent = user.name;
     document.getElementById("userEmail").textContent = user.email;
@@ -10,64 +11,12 @@ export async function userProfileModule() {
       document.getElementById("avatar").src = "media/" + user.avatar;
   }
 
-  const otpEnableRequest = (user, password) => {
-    fetch("/api/user/otp/activation/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
-      },
-      body: JSON.stringify({ 'email': user.email, 'password': password }),
-    })
-      .then((response) => {
-        if (response.status === 401) {
-          throw new Error('Invalid credentials');
-        }
-        return response.json()
-      })
-      .then((data) => {
-        console.log(data);
-        if (Object.hasOwn(data, "success") && data.success === true) {
-          history.pushState({}, '', '/enable-otp');
-          pageRouting({ 'qr_code': data.qr_code });
-        } else {
-          throw new Error('Unable to process your request, please retry.');
-        }
-      })
-      .catch((error) => {
-        printError(error);
-      });
+  const otpEnableRequest = async (user, password) => {
+    await requestMfaActivation(user.email, password);
   };
 
-  const otpDisableRequest = (user, password, otp) => {
-    fetch("/api/user/otp/disable/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
-      },
-      body: JSON.stringify({ 'email': user.email, 'password': password, 'otp': otp }),
-    })
-      .then((response) => {
-        if (response.status === 401) {
-          throw new Error('Invalid credentials');
-        }
-        return response.json()
-      })
-      .then(async (data) => {
-        console.log(data);
-        if (Object.hasOwn(data, "success") && data.success === true) {
-          printMessage('Two-Factor Authentication disabled');
-          await getRefreshToken();
-          history.pushState({}, '', '/profile');
-          pageRouting();
-        } else {
-          throw new Error('Unable to process your request, please retry.');
-        }
-      })
-      .catch((error) => {
-        printError(error);
-      });
+  const otpDisableRequest = async (user, password, otp) => {
+    await disableMfa(user.email, password, otp);
   };
 
   const showOtpOption = (user) => {
@@ -85,7 +34,7 @@ export async function userProfileModule() {
           otpEnableRequest(user, password);
         });
       } else {
-        console.error("Login form not found at init time.");
+        console.error("Enable form not found at init time.");
       }
     } else {
       otpDisable.classList.remove("d-none");
@@ -98,7 +47,7 @@ export async function userProfileModule() {
           otpDisableRequest(user, password, otp);
         });
       } else {
-        console.error("Login form not found at init time.");
+        console.error("Disable form not found at init time.");
       }
     }
   };
@@ -108,45 +57,90 @@ export async function userProfileModule() {
     updateButton.addEventListener("click", function (event) {
       event.preventDefault();
       history.pushState({}, '', '/update');
-      pageRouting();
+      pageRouting(dataDict);
     });
     setUserProfile(data.user);
     showOtpOption(data.user);
   };
 
+  init(dataDict);
+
   let historyList = document.getElementById("historyList");
-  let historySearch = document.getElementById("historySearch");
+  let userList = await getUsers();
+  let historyRequest = await getGames();
+  let wins = 0;
+  let losses = 0;
 
-  let historyRequest = await fetchHistory();
-  console.log(historyRequest);
-
-
-
-  async function fetchHistory() {
-    try {
-      const response = await fetch("/api/game/", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
-        },
-      });
-      if (response.status === 401) {
-        throw new Error('Unauthorized');
+  historyRequest.forEach((element) => {
+    if (element.game_status == "finished") {
+      if (element.score1 > element.score2 && element.player1 == dataDict.user.user_id) {
+        wins++;
+      } else if (element.score1 < element.score2 && element.player1 == dataDict.user.user_id) {
+        losses++;
+      } else if (element.score1 < element.score2 && element.player2 == dataDict.user.user_id) {
+        wins++;
+      } else if (element.score1 > element.score2 && element.player2 == dataDict.user.user_id) {
+        losses++;
       }
-      const data = await response.json();
-      return response.json();
-    } catch (error) {
-      printError(error);
     }
+  });
+
+  document.getElementById("wins").textContent = wins;
+  document.getElementById("losses").textContent = losses;
+  document.getElementById("played").textContent = wins + losses;
+
+  displayItem(filterItems(historyRequest));
+
+  function filterItems(items) {
+    let historySearch = document.getElementById("historySearch");
+    let filteredItems = items.filter((item) => {
+      console.log(item);
+      return userList.filter((user) => user.id == item.player1)[0].name.toLowerCase().includes(historySearch.value.toLowerCase()) ||
+        userList.filter((user) => user.id == item.player2)[0].name.toLowerCase().includes(historySearch.value.toLowerCase())
+    });
+    filteredItems = filteredItems.filter((item) => {
+      return item.game_status == "finished";
+    });
+    return filteredItems;
   }
 
-  // function displayItem(items) {
-  //   historyList.innerHTML = "";
-  //   items.forEach(() => { });
+  historySearch.addEventListener("input", function () {
+    displayItem(filterItems(historyRequest));
+  }
+  );
 
 
-  // }
+  function displayItem(items) {
+    historyList.innerHTML = "";
+    let count = 0;
+    items.forEach((element) => {
+      if (count >= 10)
+        return;
+      count++;
 
-  return { init };
+      let card = document.createElement("div");
+      card.className = "card md-col-2";
+      let cardBody = document.createElement("div");
+      cardBody.className = "card-body";
+      let cardTitle = document.createElement("p");
+      cardTitle.className = "card-text";
+      let date = new Date(element.start_time);
+      cardTitle.textContent = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()} - ${date.getHours()}:${date.getMinutes()}`;
+      let cardText = document.createElement("h3");
+      cardText.className = "card-title";
+      let player1 = userList.filter((user) => user.id == element.player1)[0].name;
+      let player2 = userList.filter((user) => user.id == element.player2)[0].name;
+      cardText.textContent = `${player1} vs ${player2}`;
+      let cardScore = document.createElement("p");
+      cardScore.className = "card-text";
+      cardScore.textContent = `${element.score1} - ${element.score2}`;
+      cardBody.appendChild(cardText);
+      cardBody.appendChild(cardTitle);
+      cardBody.appendChild(cardScore);
+      card.appendChild(cardBody);
+      historyList.appendChild(card);
+
+    });
+
+  }
 }

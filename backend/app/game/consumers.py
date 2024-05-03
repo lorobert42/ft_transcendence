@@ -13,8 +13,6 @@ from asgiref.sync import async_to_sync
 from .game import GameClass, Ball, Paddle
 from .tournament import TournamentClass
 
-from icecream import ic
-
 """ Define for move of the paddle. """
 KEY_P1_UP, KEY_P1_DOWN, KEY_P2_UP, KEY_P2_DOWN = 1, 2, 3, 4
 WIDTH, HEIGHT = 1000, 700  # Game size
@@ -34,11 +32,9 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.current_user = self.scope['user'].email
         try :
             room_id = int(self.room_id)
-            ic(room_id)
             self.game_type = "online"
             self.game = await self.get_game(room_id)
         except:
-            ic(self.room_id)
             self.game_type = "local"
 
         await self.channel_layer.group_add(
@@ -139,13 +135,11 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
                 self.game.player1_status = "playing"
                 await database_sync_to_async(self.game.save)()
-                ic(self.game.player1_status)
             else:
                 GameRoomConsumer.game_tab[self.room_id].p2['name'] = self.current_user
                 GameRoomConsumer.game_tab[self.room_id].p2['state'] = True
                 self.game.player2_status = "playing"
                 await database_sync_to_async(self.game.save)()
-                ic(self.game.player2_status)
         else:
             GameRoomConsumer.game_tab[self.room_id].p1['name'] = self.current_user
             GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
