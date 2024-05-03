@@ -70,6 +70,28 @@ class GameListByTournamentAPIView(generics.ListAPIView):
         response = super().list(request, *args, **kwargs)
         return response
 
+class UserParticipationListAPIView(generics.ListAPIView):
+    serializer_class = ParticipationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        This method returns a queryset of Participation objects where the authenticated
+        user is the participant, regardless of the participation status.
+        """
+        user = self.request.user
+        if user.is_authenticated:
+            return Participation.objects.filter(user=user)
+        else:
+            raise permissions.PermissionDenied("You must be logged in to view your participations.")
+
+    def list(self, request, *args, **kwargs):
+        """
+        Optionally override the list method to add any specific handling or logging
+        that might be needed.
+        """
+        return super().list(request, *args, **kwargs)
+
 class ParticipationStatusUpdateView(generics.UpdateAPIView):
     queryset = Participation.objects.all()
     serializer_class = ParticipationStatusUpdateSerializer
