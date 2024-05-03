@@ -86,8 +86,8 @@ export async function editUser(formData) {
     },
     body: formData,
   }).then((response) => {
-    if (response.status === 401) {
-      throw new Error("Unauthorized");
+    if (!response.ok) {
+      throw new Error("Cannot update");
     }
     return response.json();
   }).then(async () => {
