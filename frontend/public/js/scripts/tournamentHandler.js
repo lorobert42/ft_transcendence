@@ -1,4 +1,6 @@
 import { getGames } from "../fetchers/gamesFetcher.js";
+import { getTournaments } from "../fetchers/tournamentsFetcher.js";
+import { getUsers } from "../fetchers/usersFetcher.js";
 
 export async function tournamentHandler(dataDict = {}) {
 
@@ -56,40 +58,10 @@ export async function tournamentHandler(dataDict = {}) {
 
   dataDict.tournamentId = 2;
 
-  let usersData = await fetch(`/api/user/users/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-    },
-  }).then((response) => {
-    if (response.status === 401) {
-      console.error("Unauthorized");
-    }
-    return response.json();
-  }).then((data) => {
-    return data;
-  }).catch((error) => {
-    console.error("Error:", error);
-  });
+  let usersData = await getUsers();
 
 
-  let tournamentData = await fetch(`/api/game/tournament/`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-    },
-  }).then((response) => {
-    if (response.status === 401) {
-      console.error("Unauthorized");
-    }
-    return response.json();
-  }).then((data) => {
-    return data.filter((tournament) => tournament.id == dataDict.tournamentId)[0];
-  }).catch((error) => {
-    console.error("Error:", error);
-  });
+  let tournamentData = await getTournaments();
 
   //try to connect to websocket
   const tournamentSocket = new WebSocket(

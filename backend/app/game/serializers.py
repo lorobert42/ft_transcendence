@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.db import transaction
 import random
 import math
-
+from drf_spectacular.utils import extend_schema_field, OpenApiTypes
 
 
 from core.models import Game, Tournament, User, Participation
@@ -88,13 +88,18 @@ class TournamentSerializer(serializers.ModelSerializer):
         many=True,
         write_only=True
     )
-    has_started = serializers.BooleanField(default=False)
+    status = serializers.CharField(read_only=True)  # Explicitly read-only
+
+    @extend_schema_field(OpenApiTypes.STR)  # Specify the type explicitly if needed
+    def get_status(self, obj):
+        return obj.get_status_display()
 
     class Meta:
         model = Tournament
-        fields = ['id', 'name','has_started', 'participants', ]
+        fields = ['id', 'name', 'has_started', 'participants', 'status']
         extra_kwargs = {
-            'has_started': {'read_only': False}
+            'has_started': {'read_only': False},
+            'status': {'read_only': True}
         }
 
     def validate_participants(self, participants):
@@ -104,28 +109,20 @@ class TournamentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         participants_data = validated_data.pop('participants')
-
         with transaction.atomic():
             tournament = Tournament.objects.create(**validated_data)
-
-            # Create Participation instances
-            seen = set()
             for user in participants_data:
-                if user in seen:
-                    raise serializers.ValidationError(f"Duplicate entry for user {user.id} found.")
-                seen.add(user)
                 Participation.objects.create(user=user, tournament=tournament)
-
         return tournament
 
-
     def to_representation(self, instance):
-        # Custom representation to show participants
         representation = super().to_representation(instance)
+        print("Debug: Representation before adding status", representation)
+        representation['status'] = instance.get_status_display()  # Ensure the readable status is displayed
+        print("Debug: Representation after adding status", representation)  # Debug print
         participation_set = Participation.objects.filter(tournament=instance)
         representation['participants'] = ParticipationSerializer(participation_set, many=True).data
         return representation
-
 
 class TournamentPatchSerializer(serializers.ModelSerializer):
     class Meta:

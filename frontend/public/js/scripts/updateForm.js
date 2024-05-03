@@ -3,7 +3,7 @@ import { editUser } from "../fetchers/usersFetcher.js";
 export function updateForm() {
   const form = document.getElementById("updateForm");
 
-  function updateUser() {
+  async function updateUser() {
     const formData = new FormData();
     const fileInput = document.getElementById("avatar");
     if (fileInput.files[0]) {
@@ -21,7 +21,7 @@ export function updateForm() {
     if (password) {
       formData.append("password", password);
     }
-    editUser(formData);
+    await editUser(formData);
   }
 
   form.addEventListener("submit", (event) => {
