@@ -38,7 +38,6 @@ class LoginUserView(generics.GenericAPIView):
                 },
                 status=status.HTTP_200_OK,
             )
-        response["tokens"]["user_id"] = response["user_id"]
         return Response(response["tokens"], status=status.HTTP_200_OK)
 
 

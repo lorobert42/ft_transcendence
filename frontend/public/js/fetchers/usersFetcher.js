@@ -123,6 +123,7 @@ export function getRefreshToken() {
     .then(data => {
       if (Object.hasOwn(data, "access")) {
         localStorage.setItem("authToken", data.access);
+        localStorage.setItem("refreshToken", data.refresh);
         return true;
       }
       localStorage.clear();
