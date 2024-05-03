@@ -420,11 +420,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         time_game = dict()
         loop_count = 0
         while loop:
-            loop_count += 1 
+            loop_count += 1
             tab = await self.get_games(int(self.room_id))
             participants = await self.get_participants(int(self.room_id))
+            await self.send_data(tab)
             count = 0
-            data = dict()
             now = time.time()
             for i in range(0, len(tab)):
                 if tab[i]['player1'] is not None and tab[i]['player2'] is not None \
@@ -447,28 +447,32 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                         await self.update_player(tab[i]['game'].id, tab[i]['player2'].id, 2)
                 elif tab[i]['game'].game_status == "finished" or tab[i]['game'].game_status == "canceled":
                     count += 1
-                key = f"{tab[i]['game'].tournamentRound},{tab[i]['game'].roundGame}"
-                data.update({
-                    key: {
-                    'game_id': tab[i]['game'].id,
-                    'player1': tab[i]['player1'].name if tab[i]['player1'] is not None else None,
-                    'player2': tab[i]['player2'].name if tab[i]['player2'] is not None else None,
-                    'score1': tab[i]['game'].score1,
-                    'score2': tab[i]['game'].score2,
-                    'status': tab[i]['game'].game_status,
-                    }
-                })
-            await self.channel_layer.group_send(
-                self.tournament_group,
-                {
-                    "type": "send_state",
-                    "state": data,
-                }
-            )
             await asyncio.sleep(10)
             if count == len(tab):
                 await self.finish_tournament(int(self.room_id))
                 loop = False
+
+    async def send_data(self, tab):
+        data = dict()
+        for i in range(0, len(tab)):
+            key = f"{tab[i]['game'].tournamentRound},{tab[i]['game'].roundGame}"
+            data.update({
+                key: {
+                'game_id': tab[i]['game'].id,
+                'player1': tab[i]['player1'].name if tab[i]['player1'] is not None else None,
+                'player2': tab[i]['player2'].name if tab[i]['player2'] is not None else None,
+                'score1': tab[i]['game'].score1,
+                'score2': tab[i]['game'].score2,
+                'status': tab[i]['game'].game_status,
+                }
+             })
+        await self.channel_layer.group_send(
+            self.tournament_group,
+            {
+                "type": "send_state",
+                "state": data,
+            }
+        )
 
     async def ic_winer(self):
         ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g1)
