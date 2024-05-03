@@ -9,7 +9,8 @@ SIMPLE_JWT = {
 }
 
 ALLOWED_HOSTS = [
-    'localhost'
+    'localhost',
+    config('HOST', default=None),
 ]
 
 # SECURITY WARNING: don't run with debug turned on in production!
