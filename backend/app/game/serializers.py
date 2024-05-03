@@ -65,16 +65,21 @@ class ParticipationSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'tournament', 'status']
 
     def validate(self, data):
+        # Retrieve the user and tournament from the context if they are not in the validated data
+        user = self.context['request'].user
+        tournament = data.get('tournament')
+
         # Check if the Participation already exists
-        if Participation.objects.filter(user=data['user'], tournament=data['tournament']).exists():
+        if Participation.objects.filter(user=user, tournament=tournament).exists():
             raise serializers.ValidationError("This user is already registered in this tournament.")
         return data
 
     def create(self, validated_data):
+        # Since `user` is not directly in the validated data, fetch from the context
+        user = self.context['request'].user
         # Create a new participation instance with the validated data
-        participation = Participation.objects.create(**validated_data)
+        participation = Participation.objects.create(user=user, **validated_data)
         return participation
-
 
 
 class TournamentSerializer(serializers.ModelSerializer):
