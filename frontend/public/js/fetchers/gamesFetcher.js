@@ -25,7 +25,7 @@ export async function createGame(userId, friendId) {
       'Content-Type': 'application/json',
     },
     body: `{
-          "player2": ${friendId},
+          "player2": ${friendId}
         }`,
   }).then((response) => {
     if (response.status === 401) {
