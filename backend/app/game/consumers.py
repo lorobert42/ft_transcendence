@@ -419,19 +419,21 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         loop = True
         time_game = dict()
         loop_count = 0
+        max_time = 5
+        await self.start_tournament(int(self.room_id))
         while loop:
-            loop_count += 1 
+            loop_count += 1
             tab = await self.get_games(int(self.room_id))
             participants = await self.get_participants(int(self.room_id))
+            await self.send_data(tab)
             count = 0
-            data = dict()
             now = time.time()
             for i in range(0, len(tab)):
                 if tab[i]['player1'] is not None and tab[i]['player2'] is not None \
                 and tab[i]['game'].game_status == "pending":
                     if time_game.get(i) is None:
                         time_game[i] = time.time()
-                    if time_game[i] < now and (now -  time_game[i]) % 3600 // 60 >= 5:
+                    if time_game[i] < now and (now -  time_game[i]) % 3600 // 60 >= max_time:
                         tab[i]['game'].game_status = "canceled"
                         await database_sync_to_async(tab[i]['game'].save)()
                         await self.set_winner_rand(tab[i], tab[i]['game'].tournamentRound, tab[i]['game'].roundGame)
@@ -447,28 +449,49 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                         await self.update_player(tab[i]['game'].id, tab[i]['player2'].id, 2)
                 elif tab[i]['game'].game_status == "finished" or tab[i]['game'].game_status == "canceled":
                     count += 1
-                key = f"{tab[i]['game'].tournamentRound},{tab[i]['game'].roundGame}"
-                data.update({
-                    key: {
-                    'game_id': tab[i]['game'].id,
-                    'player1': tab[i]['player1'].name if tab[i]['player1'] is not None else None,
-                    'player2': tab[i]['player2'].name if tab[i]['player2'] is not None else None,
-                    'score1': tab[i]['game'].score1,
-                    'score2': tab[i]['game'].score2,
-                    'status': tab[i]['game'].game_status,
-                    }
-                })
-            await self.channel_layer.group_send(
-                self.tournament_group,
-                {
-                    "type": "send_state",
-                    "state": data,
-                }
-            )
-            await asyncio.sleep(10)
+            await asyncio.sleep(2)
             if count == len(tab):
-                await self.finish_tournament(int(self.room_id))
+                ic("loop ended")
+                if await self.is_last_game_canceled(tab, int(self.room_id), participants) == False:
+                    await self.finish_tournament(int(self.room_id))
+                ic("tournament set as finished")
                 loop = False
+
+    async def is_last_game_canceled(self, tab, tournament_id, participants):
+        for i in range(0, len(tab)):
+            if participants > 4:
+                if tab[i]['game'].tournamentRound == 3 and tab[i]['game'].roundGame == 1:
+                    if tab[i]['game'].game_status == "canceled":
+                        await self.cancel_tournament(tournament_id)
+                        return True
+            else:
+                if tab[i]['game'].tournamentRound == 2 and tab[i]['game'].roundGame == 1:
+                    if tab[i]['game'].game_status == "canceled":
+                        await self.cancel_tournament(tournament_id)
+                        return True
+        return False
+
+    async def send_data(self, tab):
+        data = dict()
+        for i in range(0, len(tab)):
+            key = f"{tab[i]['game'].tournamentRound},{tab[i]['game'].roundGame}"
+            data.update({
+                key: {
+                'game_id': tab[i]['game'].id,
+                'player1': tab[i]['player1'].name if tab[i]['player1'] is not None else None,
+                'player2': tab[i]['player2'].name if tab[i]['player2'] is not None else None,
+                'score1': tab[i]['game'].score1,
+                'score2': tab[i]['game'].score2,
+                'status': tab[i]['game'].game_status,
+                }
+             })
+        await self.channel_layer.group_send(
+            self.tournament_group,
+            {
+                "type": "send_state",
+                "state": data,
+            }
+        )
 
     async def ic_winer(self):
         ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g1)
@@ -546,9 +569,22 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps(state))
 
     @database_sync_to_async
+    def start_tournament(self, tournament_id):
+        tournament = Tournament.objects.get(pk=tournament_id)
+        tournament.status = "running"
+        tournament.save()
+
+    @database_sync_to_async
+    def cancel_tournament(self, tournament_id):
+        tournament = Tournament.objects.get(pk=tournament_id)
+        tournament.status = "canceled"
+        tournament.save()
+
+    @database_sync_to_async
     def finish_tournament(self, tournament_id):
         tournament = Tournament.objects.get(pk=tournament_id)
-        tournament.update(status="finished")
+        tournament.status = "finished"
+        tournament.save()
 
     @database_sync_to_async
     def update_player(self, game_id, player_id, player_pos):
