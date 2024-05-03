@@ -1,15 +1,15 @@
 import pageRouting from "../../changeContent.js";
-import { printError, printSuccess } from "../utils/toastMessage.js";
+import { printError, printMessage, printSuccess } from "../utils/toastMessage.js";
 import { getRefreshToken } from "./usersFetcher.js";
 
 export async function requestMfaActivation(email, password) {
-  return fetch("/api/user/otp/activation/", {
+  return fetch("/api/mfa/activation/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
     },
-    body: JSON.stringify({ 'email': email, 'password': password }),
+    body: JSON.stringify({ 'password': password }),
   })
     .then((response) => {
       if (response.status === 401) {
@@ -32,13 +32,13 @@ export async function requestMfaActivation(email, password) {
 }
 
 export async function confirmMfaActivation(id, otp) {
-  return fetch("/api/user/otp/activation/confirm/", {
+  return fetch("/api/mfa/activation/confirm/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
     },
-    body: JSON.stringify({ 'user_id': id, 'otp': otp }),
+    body: JSON.stringify({ 'otp': otp }),
   })
     .then((response) => {
       if (response.status === 401) {
@@ -53,13 +53,13 @@ export async function confirmMfaActivation(id, otp) {
 }
 
 export async function disableMfa(email, password, otp) {
-  fetch("/api/user/otp/disable/", {
+  fetch("/api/mfa/disable/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
     },
-    body: JSON.stringify({ 'email': email, 'password': password, 'otp': otp }),
+    body: JSON.stringify({ 'password': password, 'otp': otp }),
   })
     .then((response) => {
       if (response.status === 401) {
@@ -84,7 +84,7 @@ export async function disableMfa(email, password, otp) {
 }
 
 export async function checkOTP(id, otp) {
-  return fetch("/api/user/otp/verify/", {
+  return fetch("/api/mfa/check/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

@@ -34,7 +34,7 @@ export async function userProfileModule(dataDict = {}) {
           otpEnableRequest(user, password);
         });
       } else {
-        console.error("Login form not found at init time.");
+        console.error("Enable form not found at init time.");
       }
     } else {
       otpDisable.classList.remove("d-none");
@@ -47,7 +47,7 @@ export async function userProfileModule(dataDict = {}) {
           otpDisableRequest(user, password, otp);
         });
       } else {
-        console.error("Login form not found at init time.");
+        console.error("Disable form not found at init time.");
       }
     }
   };

@@ -32,7 +32,7 @@ class AcceptInvitationSerializer(serializers.Serializer):
     response = serializers.CharField(write_only=True)
 
     def validate(self, attrs):
-        user: User = self.context["request"].user
+        user: User = self.context.get("request").user
         invitation = self.instance
         if invitation.user1 == user:
             raise serializers.ValidationError("You cannot accept your own invitations.")
@@ -62,7 +62,7 @@ class AddFriendSerializer(serializers.Serializer):
 
     def validate(self, attrs: dict):
         friend_id = attrs.get("user_id")
-        user: User = self.context["request"].user
+        user: User = self.context.get("request").user
         if user.id == friend_id:
             raise serializers.ValidationError("You cannot add yourself.")
         friend: User = User.objects.filter(id=friend_id).first()
