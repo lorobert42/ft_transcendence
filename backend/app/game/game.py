@@ -37,7 +37,7 @@ class Ball():
         self.max_vel = 10
         self.max_vel_y = 15
         self.x_vel = self.max_vel
-        self.y_vel = 0
+        self.y_vel = 0.1
 
     def move(self):
         self.x += self.x_vel
@@ -53,7 +53,7 @@ class Ball():
         self.x = self.origin_x
         self.y = self.origin_y
         self.x_vel *= -1
-        self.y_vel = 0
+        self.y_vel = 0.1
 
 
 class Paddle():
