@@ -54,21 +54,27 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['email', 'name', 'avatar', 'password']
+        extra_kwargs = {
+            'password': {'write_only': True, 'min_length': 5},
+        }
+
     def update(self, instance, validated_data):
         """Update a user, setting the password correctly and return it"""
         password = validated_data.pop('password', None)
         avatar = validated_data.pop('avatar', None)
         instance.email = validated_data.get('email', instance.email)
         instance.name = validated_data.get('name', instance.name)
-
         if password:
             instance.set_password(password)
-
         if avatar:
             if instance.avatar.name != 'user_avatars/default-avatar.png':
                 instance.avatar.delete()
             instance.avatar = avatar
-
         instance.save()
         return instance
 

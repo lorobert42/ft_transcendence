@@ -12,6 +12,7 @@ from user.serializers import (
     UserListSerializer,
     LoginSerializer,
     CustomTokenRefreshSerializer,
+    UserUpdateSerializer,
 )
 
 
@@ -61,12 +62,19 @@ class ManageUserView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         """Retrieve and return authenticated user"""
-        print("Authentified User:", self.request.user.id)
         return self.request.user
 
     def patch(self, request, *args, **kwargs):
         # 'partial' parameter is set to True to allow partial updates
-        return self.partial_update(request, *args, **kwargs)
+        instance = self.get_object()
+        serializer = UserUpdateSerializer(
+            instance,
+            data=request.data,
+            partial=True
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
 
 
 @extend_schema_view(
