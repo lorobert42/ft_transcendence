@@ -6,7 +6,31 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=app.settings_prod
     command: ["daphne", "-p", "8000", "-b", "0.0.0.0", "app.asgi:application"]
+    depends_on:
+      - migration
   
+  migration:
+    image: tr/backend
+    container_name: tr_backend_migration
+    build:
+      context: backend/
+      dockerfile: Dockerfile
+    networks:
+      - tr_network
+    volumes:
+      - django-app:/app
+    env_file:
+      - ./.env
+    environment:
+      - DB_HOST=tr_database
+    depends_on:
+      database:
+        condition: service_healthy
+    command: >
+      sh -c "python manage.py makemigrations &&
+             python manage.py migrate &&
+             python manage.py collectstatic --noinput"
+
   cron:
     image: alpine
     container_name: tr_cron
@@ -19,7 +43,7 @@ services:
       - -c
       - |
           crontab - <<'EOF'
-          * * * * * find /app/media/qrcode -name 'qr*' -type f -mmin +10 -delete
+          */15 * * * * find /app/media/qrcode -name 'qr*' -type f -mmin +10 -delete
           EOF
 
           exec crond -f
