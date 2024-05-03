@@ -135,7 +135,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
     async def add_user(self, mode):
         if mode == "online":
-            if await self.get_current_player_pos(self.game.id, self.user.id):
+            if await self.get_current_player_pos(self.game.id, self.user.id) == 1:
                 GameRoomConsumer.game_tab[self.room_id].p1['name'] = self.user.email
                 GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
                 self.game.player1_status = "playing"
@@ -404,6 +404,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         if TournamentConsumer.tournament_tab.get(self.room_id) == None:
             TournamentConsumer.tournament_tab[self.room_id] = TournamentClass()
+            ic("task started")
             TournamentConsumer.tournament_tab[self.room_id].task = asyncio.create_task(self.loop())
 
         await self.channel_layer.group_add(
@@ -417,7 +418,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         if TournamentConsumer.tournament_tab[self.room_id].task.done():
             try:
                 await TournamentConsumer.tournament_tab[self.room_id].task
-            except cancelError:
+            except CancelledError:
                 print("task waiting error")
             TournamentConsumer.tournament_tab.pop(self.room_id)
         await self.channel_layer.group_discard(
@@ -441,7 +442,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 and tab[i]['game'].game_status == "pending":
                     if time_game.get(i) is None:
                         time_game[i] = time.time()
-                    if time_game[i] < now and (now -  time_game[i]) % 3600 // 60 >= 1:
+                    if time_game[i] < now and (now -  time_game[i]) % 3600 // 60 >= 5:
                         tab[i]['game'].game_status = "canceled"
                         await database_sync_to_async(tab[i]['game'].save)()
                         await self.set_winner_rand(tab[i], tab[i]['game'].tournamentRound, tab[i]['game'].roundGame)
@@ -458,7 +459,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 elif tab[i]['game'].game_status == "finished" or tab[i]['game'].game_status == "canceled":
                     count += 1
                 key = f"{tab[i]['game'].tournamentRound},{tab[i]['game'].roundGame}"
-                ic("here")
                 data.update({
                     key: {
                     'game_id': tab[i]['game'].id,
@@ -579,22 +579,23 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         users = User.objects.all()
         tab = []
         for i in range(0, games.count()):
-            if games[i].tournament.id == tournament_id:
-                player1 = None
-                player2 = None
-                if games[i].player1 is not None:
-                    for j in range(0, users.count()):
-                        if users[j].id == games[i].player1.id:
-                            player1 = users[j]
-                if games[i].player2 is not None:
-                    for j in range(0, users.count()):
-                        if users[j].id == games[i].player2.id:
-                            player2 = users[j]
-                tab.append({
-                    'game': games[i],
-                    'player1': player1,
-                    'player2': player2,
-                })
+            if games[i].tournament is not None:
+                if games[i].tournament.id == tournament_id:
+                    player1 = None
+                    player2 = None
+                    if games[i].player1 is not None:
+                        for j in range(0, users.count()):
+                            if users[j].id == games[i].player1.id:
+                                player1 = users[j]
+                    if games[i].player2 is not None:
+                        for j in range(0, users.count()):
+                            if users[j].id == games[i].player2.id:
+                                player2 = users[j]
+                    tab.append({
+                        'game': games[i],
+                        'player1': player1,
+                        'player2': player2,
+                    })
         return tab
 
     @database_sync_to_async
