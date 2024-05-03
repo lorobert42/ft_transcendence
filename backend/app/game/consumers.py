@@ -415,7 +415,10 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, message):
         if TournamentConsumer.tournament_tab[self.room_id].task.done():
-            await TournamentConsumer.tournament_tab[self.room_id].task
+            try:
+                await TournamentConsumer.tournament_tab[self.room_id].task
+            except cancelError:
+                print("task waiting error")
             TournamentConsumer.tournament_tab.pop(self.room_id)
         await self.channel_layer.group_discard(
             self.tournament_group,
@@ -455,16 +458,18 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 elif tab[i]['game'].game_status == "finished" or tab[i]['game'].game_status == "canceled":
                     count += 1
                 key = f"{tab[i]['game'].tournamentRound},{tab[i]['game'].roundGame}"
+                ic("here")
                 data.update({
                     key: {
                     'game_id': tab[i]['game'].id,
-                    'player1': tab[i]['player1'].name,
-                    'player1': tab[i]['player2'].name,
+                    'player1': tab[i]['player1'].name if tab[i]['player1'] is not None else None,
+                    'player2': tab[i]['player2'].name if tab[i]['player2'] is not None else None,
                     'score1': tab[i]['game'].score1,
                     'score2': tab[i]['game'].score2,
-                    'state': tab[i]['game'].game_status,
+                    'status': tab[i]['game'].game_status,
                     }
                 })
+                ic("here 2")
             await self.channel_layer.group_send(
                 self.tournament_group,
                 {
