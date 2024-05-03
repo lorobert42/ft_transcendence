@@ -2,7 +2,7 @@ import { printMessage, printError, printSuccess } from '../utils/toastMessage.js
 import pageRouting from '../../changeContent.js'
 
 export async function getUsers() {
-  return await fetch("/api/user/", {
+  return await fetch("/api/users/", {
     method: "GET",
     headers: {
       Authorization: `Bearer ${localStorage.getItem('authToken')}`,
@@ -19,7 +19,7 @@ export async function getUsers() {
 }
 
 export async function getUserInfo() {
-  return await fetch("/api/user/me/", {
+  return await fetch("/api/users/me/", {
     method: "GET",
     headers: {
       Authorization: `Bearer ${localStorage.getItem('authToken')}`,
@@ -33,7 +33,7 @@ export async function getUserInfo() {
 }
 
 export async function createUser(formData) {
-  fetch("/api/user/", {
+  fetch("/api/users/", {
     method: "POST",
     body: formData,
   }).then((response) => {
@@ -49,7 +49,7 @@ export async function createUser(formData) {
 }
 
 export async function loginUser(email, password) {
-  fetch("/api/user/login/", {
+  fetch("/api/users/login/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -79,15 +79,15 @@ export async function loginUser(email, password) {
 }
 
 export async function editUser(formData) {
-  fetch("/api/user/me/", {
+  fetch("/api/users/me/", {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${localStorage.getItem('authToken')}`,
     },
     body: formData,
   }).then((response) => {
-    if (response.status === 401) {
-      throw new Error("Unauthorized");
+    if (!response.ok) {
+      throw new Error("Cannot update");
     }
     return response.json();
   }).then(async () => {
@@ -107,7 +107,7 @@ export function getRefreshToken() {
     localStorage.clear();
     return false;
   }
-  return fetch("/api/user/token/refresh/", {
+  return fetch("/api/users/token/refresh/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

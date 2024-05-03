@@ -5,7 +5,7 @@ URL mapping for user api
 from django.urls import path
 from user import views
 
-app_name = 'user'
+app_name = 'users'
 
 urlpatterns = [
     path("", views.UserListCreateView.as_view(), name="create"),

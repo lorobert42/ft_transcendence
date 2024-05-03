@@ -94,7 +94,7 @@ class Tournament(models.Model):
         ('pending', 'Pending'),
         ('running', 'Running'),
         ('finished', 'Finished'),
-        ('cancelled', 'Cancelled'),
+        ('canceled', 'Canceled'),
     ), default='pending')
 
     def __str__(self):
@@ -109,7 +109,7 @@ class Participation(models.Model):
         ('pending', 'Pending'),
         ('accepted', 'Accepted'),
         ('declined', 'Declined'),
-        ('cancelled', 'Cancelled'),
+        ('canceled', 'Canceled'),
     ), default='pending')
 
     class Meta:

@@ -1,7 +1,7 @@
 import { printError } from "../utils/toastMessage.js";
 
 export async function getGames() {
-  return fetch("/api/game/", {
+  return fetch("/api/games/", {
     method: "GET",
     headers: {
       Authorization: `Bearer ${localStorage.getItem('authToken')}`,
@@ -18,7 +18,7 @@ export async function getGames() {
 }
 
 export async function createGame(userId, friendId) {
-  return fetch("/api/game/", {
+  return fetch("/api/games/", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${localStorage.getItem('authToken')}`,
