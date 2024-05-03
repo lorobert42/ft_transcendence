@@ -1,7 +1,7 @@
 import { printError } from "../utils/toastMessage.js";
 
 export async function getTournaments() {
-  return fetch("/api/game/tournament/", {
+  return fetch("/api/games/tournaments/", {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
@@ -20,7 +20,7 @@ export async function getTournaments() {
 }
 
 export async function createTournament(tournamentName, username, users) {
-  fetch("/api/game/tournament/", {
+  fetch("/api/games/tournaments/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
