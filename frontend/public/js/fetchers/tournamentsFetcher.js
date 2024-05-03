@@ -63,8 +63,29 @@ export async function getParticipations() {
     });
 }
 
-export async function joinTournament(tournamentId) {
-  fetch(`/api/games/participation/${tournamentId}/status`, {
+export async function joinTournament(tournamentId, statusContent) {
+  fetch(`/api/games/participation/${tournamentId}/status/`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${localStorage.getItem('authToken')}`,
+    },
+    body: JSON.stringify({
+      status: statusContent,
+    }),
+  }).then((response) => {
+    if (response.status === 401) {
+      throw new Error("Unauthorized");
+    }
+    return response.json();
+  }).then((data) => data)
+    .catch((error) => {
+      printError(error);
+    });
+}
+
+export async function startTournament(id) {
+  fetch(`/api/games/tournaments/${id}/`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",

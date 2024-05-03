@@ -1,8 +1,9 @@
 import { getGames } from "../fetchers/gamesFetcher.js";
 import { getUsers } from "../fetchers/usersFetcher.js";
 import pageRouting from "../../changeContent.js";
-import { getTournaments, joinTournament } from "../fetchers/tournamentsFetcher.js";
+import { getParticipations, getTournaments, joinTournament, startTournament } from "../fetchers/tournamentsFetcher.js";
 import { getLang } from "../utils/getLang.js";
+
 
 export async function tournamentHandler(dataDict = {}) {
 
@@ -140,15 +141,18 @@ export async function tournamentHandler(dataDict = {}) {
     pageRouting(dataDict);
     return;
   }
-  tournament.status = "running";
-  if (tournament.status == "pending") {
+  let participation = await getParticipations();
+  participation = participation.find((part) => part.tournament == dataDict.tournamentId);
+  console.log("Participation: ", participation);
+  if(tournament.has_started) tournament.status = "running";
+  if (tournament.status.toLowerCase() == "pending") {
     container.innerHTML = `
     <div class="row">
        <div class="card">
         <div class="card-body">
             <h4 class="card-title">Join The Tournament!</h4>
             <p class="card-text">Click the button below to participate in the tournament.</p>
-            <button id="participateButton" class="btn btn-primary">Accept to Participate</button>
+            <div id="button-participation-div"></div>
             <div id="counter" class="mt-3">
                 <h5>Participants: <span id="participantCount">0</span></h5>
             </div>
@@ -156,17 +160,44 @@ export async function tournamentHandler(dataDict = {}) {
       </div>
     </div>
     `;
-    let participateButton = document.getElementById('participateButton');
+    if(participation.status.toLowerCase() == "pending") {
+      let buttonDiv = document.getElementById('button-participation-div');
+      let participateButton = document.createElement('participateButton');
+      participateButton.className = 'btn btn-primary';
+      participateButton.innerText = 'Accept to Participate';
+  
+      participateButton.addEventListener('click', async () => {
+        await joinTournament(participation.id, "accepted");
+        pageRouting(dataDict);
+      });
+      buttonDiv.appendChild(participateButton);
+    } else if (participation.status.toLowerCase() == "accepted") {
+      let buttonDiv = document.getElementById('button-participation-div');
+      let optOutParticipationButton = document.createElement('optOutParticipationButton');
+      optOutParticipationButton.className = 'btn btn-danger me-2';
+      optOutParticipationButton.innerText = 'Opt Out Participation';
 
-    participateButton.addEventListener('click', async () => {
-      await joinTournament();
-    });
+      optOutParticipationButton.addEventListener('click', async () => {
+        await joinTournament(participation.id, "pending");
+        pageRouting(dataDict);
+      });
 
+      buttonDiv.appendChild(optOutParticipationButton);
+      let startTournamentButton = document.createElement('startTournamentButton');
+      startTournamentButton.className = 'btn btn-success';
+      startTournamentButton.innerText = 'Start Tournament';
+
+      startTournamentButton.addEventListener('click', async () => {
+        await startTournament(dataDict.tournamentId);
+        pageRouting(dataDict);
+      });
+
+      buttonDiv.appendChild(startTournamentButton);
+    }
     let participantCount = document.getElementById('participantCount');
 
     participantCount.innerText = tournament.participants.filter((participant) => participant.status == "accepted").length;
-
-
+    
   } else if (tournament.status == "running") {
     container.innerHTML = `
     <h1>${langdict[lang]['tournament']}</h1>

@@ -52,7 +52,8 @@ export async function gameSearchHandler(dataDict = {}) {
                 }
                 let participationInstance = participations.find(part => part.tournament == gameRoom.id);
                 if (participationInstance == undefined) return;
-                if (gameRoom.status != "pending" && participationInstance.status != "accepted") {
+                if (gameRoom.status.toLowerCase() != "pending" &&
+                    participationInstance.status.toLowerCase() == "pending") {
                     return;
                 }
             }

@@ -38,16 +38,36 @@ function mapFriends() {
   });
   filteredFriends.forEach((friend) => {
     const li = document.createElement("li");
-    li.className = "list-group-item d-flex align-content-center";
+    li.className = "list-group-item d-flex align-content-center justify-content-between align-items-center";
     const txt = document.createElement("p");
     txt.innerText = friend.email;
     txt.style = "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;";
     txt.className = "d-flex";
+    
+    const statusDiv = document.createElement("div");
+    statusDiv.className = "d-flex align-items-center justify-content-center mx-2";
+    //create a badge for the friend status : Online offline or in-game
+    const badge = document.createElement("span");
+    
+    console.log(friend.last_active)
+    if(friend.is_playing) {
+      badge.className = "badge bg-primary rounded-pill";
+      badge.innerText = "In-Game";
+    } else {
+      if(isFriendConnected(friend)) {
+        badge.className = "badge bg-success rounded-pill";
+        badge.innerText = "Online";
+      } else {
+        badge.className = "badge bg-danger rounded-pill";
+        badge.innerText = "Offline";
+      }
+    }
 
+    statusDiv.appendChild(badge);
+    
     const buttonContainer = document.createElement("div");
-    buttonContainer.classList.add("d-flex");
+    buttonContainer.className = "d-flex justify-content-center align-items-center";
 
-    // Create a button element for removing friend
     const addButton = document.createElement('button');
     addButton.className = 'btn btn-danger btn-sm';
     addButton.textContent = 'Remove';
@@ -58,10 +78,18 @@ function mapFriends() {
 
     buttonContainer.appendChild(addButton);
     li.appendChild(txt);
+    li.appendChild(statusDiv);
     li.appendChild(buttonContainer);
 
     friendList.appendChild(li);
   });
+}
+
+function isFriendConnected(friend) {
+    let lastActive = new Date(friend.last_active);
+    let now = new Date();
+    let diff = now - lastActive;
+    return diff < 300000;
 }
 
 function mapInvites() {
