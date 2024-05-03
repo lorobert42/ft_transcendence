@@ -22,21 +22,9 @@ export function initPongGame(routerData) {
         setTimeout(function () {
             if (gameSocket.readyState === 1 && gameSocket.OPEN === 1) {
 
-                document.addEventListener('keydown', (e) => {
-                    if (e.key in keyPressed) {
-                        keyPressed[e.key] = true;
-                        e.preventDefault();
-                    }
-                    if (e.key.repeat) {
-                        return;
-                    }
-                });
+                document.addEventListener('keydown', eventKeyDown);
 
-                document.addEventListener('keyup', (e) => {
-                    if (e.key in keyPressed) {
-                        keyPressed[e.key] = false;
-                    }
-                });
+                document.addEventListener('keyup', eventKeyUP);
                 // Function to disable both buttons
                 function disableButtons() {
                     document.getElementById('button-start-human').disabled = true;
@@ -63,6 +51,7 @@ export function initPongGame(routerData) {
             } else {
                 if (window.location.pathname !== "/localroom") {
                     disconnect = true;
+                    gameSocketClose();
                     return;
                 }
                 console.log("waiting to connect");
@@ -131,8 +120,12 @@ export function initPongGame(routerData) {
 
     function UpdateGameState() {
         try {
-
-
+            if (data == "Game Ended") {
+                console.log("Game CLEAR");
+                clearInterval(intervalId);
+                gamePatch();
+                return;
+            }
             player1.x = data["P1"]["x"];
             player2.x = data["P2"]["x"];
             player1.y = data["P1"]["y"];
@@ -154,11 +147,39 @@ export function initPongGame(routerData) {
         }
         if (window.location.pathname !== "/localroom") {
             clearInterval(intervalId);
-            gameSocket.close()
+            gameSocketClose();
             return;
         }
         drawEverything();
     }
 
+    function eventKeyUP(e) {
+        if (e.key in keyPressed) {
+            keyPressed[e.key] = false;
+        }
+    }
+
+    function eventKeyDown(e) {
+        if (e.key in keyPressed) {
+            keyPressed[e.key] = true;
+            e.preventDefault();
+        }
+        if (e.key.repeat) {
+            return;
+        }
+    }
+
+
     console.log('About to fetch game state...');
+    function gameSocketClose() {
+        console.log('Closing game socket...');
+        //stop events
+        document.removeEventListener('keydown', eventKeyDown);
+        
+        document.removeEventListener('keyup', eventKeyUP);
+        keyPressed = { "ArrowUp": false, "ArrowDown": false, "w": false, "s": false };
+        
+        //close the socket
+        gameSocket.close();
+    }
 };

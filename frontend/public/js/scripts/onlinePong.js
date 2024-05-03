@@ -30,22 +30,9 @@ export function initPongGame(dataDict = {}) {
     function waitConnection() {
         setTimeout(function () {
             if (gameSocket.readyState === 1 && gameSocket.OPEN === 1) {
-                document.addEventListener('keydown', (e) => {
-                    if (e.key in keyPressed) {
-                        keyPressed[e.key] = true;
-                        e.preventDefault();
-                    }
+                document.addEventListener('keydown', eventKeyDown);
 
-                    if (e.key.repeat) {
-                        return;
-                    }
-                });
-
-                document.addEventListener('keyup', (e) => {
-                    if (e.key in keyPressed) {
-                        keyPressed[e.key] = false;
-                    }
-                });
+                document.addEventListener('keyup', eventKeyUP);
 
                 gameSocket.send(JSON.stringify({
                     'join': 'online',
@@ -65,9 +52,9 @@ export function initPongGame(dataDict = {}) {
             } else {
                 if (window.location.pathname !== "/online") {
                     disconnect = true;
+                    gameSocketClose();
                     return;
                 }
-                console.log("waiting to connect");
                 waitConnection();
             }
         }, 5);
@@ -153,6 +140,7 @@ export function initPongGame(dataDict = {}) {
         }
         if (window.location.pathname !== "/online") {
             clearInterval(intervalId);
+            gameSocketClose();
             return;
         }
         drawEverything();
@@ -163,12 +151,36 @@ export function initPongGame(dataDict = {}) {
         let winnerScore = player1.score > player2.score ? player1.score : player2.score;
         let looser = player1.score < player2.score ? dataDict.player1 : dataDict.player2;
         let looserScore = player1.score < player2.score ? player1.score : player2.score
+        gameSocketClose();
         history.pushState(null, '', '/results');
-        pageRouting({
-            winner: winner,
-            looser: looser,
-            score1: winnerScore,
-            score2: looserScore,
-        });
+        pageRouting({gameId: gameId});
+    }
+
+    function eventKeyUP(e) {
+        if (e.key in keyPressed) {
+            keyPressed[e.key] = false;
+        }
+    }
+
+    function eventKeyDown(e) {
+        if (e.key in keyPressed) {
+            keyPressed[e.key] = true;
+            e.preventDefault();
+        }
+        if (e.key.repeat) {
+            return;
+        }
+    }
+    console.log('About to fetch game state...');
+    function gameSocketClose() {
+        console.log('Closing game socket...');
+        //stop events
+        document.removeEventListener('keydown', eventKeyDown);
+        
+        document.removeEventListener('keyup', eventKeyUP);
+        keyPressed = { "ArrowUp": false, "ArrowDown": false, "w": false, "s": false };
+        
+        //close the socket
+        gameSocket.close();
     }
 };

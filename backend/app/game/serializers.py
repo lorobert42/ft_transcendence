@@ -117,9 +117,9 @@ class TournamentSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        print("Debug: Representation before adding status", representation)
+        # print("Debug: Representation before adding status", representation)
         representation['status'] = instance.get_status_display()  # Ensure the readable status is displayed
-        print("Debug: Representation after adding status", representation)  # Debug print
+        # print("Debug: Representation after adding status", representation)  # Debug print
         participation_set = Participation.objects.filter(tournament=instance)
         representation['participants'] = ParticipationSerializer(participation_set, many=True).data
         return representation

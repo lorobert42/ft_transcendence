@@ -84,7 +84,7 @@ export async function tournamentCreationHandler(dataDict = {}) {
   document.getElementById("create-tournament").addEventListener("click", async (e) => {
     e.preventDefault();
 
-    if (selectedPlayers.childNodes.length < 2 && selectedPlayers.childNodes.length > 7) {
+    if (selectedPlayers.childNodes.length < 2 || selectedPlayers.childNodes.length > 7) {
       printError("You must select between 2 and 7 players to create a tournament", "error");
       return;
     }

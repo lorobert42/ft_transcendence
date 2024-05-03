@@ -132,15 +132,21 @@ export async function tournamentHandler(dataDict = {}) {
       }
     }`);
 
+    let tournament;
+    async function getCurrentTournament() {
+      let tournaments = await getTournaments();
+      tournaments = tournaments.find((tour) => tour.id == dataDict.tournamentId);
+      return tournaments
+    }
   let container = document.getElementById('tournament-container');
-  let tournament = await getTournaments();
-  tournament = tournament.find((tournement) => tournement.id == dataDict.tournamentId);
-  console.log("Tournoie: ", tournament, dataDict.tournamentId);
+  console.log("getTOurnament")
+  tournament = await getCurrentTournament();
   if (tournament == undefined) {
     history.pushState(null, '', '/gamesearch');
     pageRouting(dataDict);
     return;
   }
+  console.log("Tournament: ", tournament);
   let participation = await getParticipations();
   participation = participation.find((part) => part.tournament == dataDict.tournamentId);
   console.log("Participation: ", participation);
@@ -193,6 +199,12 @@ export async function tournamentHandler(dataDict = {}) {
       });
 
       buttonDiv.appendChild(startTournamentButton);
+    }
+    tournament = await getCurrentTournament();
+    if (tournament == undefined) {
+      history.pushState(null, '', '/gamesearch');
+      pageRouting(dataDict);
+      return;
     }
     let participantCount = document.getElementById('participantCount');
 
