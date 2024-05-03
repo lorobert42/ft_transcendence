@@ -1,3 +1,5 @@
+import { printError } from "../utils/toastMessage.js";
+
 export async function getFriends() {
   const friendsObject = await fetch("/api/friends/", {
     method: "GET",
