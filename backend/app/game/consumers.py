@@ -421,7 +421,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         time_game = dict()
         ic("loop started")
         loop_count = 0
-        await self.ic_winer()
         while loop:
             ic(loop_count)
             loop_count += 1 
@@ -454,22 +453,37 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     tab[i]['player1'] = await self.get_winner(1 ,tab[i]['game'].tournamentRound, tab[i]['game'].roundGame, participants)
                     if tab[i]['player1'] is not None:
                         ic("putting player1 in game")
-                        await self.ic_winer()
                         await self.update_player(tab[i]['game'].id, tab[i]['player1'].id, 1)
                 if tab[i]['player2'] is None:
                     tab[i]['player2'] = await self.get_winner(2 ,tab[i]['game'].tournamentRound, tab[i]['game'].roundGame, participants)
                     if tab[i]['player2'] is not None:
                         ic("putting player2 in game")
-                        await self.ic_winer()
                         await self.update_player(tab[i]['game'].id, tab[i]['player2'].id, 2)
                 elif tab[i]['game'].game_status == "finished" or tab[i]['game'].game_status == "canceled":
                     count += 1
+                key = f"{tab[i]['game'].tournamentRound},{tab[i]['game'].roundGame}"
+                data.update({
+                    key: {
+                    'game_id': tab[i]['game'].id,
+                    'player1': tab[i]['player1'].name,
+                    'player1': tab[i]['player2'].name,
+                    'score1': tab[i]['game'].score1,
+                    'score2': tab[i]['game'].score2,
+                    'state': tab[i]['game'].game_status,
+                    }
+                })
+            await self.channel_layer.group_send(
+                self.tournament_group,
+                {
+                    "type": "send_state",
+                    "state": data,
+                }
+            )
             ic("sleeping for 10 sec")
             await asyncio.sleep(10)
             if count == len(tab):
                 loop = False
         ic("loop ended")
-
 
     async def ic_winer(self):
         ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g1)
@@ -539,6 +553,11 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         else:
             return tab['player2']
 
+    async def send_state(self, event):
+        """ Function that send state of the curent game. """
+        state = event['state']
+        await self.send(text_data=json.dumps(state))
+
     @database_sync_to_async
     def update_player(self, game_id, player_id, player_pos):
         game = Game.objects.get(pk=game_id)
@@ -582,17 +601,3 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         for i in range(0, tournaments.count()):
             if tournaments[i].id == tournament_id:
                 return tournaments[i].participants.count()
-
-
-    """
-                data = {
-                    'round,game': {
-                    'game_id': "id",
-                    'player1': "player1.name",
-                    'player2': "player2.name",
-                    'score1': "score1",
-                    'score2': "score2",
-                    'state': "game_status"
-                    }
-                }
-                """
