@@ -1,15 +1,17 @@
 
+import datetime
 import json
 import time
+import random
 import asyncio
+from datetime import datetime, timezone
 from asyncio import CancelledError
-from core.models import Game
+from core.models import Game ,Tournament, User
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
 from .game import GameClass, Ball, Paddle
 from .tournament import TournamentClass
-import random
 
 """ Define for move of the paddle. """
 KEY_P1_UP, KEY_P1_DOWN, KEY_P2_UP, KEY_P2_DOWN = 1, 2, 3, 4
@@ -52,7 +54,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             try:
                 await GameRoomConsumer.game_tab[self.room_id].task
             except CancelledError:
-                print("Game have been cancelled")
+                print("Game have been canceled")
 
             """ discard the game in dict if exist"""
             if GameRoomConsumer.game_tab[self.room_id].p1['name'] == self.current_user:
@@ -111,7 +113,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         if 'start' in td_json and not GameRoomConsumer.game_tab[self.room_id].active:
             await self.handle_start(td_json['start'])
         # If player is a bot initialize and mark as ready
-
 
     async def handle_move_online(self, move):
         print(self.current_user, "Direction", move)
@@ -391,9 +392,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
         if TournamentConsumer.tournament_tab.get(self.room_id) == None:
             TournamentConsumer.tournament_tab[self.room_id] = TournamentClass()
-            await self.get_games(int(self.room_id))
             TournamentConsumer.tournament_tab[self.room_id].task = asyncio.create_task(self.loop())
-
 
         await self.channel_layer.group_add(
             self.tournament_group,
@@ -404,26 +403,195 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, message):
         if TournamentConsumer.tournament_tab[self.room_id].task.done():
+            await TournamentConsumer.tournament_tab[self.room_id].task
             TournamentConsumer.tournament_tab.pop(self.room_id)
         await self.channel_layer.group_discard(
-            self.game_room_group,
+            self.tournament_group,
             self.channel_name,
         )
 
     async def loop(self):
-        while True:
-            pass
+        loop = True
+        time_game = dict()
+        ic("loop started")
+        loop_count = 0
+        while loop:
+            ic(loop_count)
+            loop_count += 1 
+            ic("checking game")
+            tab = await self.get_games(int(self.room_id))
+            participants = await self.get_participants(int(self.room_id))
+            count = 0
+            data = dict()
+            now = time.time()
+            for i in range(0, len(tab)):
+                ic(tab[i]['game'].id)
+                if tab[i]['player1'] is not None and tab[i]['player2'] is not None \
+                and tab[i]['game'].game_status == "pending":
+                    ic("pending game")
+                    if time_game.get(i) is None:
+                        time_game[i] = time.time()
+                    if time_game[i] < now and (now -  time_game[i]) % 3600 // 60 >= 1:
+                        ic("game canceled")
+                        tab[i]['game'].game_status = "canceled"
+                        await database_sync_to_async(tab[i]['game'].save)()
+                        await self.set_winner_rand(tab[i], tab[i]['game'].tournamentRound, tab[i]['game'].roundGame)
+                elif tab[i]['game'].game_status == "started" and tab[i]['game'].start_time == None:
+                    ic("start time set")
+                    tab[i]['game'].start_time = datetime.now()
+                    await database_sync_to_async(tab[i]['game'].save)()
+                elif tab[i]['game'].game_status == "finished":
+                    ic("game finished and setting the winner")
+                    await self.set_winner(tab[i], tab[i]['game'].tournamentRound, tab[i]['game'].roundGame)
+                if tab[i]['player1'] is None:
+                    tab[i]['player1'] = await self.get_winner(1 ,tab[i]['game'].tournamentRound, tab[i]['game'].roundGame, participants)
+                    if tab[i]['player1'] is not None:
+                        ic("putting player1 in game")
+                        await self.update_player(tab[i]['game'].id, tab[i]['player1'].id, 1)
+                if tab[i]['player2'] is None:
+                    tab[i]['player2'] = await self.get_winner(2 ,tab[i]['game'].tournamentRound, tab[i]['game'].roundGame, participants)
+                    if tab[i]['player2'] is not None:
+                        ic("putting player2 in game")
+                        await self.update_player(tab[i]['game'].id, tab[i]['player2'].id, 2)
+                elif tab[i]['game'].game_status == "finished" or tab[i]['game'].game_status == "canceled":
+                    count += 1
+                key = f"{tab[i]['game'].tournamentRound},{tab[i]['game'].roundGame}"
+                data.update({
+                    key: {
+                    'game_id': tab[i]['game'].id,
+                    'player1': tab[i]['player1'].name,
+                    'player1': tab[i]['player2'].name,
+                    'score1': tab[i]['game'].score1,
+                    'score2': tab[i]['game'].score2,
+                    'state': tab[i]['game'].game_status,
+                    }
+                })
+            await self.channel_layer.group_send(
+                self.tournament_group,
+                {
+                    "type": "send_state",
+                    "state": data,
+                }
+            )
+            ic("sleeping for 10 sec")
+            await asyncio.sleep(10)
+            if count == len(tab):
+                loop = False
+        ic("loop ended")
+
+    async def ic_winer(self):
+        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g1)
+        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g2)
+        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g3)
+        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g4)
+        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r2g1)
+        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r2g2)
+
+    async def get_winner(self, player, round, game, participants):
+        if player == 1 and round == 2 and game == 1:
+            return TournamentConsumer.tournament_tab[self.room_id].winner_r1g1
+        if player == 2 and round == 2 and game == 1:
+            return TournamentConsumer.tournament_tab[self.room_id].winner_r1g2
+        if player == 1 and round == 2 and game == 2:
+            return TournamentConsumer.tournament_tab[self.room_id].winner_r1g3
+        if player == 2 and round == 2 and game == 2:
+            return TournamentConsumer.tournament_tab[self.room_id].winner_r1g4
+        if player == 1 and round == 3 and game == 1:
+            return TournamentConsumer.tournament_tab[self.room_id].winner_r2g1
+        if player == 2 and round == 3 and game == 1:
+            if participants < 7:
+                return TournamentConsumer.tournament_tab[self.room_id].winner_r1g3
+            else:
+                return TournamentConsumer.tournament_tab[self.room_id].winner_r2g2
+
+    async def set_winner(self, tab, round, game):
+        if round == 1 and game == 1:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r1g1 = await self.winner(tab)
+        elif round == 1 and game == 2:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r1g2 = await self.winner(tab)
+        elif round == 1 and game == 3:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r1g3 = await self.winner(tab)
+        elif round == 1 and game == 4:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r1g4 = await self.winner(tab)
+        elif round == 2 and game == 1:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r2g1 = await self.winner(tab)
+        elif round == 2 and game == 2:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r2g2 = await self.winner(tab)
+        ic("winner is set")
+
+    async def winner(self, tab):
+        if tab['game'].score1 > tab['game'].score2:
+            return tab['player1']
+        else:
+            return tab['player2']
+
+    async def set_winner_rand(self, tab, round, game):
+        if round == 1 and game == 1:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r1g1 = await self.winner_random(tab)
+        elif round == 1 and game == 2:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r1g2 = await self.winner_random(tab)
+        elif round == 1 and game == 3:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r1g3 = await self.winner_random(tab)
+        elif round == 1 and game == 4:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r1g4 = await self.winner_random(tab)
+        elif round == 2 and game == 1:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r2g1 = await self.winner_random(tab)
+        elif round == 2 and game == 2:
+            TournamentConsumer.tournament_tab[self.room_id].winner_r2g2 = await self.winner_random(tab)
+        ic("Random winner is set")
+
+    async def winner_random(self, tab):
+        random.seed(time.time())
+        if random.randint(1, 2) == 1:
+            return tab['player1']
+        else:
+            return tab['player2']
+
+    async def send_state(self, event):
+        """ Function that send state of the curent game. """
+        state = event['state']
+        await self.send(text_data=json.dumps(state))
+
+    @database_sync_to_async
+    def update_player(self, game_id, player_id, player_pos):
+        game = Game.objects.get(pk=game_id)
+        player = User.objects.get(pk=player_id)
+        if player_pos == 1:
+            ic("in db modifing the player1")
+            game.player1 = player
+            game.save()
+        else:
+            ic("in db modifing the player2")
+            game.player2 = player
+            game.save()
 
     @database_sync_to_async
     def get_games(self, tournament_id):
         games = Game.objects.all()
+        users = User.objects.all()
+        tab = []
         for i in range(0, games.count()):
             if games[i].tournament.id == tournament_id:
-                self.max_game += 1
-                game = {
-                    'round': games[i].tournamentRound,
-                    'pos': games[i].roundGame,
-                    'game': games[i]
-                }
-                self.tournament.games[self.max_game] = game
+                player1 = None
+                player2 = None
+                if games[i].player1 is not None:
+                    for j in range(0, users.count()):
+                        if users[j].id == games[i].player1.id:
+                            player1 = users[j]
+                if games[i].player2 is not None:
+                    for j in range(0, users.count()):
+                        if users[j].id == games[i].player2.id:
+                            player2 = users[j]
+                tab.append({
+                    'game': games[i],
+                    'player1': player1,
+                    'player2': player2,
+                })
+        return tab
 
+    @database_sync_to_async
+    def get_participants(self, tournament_id):
+        tournaments = Tournament.objects.all()
+        for i in range(0, tournaments.count()):
+            if tournaments[i].id == tournament_id:
+                return tournaments[i].participants.count()

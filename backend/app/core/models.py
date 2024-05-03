@@ -190,7 +190,6 @@ class Game(models.Model):
         player2_name = self.player2.name if self.player2 else "No Player"
         return f"{player1_name} vs {player2_name}: {game_type}, Score [{self.score1} - {self.score2}]"
 
-
 def get_system_user():
     return User.objects.get_or_create(email='system@user.com', defaults={'name': 'System User'})[0].pk
 
