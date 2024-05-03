@@ -125,7 +125,10 @@ class LoginSerializer(serializers.Serializer):
 
 class CustomTokenRefreshSerializer(TokenRefreshSerializer):
     def validate(self, attrs):
-        payload = token_backend.decode(attrs.get('refresh'), verify=True)
+        try:
+            payload = token_backend.decode(attrs.get('refresh'), verify=True)
+        except Exception:
+            raise exceptions.AuthenticationFailed("Invalid refresh token")
         user: User = User.objects.filter(id=payload['user_id']).first()
         attrs['user_object'] = user
         return attrs

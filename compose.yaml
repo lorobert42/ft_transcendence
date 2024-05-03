@@ -27,6 +27,7 @@ services:
     volumes:
       - django-static:/app/static
       - django-media:/app/media
+      - django-app:/app
     env_file:
       - ./.env
     environment:
@@ -89,3 +90,4 @@ volumes:
   redis-data:
   django-static:
   django-media:
+  django-app:

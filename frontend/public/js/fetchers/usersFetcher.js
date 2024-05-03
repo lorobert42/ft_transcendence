@@ -104,6 +104,7 @@ export function getRefreshToken() {
   const refreshToken = localStorage.getItem('refreshToken');
   if (refreshToken === null) {
     printError("unable to refresh data");
+    localStorage.clear();
     return false;
   }
   return fetch("/api/user/token/refresh/", {
@@ -113,15 +114,22 @@ export function getRefreshToken() {
     },
     body: JSON.stringify({ refresh: refreshToken }),
   })
-    .then(response => response.json())
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Unable to stay logged in.");
+      }
+      return response.json()
+    })
     .then(data => {
       if (Object.hasOwn(data, "access")) {
         localStorage.setItem("authToken", data.access);
         return true;
       }
+      localStorage.clear();
       return false;
     })
     .catch((error) => {
+      localStorage.clear();
       printError(error);
     });
 }
