@@ -181,6 +181,7 @@ export function initPongGame(routerData = {}) {
         containerDiv.appendChild(RightName);
 
         menu.appendChild(containerDiv);
+
     }
 
     let scoreLeft = document.getElementById('scoreLeft');
@@ -206,6 +207,9 @@ export function initPongGame(routerData = {}) {
                     } else if (routerData.localSelection === 'rightBot') {
                         startGame('human', 'bot');
                     }
+
+                    let explanationDiv = document.getElementById('explanationDiv');
+                    explanationDiv.style.display = 'none';
                 } else {
                     startGame('bot', 'bot');
                 }
@@ -285,6 +289,12 @@ export function initPongGame(routerData = {}) {
             if (data == "Game Ended") {
                 console.log("Game CLEAR");
                 clearInterval(intervalId);
+
+                if(routerData.localSelection === undefined || routerData.localSelection === null) {
+                    history.pushState(null, '', '/localroom');
+                    pageRouting(routerData);
+                }
+
                 eventClear();
                 return;
             }
