@@ -3,6 +3,7 @@ import loginPage from "./pages/loginPage.js";
 import otpPage from "./pages/otpPage.js";
 import profilePage from "./pages/profilePage.js";
 import enableOtpPage from "./pages/enableOtpPage.js";
+import otpDisablePage from "./pages/otpDisablePage.js";
 import registerPage from "./pages/registerPage.js";
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
@@ -21,7 +22,7 @@ import { decodeJWT } from "./js/utils/tokenHandler.js";
 import gameResults from "./pages/gameResults.js";
 import { getRefreshToken } from "./js/fetchers/usersFetcher.js";
 
-export let dataSave = {};
+export let dataSave = { socketArrayCollector: [] };
 
 export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
@@ -41,7 +42,20 @@ export default async function pageRouting(data = {}) {
 
   // if path is /home, send load content with function
   let contentDiv = document.getElementById("content");
-  dataSave = data;
+
+  if(dataSave.socketArrayCollector.length > 0) {
+    dataSave.socketArrayCollector.forEach((socket) => {
+      if(socket.readyState === 1 || socket.OPEN === 1) {
+        socket.close();
+        console.log("One socket closed");
+      }});
+    dataSave.socketArrayCollector = [];
+  }
+
+  dataSave = {
+    ...dataSave,
+    ...data,
+  };
   switch (path) {
     case "/":
       contentDiv.innerHTML = homePage();
@@ -119,6 +133,21 @@ export default async function pageRouting(data = {}) {
         })
         .catch((error) => {
           console.error("Failed to load the enable otp form module", error);
+        });
+      break;
+
+    case "/disable-otp":
+      if (isLogged) {
+        redirectPath('/profile');
+        return;
+      }
+      contentDiv.innerHTML = otpDisablePage();
+      import("/js/scripts/otpDisableForm.js")
+        .then((module) => {
+          module.otpDisableModule.init(data);
+        })
+        .catch((error) => {
+          console.error("Failed to load the disable otp form module", error);
         });
       break;
 

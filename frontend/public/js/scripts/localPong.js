@@ -1,6 +1,10 @@
-export function initPongGame(routerData) {
+import pageRouting, { dataSave } from "../../changeContent.js";
+import { getLang } from "../utils/getLang.js";
+
+
+export function initPongGame(routerData = {}) {
     const canvas = document.getElementById('pongCanvas');
-    const scoreZone = document.getElementById('scoreZone');
+    const menu = document.getElementById('buttons-container');
     if (!canvas) {
         console.error('Canvas element not found!');
         return;
@@ -9,10 +13,178 @@ export function initPongGame(routerData) {
     }
 
 
+    const lang = getLang();
 
-    const gameSocket = new WebSocket(
-        'wss://' + location.host + '/ws/game/local' + routerData.user.user_id + '/?token=' + localStorage.getItem('authToken')
-    );
+    let langdict = JSON.parse(`{
+        "FR": {
+            "title": "Jeu Local",
+            "playfriend": "Jouer contre un ami",
+            "playbot": "Jouer contre un bot",
+            "botleft": "Bot à Gauche",
+            "botright": "Bot à Droite",
+            "playerLeft": "Joueur 1",
+            "playerRight": "Joueur 2"
+        },
+        "EN": {
+            "title": "Local Room",
+            "playfriend": "Play with Friend",
+            "playbot": "Play against Bot",
+            "botleft": "Bot on Left",
+            "botright": "Bot on Right",
+            "playerLeft": "Player 1",
+            "playerRight": "Player 2"
+		},
+        "PT": {
+            "title": "Sala local",
+            "playfriend": "Jogar com amigo",
+            "playbot": "Jogar contra Bot",
+            "botleft": "Bot à esquerda",
+            "botright": "Bot à direita",
+            "playerLeft": "Jogador 1",
+            "playerRight": "Jogador 2"
+
+		}
+    }`);
+
+    console.log(routerData.localSelection);
+
+    if(routerData.localSelection === undefined || routerData.localSelection === null) {
+
+        const buttonDiv = document.createElement('div');
+        buttonDiv.className = 'row justify-content-between';
+
+        const leftcol = document.createElement('div');
+        leftcol.className = 'col-4';
+
+        const buttonStartHuman = document.createElement('button');
+        buttonStartHuman.id = 'button-start-human';
+        buttonStartHuman.className = 'btn btn-primary btn-lg';
+        buttonStartHuman.textContent = 'Play with Friend';
+
+        buttonStartHuman.addEventListener('click', () => {
+            routerData.localSelection = 'friend';
+            history.pushState(null, '', '/localroom');
+            pageRouting(routerData);
+        });
+
+        const rightcol = document.createElement('div');
+        rightcol.className = 'col-4';
+
+        const botStartDropdown = document.createElement('div');
+        botStartDropdown.className = 'dropdown show';
+
+        const buttonStartBot = document.createElement('button');
+        buttonStartBot.className = 'btn btn-primary btn-lg dropdown-toggle';
+        buttonStartBot.setAttribute('type', 'button');
+        buttonStartBot.setAttribute('data-bs-toggle', 'dropdown');
+        buttonStartBot.setAttribute('aria-expanded', 'false');
+        buttonStartBot.textContent = 'Play against Bot';
+
+        const dropMenu= document.createElement('div');
+        dropMenu.className = 'dropdown-menu justify-content-center';
+        dropMenu.setAttribute('aria-labelledby', 'dropdownMenuButton');
+
+        const anchorLeft = document.createElement('button');
+        anchorLeft.className = 'dropdown-item text-center';
+        anchorLeft.textContent = langdict[lang]['botleft'];
+        anchorLeft.id = 'botleft';
+
+        anchorLeft.addEventListener('click', () => {
+            routerData.localSelection = 'leftBot';
+            history.pushState(null, '', '/localroom');
+            pageRouting(routerData);
+        });
+
+        const anchorRight = document.createElement('button');
+        anchorRight.className = 'dropdown-item text-center';
+        anchorRight.textContent = langdict[lang]['botright'];
+        anchorRight.id = 'botright';
+
+        anchorRight.addEventListener('click', () => {
+            routerData.localSelection = 'rightBot';
+            history.pushState(null, '', '/localroom');
+            pageRouting(routerData);
+        });
+
+        dropMenu.appendChild(anchorLeft);
+        dropMenu.appendChild(anchorRight);
+        botStartDropdown.appendChild(buttonStartBot);
+        botStartDropdown.appendChild(dropMenu);
+    
+        leftcol.appendChild(buttonStartHuman);
+        rightcol.appendChild(botStartDropdown);
+        buttonDiv.appendChild(leftcol);
+        buttonDiv.appendChild(rightcol);
+        menu.appendChild(buttonDiv);
+
+    }
+    let gameSocket;
+
+    if(routerData.localSelection === undefined || routerData.localSelection === null) {
+        gameSocket = new WebSocket(
+            'wss://' + location.host + '/ws/game/bot' + routerData.user.user_id + '/?token=' + localStorage.getItem('authToken')
+        );
+    
+        dataSave.socketArrayCollector.push(gameSocket);
+    } else {
+        gameSocket = new WebSocket(
+            'wss://' + location.host + '/ws/game/local' + routerData.user.user_id + '/?token=' + localStorage.getItem('authToken')
+        );
+    
+        dataSave.socketArrayCollector.push(gameSocket);
+    }
+    
+    if(routerData.localSelection !== undefined && routerData.localSelection !== null) {
+
+        const containerDiv = document.createElement('div');
+        containerDiv.className = 'row justify-content-center';
+
+        const LeftName = document.createElement('h4');
+        if(routerData.localSelection === 'friend') {
+            LeftName.textContent = langdict[lang]['playerLeft'];
+        } else if (routerData.localSelection === 'leftBot') {
+            LeftName.textContent = 'Bot';
+        } else if (routerData.localSelection === 'rightBot') {
+            LeftName.textContent = routerData.user.name;
+        }
+
+        LeftName.className = "text-center col-3";
+
+        console.log(LeftName.textContent);
+        
+        const RightName = document.createElement('h4');
+        if(routerData.localSelection === 'friend') {
+            RightName.textContent = langdict[lang]['playerRight'];
+        } else if (routerData.localSelection === 'leftBot') {
+            RightName.textContent = routerData.user.name;
+        } else if (routerData.localSelection === 'rightBot') {
+            RightName.textContent = 'Bot';
+        }
+
+        RightName.className = "text-center col-3";
+
+        console.log(RightName.textContent);
+    
+        const LeftScore = document.createElement('div');
+        LeftScore.textContent = '0';
+        LeftScore.id='scoreLeft';
+        LeftScore.className = 'card col-3 text-center align-items-center justify-content-center';
+
+        const RightScore = document.createElement('span');
+        RightScore.textContent = '0';
+        RightScore.id='scoreRight';
+        RightScore.className = 'card col-3 text-center align-items-center justify-content-center';
+
+        containerDiv.appendChild(LeftName);
+        containerDiv.appendChild(LeftScore);
+        containerDiv.appendChild(RightScore);
+        containerDiv.appendChild(RightName);
+
+        menu.appendChild(containerDiv);
+    }
+
+    let scoreLeft = document.getElementById('scoreLeft');
+    let scoreRight = document.getElementById('scoreRight');
 
     let disconnect = false;
 
@@ -22,36 +194,26 @@ export function initPongGame(routerData) {
         setTimeout(function () {
             if (gameSocket.readyState === 1 && gameSocket.OPEN === 1) {
 
-                document.addEventListener('keydown', eventKeyDown);
+                if(routerData.localSelection !== undefined && routerData.localSelection !== null) {
+                    document.addEventListener('keydown', eventKeyDown);
 
-                document.addEventListener('keyup', eventKeyUP);
-                // Function to disable both buttons
-                function disableButtons() {
-                    document.getElementById('button-start-human').disabled = true;
-                    document.getElementById('button-start-bot').disabled = true;
-                }
-
-                // Attach event listeners to buttons for starting the game
-                document.getElementById('button-start-human').addEventListener('click', () => {
-                    startGame('human', 'human');
-                    disableButtons(); // Disable both buttons
-                });
-
-                document.getElementById('button-start-bot').addEventListener('click', () => {
-                    const botSide = document.querySelector('input[name="botSide"]:checked').value;
-                    if (botSide === 'left') {
+                    document.addEventListener('keyup', eventKeyUP);
+                    // Attach event listeners to buttons for starting the game
+                    if(routerData.localSelection === 'friend') {
+                        startGame('human', 'human');
+                    } else if (routerData.localSelection === 'leftBot') {
                         startGame('bot', 'human');
-                    } else {
+                    } else if (routerData.localSelection === 'rightBot') {
                         startGame('human', 'bot');
                     }
-                    disableButtons(); // Disable both buttons
-                });
-
+                } else {
+                    startGame('bot', 'bot');
+                }
 
             } else {
                 if (window.location.pathname !== "/localroom") {
                     disconnect = true;
-                    gameSocketClose();
+                    eventClear();
                     return;
                 }
                 console.log("waiting to connect");
@@ -123,7 +285,7 @@ export function initPongGame(routerData) {
             if (data == "Game Ended") {
                 console.log("Game CLEAR");
                 clearInterval(intervalId);
-                gamePatch();
+                eventClear();
                 return;
             }
             player1.x = data["P1"]["x"];
@@ -133,8 +295,10 @@ export function initPongGame(routerData) {
             ball.x = data["Ball"]["x"];
             ball.y = data["Ball"]["y"];
 
-            scoreZone.innerHTML = `Score : ${player1.score} - ${player2.score}`;
-
+            if(scoreLeft)
+                scoreLeft.textContent = player1.score;
+            if(scoreRight)
+                scoreRight.textContent = player2.score;
             for (const key in keyPressed) {
                 if (keyPressed[key]) {
                     gameSocket.send(JSON.stringify({
@@ -147,7 +311,7 @@ export function initPongGame(routerData) {
         }
         if (window.location.pathname !== "/localroom") {
             clearInterval(intervalId);
-            gameSocketClose();
+            eventClear();
             return;
         }
         drawEverything();
@@ -169,17 +333,38 @@ export function initPongGame(routerData) {
         }
     }
 
-
-    console.log('About to fetch game state...');
-    function gameSocketClose() {
-        console.log('Closing game socket...');
-        //stop events
+    function eventClear() {
         document.removeEventListener('keydown', eventKeyDown);
-        
         document.removeEventListener('keyup', eventKeyUP);
         keyPressed = { "ArrowUp": false, "ArrowDown": false, "w": false, "s": false };
-        
-        //close the socket
-        gameSocket.close();
+
+        canvas.style.display = 'none';
+
+        let winner;
+
+        console.log(routerData.localSelection)
+        if(routerData.localSelection === 'friend') {
+            winner = player1.score > player2.score ? 'Player 1' : 'Player 2';
+        } else if (routerData.localSelection === 'leftBot') {
+            winner = player1.score > player2.score ? 'Bot' : routerData.user.name;
+        } else if (routerData.localSelection === 'rightBot') {
+            winner = player1.score > player2.score ? routerData.user.name : 'Bot';
+        }
+
+        const winnerDiv = document.createElement('h1');
+        winnerDiv.className = 'text-center m-5';
+        winnerDiv.textContent = `${winner} wins !`;
+
+        menu.appendChild(winnerDiv);
+
+
+        const restartButton = document.createElement('button');
+        restartButton.className = 'btn btn-primary m-5 btn-lg';
+        restartButton.textContent = 'Restart Game';
+        restartButton.addEventListener('click', () => {
+            history.pushState(null, '', '/localroom');
+            pageRouting(routerData);
+        });
+        menu.appendChild(restartButton);
     }
 };

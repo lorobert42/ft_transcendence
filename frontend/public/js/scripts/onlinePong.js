@@ -1,7 +1,9 @@
 
-import pageRouting from "../../changeContent.js";
+import pageRouting, { dataSave } from "../../changeContent.js";
+import { getGames } from "../fetchers/gamesFetcher.js";
+import { getUsers } from "../fetchers/usersFetcher.js";
 
-export function initPongGame(dataDict = {}) {
+export async function initPongGame(dataDict = {}) {
     if (!dataDict.gameId) {
         history.pushState(null, '', '/gamesearch');
         pageRouting();
@@ -9,7 +11,8 @@ export function initPongGame(dataDict = {}) {
     }
 
     const canvas = document.getElementById('pongCanvas');
-    const scoreZone = document.getElementById('scoreZone');
+    const menu = document.getElementById('buttons-container');
+
     if (!canvas) {
         console.error('Canvas element not found!');
         return;
@@ -18,11 +21,55 @@ export function initPongGame(dataDict = {}) {
     }
 
     let gameId = dataDict.gameId;
+    let gamesData = await getGames(gameId);
+    let gameData = gamesData.find(game => game.id == gameId);
+    let users = await getUsers();
+    let opponent = users.find(user => user.id == (gameData.player1 == dataDict.user.user_id ? gameData.player2 : gameData.player1));
 
     // ### Need to change the 0 in the path by the id of the game
     const gameSocket = new WebSocket(
         'wss://' + location.host + `/ws/game/${gameId}/?token=` + localStorage.getItem('authToken')
     );
+
+    dataSave.socketArrayCollector.push(gameSocket);
+
+    const containerDiv = document.createElement('div');
+    containerDiv.className = 'row justify-content-center';
+
+    const LeftName = document.createElement('h4');
+    if(gameData.player1 == dataDict.user.user_id)
+        LeftName.textContent = dataDict.user.name;
+    else 
+        LeftName.textContent = opponent.name;
+    LeftName.className = "text-center col-3";
+
+    console.log(LeftName.textContent);
+    
+    const RightName = document.createElement('h4');
+    if(gameData.player2 == dataDict.user.user_id)
+        RightName.textContent = dataDict.user.name;
+    else
+        RightName.textContent = opponent.name;
+    RightName.className = "text-center col-3";
+
+    console.log(RightName.textContent);
+
+    const LeftScore = document.createElement('div');
+    LeftScore.textContent = '0';
+    LeftScore.id='scoreLeft';
+    LeftScore.className = 'card col-3 text-center align-items-center justify-content-center';
+
+    const RightScore = document.createElement('span');
+    RightScore.textContent = '0';
+    RightScore.id='scoreRight';
+    RightScore.className = 'card col-3 text-center align-items-center justify-content-center';
+
+    containerDiv.appendChild(LeftName);
+    containerDiv.appendChild(LeftScore);
+    containerDiv.appendChild(RightScore);
+    containerDiv.appendChild(RightName);
+
+    menu.appendChild(containerDiv);
 
     let disconnect = false;
     let keyPressed = { "w": false, "s": false };
@@ -37,22 +84,15 @@ export function initPongGame(dataDict = {}) {
                 gameSocket.send(JSON.stringify({
                     'join': 'online',
                 }));
-                // Function to disable start button
-                function disableButtons() {
-                    document.getElementById('button-start').disabled = true;
-                }
 
-                document.getElementById('button-start').addEventListener('click', () => {
-                    gameSocket.send(JSON.stringify({
-                        'start': 'start',
-                    }));
-                    disableButtons(); // Disable both buttons
-                });
+                gameSocket.send(JSON.stringify({
+                    'start': 'start',
+                }));
 
             } else {
                 if (window.location.pathname !== "/online") {
                     disconnect = true;
-                    gameSocketClose();
+                    eventClear();
                     return;
                 }
                 waitConnection();
@@ -99,11 +139,18 @@ export function initPongGame(dataDict = {}) {
 
     gameSocket.onmessage = function (e) {
         data = JSON.parse(e.data);
+        console.log(data)
     };
 
     console.log('About to fetch game state...');
     let intervalId = setInterval(UpdateGameState, 16);
 
+    let scoreLeft = document.getElementById('scoreLeft');
+    let scoreRight = document.getElementById('scoreRight');
+
+    console.log(scoreLeft);
+    console.log(scoreRight);
+    
     function UpdateGameState() {
         if (data == "Game Ended") {
             console.log("Game CLEAR");
@@ -125,7 +172,11 @@ export function initPongGame(dataDict = {}) {
             if (data["P2 Score"] != undefined)
                 player1.score = data["P1 Score"];
 
-            scoreZone.innerHTML = `Score : ${player1.score} - ${player2.score}`;
+
+            if(scoreLeft)
+                scoreLeft.textContent = player1.score;
+            if(scoreRight)
+                scoreRight.textContent = player2.score;
 
             for (const key in keyPressed) {
                 if (keyPressed[key]) {
@@ -140,7 +191,7 @@ export function initPongGame(dataDict = {}) {
         }
         if (window.location.pathname !== "/online") {
             clearInterval(intervalId);
-            gameSocketClose();
+            eventClear();
             return;
         }
         drawEverything();
@@ -151,7 +202,7 @@ export function initPongGame(dataDict = {}) {
         let winnerScore = player1.score > player2.score ? player1.score : player2.score;
         let looser = player1.score < player2.score ? dataDict.player1 : dataDict.player2;
         let looserScore = player1.score < player2.score ? player1.score : player2.score
-        gameSocketClose();
+        eventClear();
         history.pushState(null, '', '/results');
         pageRouting({gameId: gameId});
     }
@@ -172,15 +223,13 @@ export function initPongGame(dataDict = {}) {
         }
     }
     console.log('About to fetch game state...');
-    function gameSocketClose() {
+    function eventClear() {
         console.log('Closing game socket...');
         //stop events
         document.removeEventListener('keydown', eventKeyDown);
         
         document.removeEventListener('keyup', eventKeyUP);
         keyPressed = { "ArrowUp": false, "ArrowDown": false, "w": false, "s": false };
-        
-        //close the socket
-        gameSocket.close();
+
     }
 };

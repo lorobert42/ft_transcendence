@@ -41,11 +41,11 @@ export default function loginPage() {
                     </div>
                     <div class="form-group text-center">
                         <label for="email">Email</label>
-                        <input type="email" class="form-control" autocomplete="email" id="email" placeholder="${langdict[lang]['emailPlaceholder']}">
+                        <input type="email" class="form-control" autocomplete="email" id="email" placeholder="${langdict[lang]['emailPlaceholder']}" required>
                     </div>
                     <div class="form-group text-center">
                         <label for="password">${langdict[lang]['password']}</label>
-                        <input type="password" autocomplete="current-password" class="form-control" id="password" placeholder="${langdict[lang]['passwordPlaceholder']}">
+                        <input type="password" autocomplete="current-password" class="form-control" id="password" placeholder="${langdict[lang]['passwordPlaceholder']}" required>
                     </div>
                     <div class="form-group text-center">
                         <button type="submit" class="btn btn-primary">${langdict[lang]['log']}</button>
