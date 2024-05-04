@@ -11,11 +11,6 @@ top {
   text-align: center;
 }
 
-.shadow {
-  box-shadow: 0px 0px 5px 0px;
-  padding-top: 10px;
-}
-
 h2, a{
   color: #000000;
 }
@@ -131,4 +126,8 @@ form button:hover {
   align-items: center; /* Centers content vertically */
   justify-content: center; /* Centers content horizontally */
   padding: 0 10px; /* Padding on sides */
+}
+
+input[type=radio]{
+  transform:scale(1.5);
 }

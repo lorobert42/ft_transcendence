@@ -96,13 +96,18 @@ export async function userProfileModule(dataDict = {}) {
 
   function filterItems(items) {
     let historySearch = document.getElementById("historySearch");
-    let filteredItems = items.filter((item) => {
-      console.log(item);
+    let filteredItems = items.filter((item) => { 
+      return item.player1 != null && item.player2 != null;
+    });
+    filteredItems = items.filter((item) => {
       return userList.filter((user) => user.id == item.player1)[0].name.toLowerCase().includes(historySearch.value.toLowerCase()) ||
         userList.filter((user) => user.id == item.player2)[0].name.toLowerCase().includes(historySearch.value.toLowerCase())
     });
     filteredItems = filteredItems.filter((item) => {
       return item.game_status == "finished";
+    });
+    filteredItems.sort((a, b) => {
+      return new Date(b.start_time) - new Date(a.start_time);
     });
     return filteredItems;
   }

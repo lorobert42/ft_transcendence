@@ -22,7 +22,7 @@ import { decodeJWT } from "./js/utils/tokenHandler.js";
 import gameResults from "./pages/gameResults.js";
 import { getRefreshToken } from "./js/fetchers/usersFetcher.js";
 
-export let dataSave = {};
+export let dataSave = { socketArrayCollector: [] };
 
 export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
@@ -42,7 +42,20 @@ export default async function pageRouting(data = {}) {
 
   // if path is /home, send load content with function
   let contentDiv = document.getElementById("content");
-  dataSave = data;
+
+  if(dataSave.socketArrayCollector.length > 0) {
+    dataSave.socketArrayCollector.forEach((socket) => {
+      if(socket.readyState === 1 || socket.OPEN === 1) {
+        socket.close();
+        console.log("One socket closed");
+      }});
+    dataSave.socketArrayCollector = [];
+  }
+
+  dataSave = {
+    ...dataSave,
+    ...data,
+  };
   switch (path) {
     case "/":
       contentDiv.innerHTML = homePage();

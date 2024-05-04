@@ -15,3 +15,4 @@ export function isTokenExpired(token) {
 
     return expirationTime <= currentTime + 30;
 }
+
