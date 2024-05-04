@@ -81,17 +81,19 @@ class MfaEnableConfirmSerializer(serializers.Serializer):
 
 
 class MfaDisableSerializer(serializers.Serializer):
+    email = serializers.EmailField()
     password = serializers.CharField()
     otp = serializers.CharField()
 
     def validate(self, attrs: dict):
         user: User = self.context.get("request").user
-        email = user.email
         user = authenticate(
             request=self.context.get("request"),
-            email=email,
+            email=attrs.get("email"),
             password=attrs.get("password"),
         )
+        if not user:
+            raise exceptions.AuthenticationFailed("Unable to authenticate you.")
         if not user.otp_enabled:
             raise exceptions.ValidationError("MFA not enabled.")
         totp = pyotp.TOTP(user.otp_base32)

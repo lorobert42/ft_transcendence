@@ -51,7 +51,6 @@ class MfaDisableView(generics.GenericAPIView):
     """
     Disable 2FA
     """
-    permission_classes = [permissions.IsAuthenticated]
     serializer_class = MfaDisableSerializer
 
     def post(self, request, format=None):

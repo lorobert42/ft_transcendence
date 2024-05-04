@@ -1,7 +1,7 @@
 import pageRouting from '../../changeContent.js'
 import { getGames } from '../fetchers/gamesFetcher.js';
 import { disableMfa, requestMfaActivation } from '../fetchers/mfaFetcher.js';
-import { getUsers } from '../fetchers/usersFetcher.js';
+import { getRefreshToken, getUsers } from '../fetchers/usersFetcher.js';
 
 export async function userProfileModule(dataDict = {}) {
   const setUserProfile = (user) => {
@@ -40,11 +40,14 @@ export async function userProfileModule(dataDict = {}) {
       otpDisable.classList.remove("d-none");
       const otpDisableForm = document.getElementById("otpDisableForm");
       if (otpDisableForm) {
-        otpDisableForm.addEventListener("submit", function (event) {
+        otpDisableForm.addEventListener("submit", async function (event) {
           event.preventDefault();
           const password = document.getElementById("otpDisablePassword").value;
           const otp = document.getElementById("otp").value;
           otpDisableRequest(user, password, otp);
+          await getRefreshToken();
+          history.pushState({}, '', '/profile');
+          pageRouting();
         });
       } else {
         console.error("Disable form not found at init time.");

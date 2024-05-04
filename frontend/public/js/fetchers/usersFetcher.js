@@ -100,7 +100,7 @@ export async function editUser(formData) {
   });
 }
 
-export function getRefreshToken() {
+export async function getRefreshToken() {
   const refreshToken = localStorage.getItem('refreshToken');
   if (refreshToken === null) {
     printError("unable to refresh data");
