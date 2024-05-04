@@ -9,8 +9,7 @@ export function rootPageTraduction() {
           "register": "Inscription",
           "profile": "Profil",
           "friend": "Amis",
-          "tournament": "Tournois",
-          "gamesearch": "Jeux",
+          "gamesearch": "Hub",
           "logout": "Déconnexion"
       },
       "EN": {
@@ -19,8 +18,7 @@ export function rootPageTraduction() {
           "register": "Register",
           "profile": "Profile",
           "friend": "Friends",
-          "tournament": "Tournament",
-          "gamesearch": "Games",
+          "gamesearch": "Hub",
           "logout": "Logout"
       },
       "PT": {
@@ -29,8 +27,7 @@ export function rootPageTraduction() {
           "register": "Registrar",
           "profile": "Perfil",
           "friend": "Amigos",
-          "tournament": "Torneio",
-          "gamesearch": "Jogos",
+          "gamesearch": "Hub",
           "logout": "Sair"
       }
   }`);
@@ -40,7 +37,6 @@ export function rootPageTraduction() {
   let registerLink = document.querySelector("#register-link");
   let profileLink = document.querySelector("#profile-link");
   let friendLink = document.querySelector("#friend-link");
-  let tournamentLink = document.querySelector("#tournament-link");
   let gamesearchLink = document.querySelector("#gamesearch-link");
   let logoutButton = document.querySelector("#logout-button");
 
@@ -49,7 +45,6 @@ export function rootPageTraduction() {
   registerLink.innerHTML = langdict[lang]["register"];
   profileLink.innerHTML = langdict[lang]["profile"];
   friendLink.innerHTML = langdict[lang]["friend"];
-  tournamentLink.innerHTML = langdict[lang]["tournament"];
   gamesearchLink.innerHTML = langdict[lang]["gamesearch"];
   logoutButton.innerHTML = langdict[lang]["logout"];
 }

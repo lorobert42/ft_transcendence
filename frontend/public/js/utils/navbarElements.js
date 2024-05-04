@@ -12,7 +12,6 @@ export function setNavbar(isLogged) {
     registerLink.classList.add("d-none");
     profileLink.classList.remove("d-none");
     friendLink.classList.remove("d-none");
-    tournamentLink.classList.remove("d-none");
     gamesearchLink.classList.remove("d-none");
     logoutButton.classList.remove("d-none");
   } else {
@@ -20,7 +19,6 @@ export function setNavbar(isLogged) {
     registerLink.classList.remove("d-none");
     profileLink.classList.add("d-none");
     friendLink.classList.add("d-none");
-    tournamentLink.classList.add("d-none");
     gamesearchLink.classList.add("d-none");
     logoutButton.classList.add("d-none");
   }

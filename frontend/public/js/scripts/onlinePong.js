@@ -105,11 +105,15 @@ export async function initPongGame(dataDict = {}) {
     if (disconnect)
         return;
 
+    let count = 0;
     const ctx = canvas.getContext('2d');
 
     let player1 = { x: 20, y: 100, width: 25, height: 125, score: 0 };
     let player2 = { x: canvas.width - 30, y: 200, width: 25, height: 125, score: 0 };
     let ball = { x: canvas.width / 2, y: canvas.height / 2, radius: 10 };
+
+    let canvaWidth = canvas.width;
+    let canvaHeight = canvas.height;
 
     function drawPlayer(player) {
         ctx.fillStyle = '#FFF';
@@ -127,22 +131,27 @@ export async function initPongGame(dataDict = {}) {
     function drawEverything() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        drawPlayer(player1);
-        drawPlayer(player2);
-        drawBall(ball);
+        if(count <= 0) {
+            drawPlayer(player1);
+            drawPlayer(player2);
+            drawBall(ball);
+        } else {            
+            ctx.fillStyle = '#FFF';
+            ctx.font = "200px Courier New";
+            ctx.fillText(count.toString(), canvaWidth / 2 - 50, canvaHeight / 2 + 50);
+        }
     }
-
-
-    console.log("Initializing Pong game");
 
     let data;
 
     gameSocket.onmessage = function (e) {
         data = JSON.parse(e.data);
-        console.log(data)
+        if(typeof(data) == "number") {
+            count = data;
+        } else 
+            count = 0;
     };
 
-    console.log('About to fetch game state...');
     let intervalId = setInterval(UpdateGameState, 16);
 
     let scoreLeft = document.getElementById('scoreLeft');
@@ -198,10 +207,6 @@ export async function initPongGame(dataDict = {}) {
     }
 
     function gamePatch() {
-        let winner = player1.score > player2.score ? dataDict.player1 : dataDict.player2;
-        let winnerScore = player1.score > player2.score ? player1.score : player2.score;
-        let looser = player1.score < player2.score ? dataDict.player1 : dataDict.player2;
-        let looserScore = player1.score < player2.score ? player1.score : player2.score
         eventClear();
         history.pushState(null, '', '/results');
         pageRouting({gameId: gameId});

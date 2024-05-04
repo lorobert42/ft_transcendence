@@ -1,5 +1,7 @@
+import { dataSave, pageRefreshRate } from "../../changeContent.js";
 import { getFriends, getInvites, sendFriendInvitation, removeFriend, respondFriendInvitation } from "../fetchers/friendsFetcher.js";
 import { getUserInfo, getUsers } from "../fetchers/usersFetcher.js";
+import { isLoggedIn } from "../utils/isLoggedIn.js";
 
 let friends = [];
 let users = [];
@@ -203,6 +205,12 @@ function mapUsers() {
     userList.appendChild(li);
   });
 }
+
+dataSave.intervalsList.push(setInterval( async () => {
+  if (!isLoggedIn())
+    return ;
+  await friendsHandler();
+}, pageRefreshRate));
 
 async function addFriend(id) {
   await sendFriendInvitation(id);

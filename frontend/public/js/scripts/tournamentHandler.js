@@ -1,6 +1,6 @@
 import { getGames } from "../fetchers/gamesFetcher.js";
 import { getUsers } from "../fetchers/usersFetcher.js";
-import pageRouting, { dataSave } from "../../changeContent.js";
+import pageRouting, { dataSave, pageRefreshRate } from "../../changeContent.js";
 import { getParticipations, getTournaments, joinTournament, startTournament } from "../fetchers/tournamentsFetcher.js";
 import { getLang } from "../utils/getLang.js";
 
@@ -153,6 +153,7 @@ export async function tournamentHandler(dataDict = {}) {
   console.log("Participation: ", participation);
   if(tournament.has_started) tournament.status = "running";
   if (tournament.status.toLowerCase() == "pending") {
+
     container.innerHTML = `
     <div class="row">
        <div class="card">
@@ -210,6 +211,23 @@ export async function tournamentHandler(dataDict = {}) {
     let participantCount = document.getElementById('participantCount');
 
     participantCount.innerText = tournament.participants.filter((participant) => participant.status == "accepted").length;
+
+    dataSave.intervalsList.push(setInterval(async () => {
+      tournament = await getCurrentTournament();
+      if(tournament.has_started)
+      {
+        history.pushState(null, '', window.location.pathname);
+        pageRouting(dataDict);
+        return;
+      }
+      if (tournament == undefined || tournament.status == "cancelled" || tournament.status == "finished") {
+        history.pushState(null, '', '/gamesearch');
+        pageRouting(dataDict);
+        return;
+      } else {
+        participantCount.innerText = tournament.participants.filter((participant) => participant.status == "accepted").length;
+      }
+    }, pageRefreshRate));
     
   } else if (tournament.status == "running") {
     container.innerHTML = `
