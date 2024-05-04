@@ -487,8 +487,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     if time_game.get(i) is None:
                         time_game[i] = time.time()
                     if time_game[i] < now and (now -  time_game[i]) % 3600 // 60 >= max_time:
-                        tab[i]['game'].game_status = "canceled"
-                        await database_sync_to_async(tab[i]['game'].save)()
+                        await self.cancel_current_game(tab[i]['game'].id, "canceled")
                         await self.set_winner_rand(tab[i], tab[i]['game'].tournamentRound, tab[i]['game'].roundGame)
                 elif tab[i]['game'].game_status == "finished":
                     await self.set_winner(tab[i], tab[i]['game'].tournamentRound, tab[i]['game'].roundGame)
@@ -620,6 +619,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         """ Function that send state of the curent game. """
         state = event['state']
         await self.send(text_data=json.dumps(state))
+
+    @database_sync_to_async
+    def cancel_current_game(self, game_id, status):
+        game = Game.objects.get(pk=1)
+        game.game_status = status
+        game.save()
 
     @database_sync_to_async
     def start_tournament(self, tournament_id):
