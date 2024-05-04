@@ -48,10 +48,12 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, message):
         """ Comportement of the websocket when disconnect. """
+        ic("disconnect")
         await self.update_player_state(self.user, False)
-        if self.game.tournament is None:
-            self.game.game_status = "canceled"
-            await database_sync_to_async(self.game.save)()
+        if self.game_type == "online":
+            if self.game.tournament is None:
+                self.game.game_status = "canceled"
+                await database_sync_to_async(self.game.save)()
         if self.room_id in GameRoomConsumer.game_tab:
             """ Stop the task if still running"""
             if GameRoomConsumer.game_tab[self.room_id].task is not None:
@@ -300,6 +302,8 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                     self.game.score2 = GameRoomConsumer.game_tab[self.room_id].score_p2
                     self.game.game_status = "finished"
                     await database_sync_to_async(self.game.save)()
+                ic(GameRoomConsumer.game_tab[self.room_id].score_p1)
+                ic(GameRoomConsumer.game_tab[self.room_id].score_p2)
                 await self.channel_layer.group_send(
                     self.game_room_group,
                     {

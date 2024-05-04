@@ -9,9 +9,17 @@ export async function resultsHandler(dataDict = {}) {
         pageRouting();
         return;
     }
+
+    let loading = document.getElementById('res-winner');
+    let loadingDiv = document.createElement('div');
+    loadingDiv.className = 'spinner-border text-primary';
+
+    loading.appendChild(loadingDiv);
     let users = await getUsers();
     let games = await getGames();
     let game = games.find(game => game.id == dataDict.gameId);
+
+    loading.removeChild(loadingDiv);
 
     let winner = document.getElementById('res-winner');
     let player1Score = document.getElementById('res-player1score');

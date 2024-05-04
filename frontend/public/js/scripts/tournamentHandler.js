@@ -1,12 +1,12 @@
 import { getGames } from "../fetchers/gamesFetcher.js";
 import { getUsers } from "../fetchers/usersFetcher.js";
-import pageRouting from "../../changeContent.js";
+import pageRouting, { dataSave } from "../../changeContent.js";
 import { getParticipations, getTournaments, joinTournament, startTournament } from "../fetchers/tournamentsFetcher.js";
 import { getLang } from "../utils/getLang.js";
 
 
 export async function tournamentHandler(dataDict = {}) {
-
+  let tournamentSocket;
   class Slot {
 
     constructor(player1, player2, score1, score2, round, game, gameId, status) {
@@ -95,13 +95,14 @@ export async function tournamentHandler(dataDict = {}) {
         centerButton.className = "btn btn-primary";
         centerButton.innerText = "Join";
         centerButton.addEventListener('click', () => {
+          if(tournamentSocket != undefined && tournamentSocket.readyState === 1 && tournamentSocket.OPEN === 1)
+            tournamentSocket.close();
           history.pushState(null, '', '/online');
           pageRouting({
             gameId: this.gameId,
             player1: this.player1.id,
             player2: this.player2.id,
           });
-          tournamentSocket.close();
         });
         centerButtonDiv.appendChild(centerButton);
         contentContainer.appendChild(centerButtonDiv);
@@ -132,12 +133,12 @@ export async function tournamentHandler(dataDict = {}) {
       }
     }`);
 
-    let tournament;
-    async function getCurrentTournament() {
-      let tournaments = await getTournaments();
-      tournaments = tournaments.find((tour) => tour.id == dataDict.tournamentId);
-      return tournaments
-    }
+  let tournament;
+  async function getCurrentTournament() {
+    let tournaments = await getTournaments();
+    tournaments = tournaments.find((tour) => tour.id == dataDict.tournamentId);
+    return tournaments
+  }
   let container = document.getElementById('tournament-container');
   console.log("getTOurnament")
   tournament = await getCurrentTournament();
@@ -230,11 +231,19 @@ export async function tournamentHandler(dataDict = {}) {
     </div>`;
 
     //try to connect to websocket
+    let loader = document.createElement('div');
+    loader.className = "spinner-border text-primary";
+    let hasLoaded = false;
+    container.appendChild(loader);
+  
     let usersData = await getUsers();
     console.log(dataDict.tournamentId);
-    const tournamentSocket = new WebSocket(
+    tournamentSocket = new WebSocket(
       'wss://' + location.host + `/ws/tournament/${dataDict.tournamentId}/?token=` + localStorage.getItem('authToken')
     );
+
+    dataSave.socketArrayCollector.push(tournamentSocket);
+
 
 
     let disconnect = false;
@@ -269,18 +278,6 @@ export async function tournamentHandler(dataDict = {}) {
     const round2Bracket = document.getElementById('round2-list');
     const round3Bracket = document.getElementById('round3-list');
     const roundBrackets = [round1Bracket, round2Bracket, round3Bracket];
-
-    // const data = JSON.parse(JSON.stringify(
-    //   {
-    //     "1,1": { player1: "user1", player2: "user5", score1: 5, score2: 1, status: "finished" },
-    //     "1,2": { player1: "user2", player2: "user6", score1: 2, score2: 1, status: "pending" },
-    //     "1,3": { player1: "user3", player2: "user7", score1: 1, score2: 2, status: "running" },
-    //     // "1,4": { player1: "user4", player2: "user8", score1: 2, score2: 1, status: "running" },
-    //     "2,1": { player1: null, player2: null, score1: 2, score2: 1, status: "pending" },
-    //     // "2,2": { player1: null, player2: null, score1: 2, score2: 1, status: "pending" },
-    //     "3,1": { player1: null, player2: null, score1: 2, score2: 1, status: "pending" },
-    //   }
-    // ));
 
     console.log(data);
 
@@ -357,6 +354,11 @@ export async function tournamentHandler(dataDict = {}) {
     tournamentSocket.onmessage = function (e) {
       data = JSON.parse(e.data);
       console.log("Socket data: ", data);
+      if(!hasLoaded)
+      {
+        loader.style.display = "none";
+        hasLoaded = true;
+      }
       updateMatrix();
       console.log(matrix);
       matrix = generateUsingTree(matrix);
@@ -374,11 +376,10 @@ export async function tournamentHandler(dataDict = {}) {
         let currentGameId = data[gameKey].game_id;
 
         let pos = getPositionTranslation(round, game);
-        // console.log(getPlayerDataFromName(dataPlayer1), getPlayerDataFromName(dataPlayer2));
         matrix[pos[0]][pos[1]] = matrix[pos[0]][pos[1]].updateSlot(dataPlayer1 ? getPlayerDataFromName(dataPlayer1) : null,
           dataPlayer2 ? getPlayerDataFromName(dataPlayer2) : null,
           dataScore1, dataScore2, round, game, currentGameId, dataStatus);
       }
     }
-  }
+}
 }

@@ -1,23 +1,3 @@
-
-export default function onlineRoom() {
-    const canvasHTML = `<canvas id="pongCanvas" width="1000" height="700" style="background-color: #000;"></canvas>`;
-    
-    return `<div class="container">
-				<div>
-					<div class="col">
-						<h1>Online Room</h1>
-						<button id="button-start">Start Game</button>
-						</div>
-						<p id="scoreZone"></p>
-				</div>
-				${canvasHTML}
-			</div>`;
-
-
-}
-/*
-import { getLang } from "../js/utils/getLang.js";
-
 export default function onlineRoom() {
     const cookie = document.cookie.split(";").find((cookie) => cookie.includes("lang"));
     let lang = "EN";
@@ -28,7 +8,7 @@ export default function onlineRoom() {
     let langdict = JSON.parse(`{
         "FR": {
             "title": "Jeu en Ligne",
-            "startgame": "Commencer le jeu",
+            "startgame": "Commencer le jeu"
         },
         "EN": {
             "title": "Online Room",
@@ -40,23 +20,20 @@ export default function onlineRoom() {
 
 		}
     }`);
-    const canvasHTML = `<canvas id="pongCanvas" width="1000" height="700" style="background-color: #000;"></canvas>`;
+    const canvasHTML = `<canvas id="pongCanvas" class="rounded shadow-lg" width="1000" height="700" style="background-color: #000;"></canvas>`;
     
-    return `<div class="container">
-				<div>
+    // document.getElementById('app').innerHTML = canvasElement.outerHTML;
+	// document.body.appendChild(canvasElement);
+
+    
+    return `<div class="container text-center justify-content-center">
+				<div class="mb-3">
 					<div class="col">
 						<h1>${langdict[lang]['title']}</h1>
-						<button id="button-start">${langdict[lang]['title']}</button>
-						</div>
-						<p id="scoreZone"></p>
+                        <div id="buttons-container" class="justify-content-between"></div>
+					</div>
 				</div>
-				${canvasHTML}
+                ${canvasHTML}
 			</div>`;
 
-
-
 }
-
-
-*/
-
