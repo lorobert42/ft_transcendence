@@ -198,11 +198,14 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.reset_game = True
         self.hit_ceiling = False
         """ Main loop that will run the Game. """
-        start_time = time.time()
+        self.start_time = time.time()
         while GameRoomConsumer.game_tab[self.room_id].active:
             if self.reset_game == True or self.hit_paddle == True:
+                print("hit paddle: ", self.hit_paddle)
+                print("hit reset_game: ", self.reset_game)
                 end_time = time.time()
                 elapsed_time = end_time - start_time
+                print("Time: ", elapsed_time)
                 start_time = time.time()
                 self.observation = self.get_observation()  # Update observation
                 self.reset_game = False
@@ -274,10 +277,12 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                     GameRoomConsumer.game_tab[self.room_id].score_p2 += 1
                     GameRoomConsumer.game_tab[self.room_id].ball.reset()
                     self.reset_game = True
+                    self.start_time = time.time()
                 elif ball.x >= WIDTH: # left have scored so P1 won a point
                     GameRoomConsumer.game_tab[self.room_id].score_p1 += 1
                     GameRoomConsumer.game_tab[self.room_id].ball.reset()
                     self.reset_game = True
+                    self.start_time = time.time()
                 """ Getting data to send to the front """
                 data = {
                     "P1": GameRoomConsumer.game_tab[self.room_id].paddle_l.pos(),
