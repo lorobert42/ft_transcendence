@@ -503,10 +503,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     count += 1
             await asyncio.sleep(2)
             if count == len(tab):
-                ic("loop ended")
                 if await self.is_last_game_canceled(tab, int(self.room_id), participants) == False:
                     await self.finish_tournament(int(self.room_id))
-                ic("tournament set as finished")
                 loop = False
 
     async def is_last_game_canceled(self, tab, tournament_id, participants):
@@ -622,7 +620,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
 
     @database_sync_to_async
     def cancel_current_game(self, game_id, status):
-        game = Game.objects.get(pk=1)
+        game = Game.objects.get(pk=game_id)
         game.game_status = status
         game.save()
 
