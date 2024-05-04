@@ -101,6 +101,12 @@ class Tournament(models.Model):
         participant_names = ", ".join(p.user.name for p in self.participation_set.all())
         return f"{self.name} with players: {participant_names}"
 
+    def check_and_update_status(self):
+        # Check if all participants have the status 'pending'
+        if not self.participation_set.exclude(status='pending').exists():
+            # If all participants are pending, set the tournament status to 'canceled'
+            self.status = 'canceled'
+            self.save()
 
 class Participation(models.Model):
     user = models.ForeignKey('User', on_delete=models.CASCADE)
@@ -118,6 +124,9 @@ class Participation(models.Model):
     def __str__(self):
         return f"({self.user.name}) - ({self.tournament.name})"
 
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # First, save the current changes
+        self.tournament.check_and_update_status()
 
 class Game(models.Model):
     tournament = models.ForeignKey(
