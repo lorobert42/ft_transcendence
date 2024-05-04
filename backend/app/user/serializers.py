@@ -9,6 +9,7 @@ from rest_framework import serializers, exceptions
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.state import token_backend
+import re
 
 from core.models import User
 
@@ -45,6 +46,12 @@ class UserSerializer(serializers.ModelSerializer):
     def get_is_connected(self, obj):
         """Property method to return boolean based on last active time."""
         return (datetime.now(timezone.utc) - obj.last_active) <= timedelta(minutes=5)
+    
+    def validate_name(self, value):
+        """Validates the name field to only contain uppercase and lowercase letters and hyphens."""
+        if not re.match(r'^[\w\-\s]+$', value, re.UNICODE):
+            raise serializers.ValidationError("Name can only contain uppercase and lowercase letters and hyphens.")
+        return value
 
     def validate_password(self, value):
         """Validates that the password is at least 5 characters long, includes at least one number, one uppercase letter, and one lowercase letter."""
