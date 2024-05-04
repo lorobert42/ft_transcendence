@@ -1,5 +1,4 @@
 
-import datetime
 import json
 import time
 import random
@@ -397,6 +396,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     def update_game_running(self, status, id):
         game = Game.objects.get(pk=id)
         game.game_status = status
+        game.start_time = datetime.now()
         game.save()
 
     @database_sync_to_async
