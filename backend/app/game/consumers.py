@@ -188,9 +188,9 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.hit_paddle = False
         self.reset_game = True
         self.hit_ceiling = False
-        ic("coucou")
         """ Main loop that will run the Game. """
         self.start_time = time.time()
+        await self.countdown()
         while GameRoomConsumer.game_tab[self.room_id].active:
             if self.reset_game == True or self.hit_paddle == True:
                 print("hit paddle: ", self.hit_paddle)
@@ -349,6 +349,17 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 return KEY_P1_DOWN
             return None
 
+    async def countdown(self):
+        for count in range(10, 0, -1):
+            await self.channel_layer.group_send(
+                self.game_room_group,
+                {
+                    "type": "send_countdown",
+                    "countdown": count,
+                }
+            )
+        pass
+
     async def is_game_canceled(self, game):
         if (game.player1_status == "pending" or game.player2_status == "pending") \
         and game.tournament is None:
@@ -358,6 +369,11 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     async def update_player_state(self, user, state):
         user.is_playing = state
         await database_sync_to_async(user.save)()
+
+    async def send_countdown(self, countdown):
+        """ Function that send state of the curent game. """
+        countdown = countdown['countdown']
+        await self.send(text_data=json.dumps(countdown))
 
     async def send_state(self, event):
         """ Function that send state of the curent game. """
