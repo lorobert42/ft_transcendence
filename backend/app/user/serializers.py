@@ -9,6 +9,7 @@ from rest_framework import serializers, exceptions
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.state import token_backend
+import re
 
 from core.models import User
 
@@ -25,7 +26,6 @@ class UserListSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    """Serializer for the user objects, handling read and update operations."""
     is_connected = serializers.SerializerMethodField()
 
     class Meta:
@@ -34,7 +34,7 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'id': {'read_only': True},
             'avatar': {'read_only': True},
-            'friends': {'read_only': True},  # Assuming friends are handled separately
+            'friends': {'read_only': True},
             'password': {'write_only': True, 'min_length': 5},
             'last_active': {'read_only': True},
             'otp_enabled': {'read_only': True},
@@ -45,16 +45,35 @@ class UserSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.BooleanField())
     def get_is_connected(self, obj):
         """Property method to return boolean based on last active time."""
-        return obj.is_connected
+        return (datetime.now(timezone.utc) - obj.last_active) <= timedelta(minutes=5)
+    
+    def validate_name(self, value):
+        """Validates the name field to only contain uppercase and lowercase letters and hyphens."""
+        if not re.match(r'^[\w\-\s]+$', value, re.UNICODE):
+            raise serializers.ValidationError("Name can only contain uppercase and lowercase letters and hyphens.")
+        return value
+
+    def validate_password(self, value):
+        """Validates that the password is at least 5 characters long, includes at least one number, one uppercase letter, and one lowercase letter."""
+        if len(value) < 5:
+            raise serializers.ValidationError("Password must be at least 5 characters long.")
+        if not any(char.isdigit() for char in value):
+            raise serializers.ValidationError("Password must include at least one number.")
+        if not any(char.isupper() for char in value):
+            raise serializers.ValidationError("Password must include at least one uppercase letter.")
+        if not any(char.islower() for char in value):
+            raise serializers.ValidationError("Password must include at least one lowercase letter.")
+        return value
 
     def create(self, validated_data):
-        """Create a new user with encrypted password and return it"""
+        password = validated_data.pop('password', None)
+        if password:
+            validated_data['password'] = self.validate_password(password)
         user = User.objects.create(**validated_data)
         user.set_password(validated_data['password'])
         user.save()
         return user
-
-
+    
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -63,20 +82,38 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'password': {'write_only': True, 'min_length': 5},
         }
 
+    def validate_password(self, value):
+        """Validates that the password is at least 5 characters long, includes at least one number, one uppercase letter, and one lowercase letter."""
+        if len(value) < 5:
+            raise serializers.ValidationError("Password must be at least 5 characters long.")
+        if not any(char.isdigit() for char in value):
+            raise serializers.ValidationError("Password must include at least one number.")
+        if not any(char.isupper() for char in value):
+            raise serializers.ValidationError("Password must include at least one uppercase letter.")
+        if not any(char.islower() for char in value):
+            raise serializers.ValidationError("Password must include at least one lowercase letter.")
+        return value
+
     def update(self, instance, validated_data):
         """Update a user, setting the password correctly and return it"""
         password = validated_data.pop('password', None)
         avatar = validated_data.pop('avatar', None)
+        
         instance.email = validated_data.get('email', instance.email)
         instance.name = validated_data.get('name', instance.name)
+
         if password:
+            # Validate the password before setting it
+            password = self.validate_password(password)
             instance.set_password(password)
         if avatar:
+            # Delete the existing avatar if it's not the default before setting a new one
             if instance.avatar.name != 'user_avatars/default-avatar.png':
                 instance.avatar.delete()
             instance.avatar = avatar
         instance.save()
         return instance
+
 
 
 def getJWT(user):

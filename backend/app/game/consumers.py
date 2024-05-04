@@ -1,5 +1,4 @@
 
-import datetime
 import json
 import time
 import random
@@ -182,18 +181,33 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.reset_game = True
         self.hit_ceiling = False
         """ Main loop that will run the Game. """
+        self.observation = None
+        if self.game_type == "online":
+            await self.countdown()
         self.start_time = time.time()
-        await self.countdown()
         while GameRoomConsumer.game_tab[self.room_id].active:
-            if self.reset_game == True or self.hit_paddle == True:
-                #print("hit paddle: ", self.hit_paddle)
-                #print("hit reset_game: ", self.reset_game)
-                end_time = time.time()
-                elapsed_time = end_time - self.start_time
-                #print("Time: ", elapsed_time)
+            if self.reset_game:
+                print("hit reset_game: ", self.reset_game)
+                # Handle recentering or staying centered
+                if self.observation is None:
+                    print("obs is none")
+                    # Initial observation, keep the bot centered
+                    self.observation = [0.5, 0.5, 0, 0, 0.5, 0.5]
+                else:
+                    # Recenter after a point is scored
+                    self.observation = [0.5, 0.5, 0, 0, self.observation[4], self.observation[5]]
+                # Update ball position for future calculations
+                self.save_ball_x = self.observation[0] * WIDTH
+                self.save_ball_y = self.observation[1] * HEIGHT
+                self.reset_game = False
+
+            if self.hit_paddle:
+                print("hit paddle: ", self.hit_paddle)
+                self.end_time = time.time()
+                elapsed_time = self.end_time - self.start_time
+                print("Time: ", elapsed_time)
                 self.start_time = time.time()
                 self.observation = self.get_observation()  # Update observation
-                self.reset_game = False
                 self.hit_paddle = False
             else:
                 self.observation[0] = (self.save_ball_x + self.observation[2]) / WIDTH
@@ -262,12 +276,12 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                     GameRoomConsumer.game_tab[self.room_id].score_p2 += 1
                     GameRoomConsumer.game_tab[self.room_id].ball.reset()
                     self.reset_game = True
-                    self.start_time = time.time()
+                    #self.start_time = time.time()
                 elif ball.x >= WIDTH: # left have scored so P1 won a point
                     GameRoomConsumer.game_tab[self.room_id].score_p1 += 1
                     GameRoomConsumer.game_tab[self.room_id].ball.reset()
                     self.reset_game = True
-                    self.start_time = time.time()
+                    #self.start_time = time.time()
                 """ Getting data to send to the front """
                 data = {
                     "P1": GameRoomConsumer.game_tab[self.room_id].paddle_l.pos(),
@@ -316,7 +330,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     def decide_bot_action(self, side, observation):
         random_number = random.uniform(0.03, 0.15)
         if (side == "right"):
-            if (observation[2] < 0): # Ball goes to the opposite side
+            if (observation[2] < 0): # Ball goes to the opposite side bbbbb
                 # recenter the paddle
                 if (observation[4] + random_number) * HEIGHT < HEIGHT / 2:
                     return KEY_P2_DOWN
@@ -396,6 +410,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     def update_game_running(self, status, id):
         game = Game.objects.get(pk=id)
         game.game_status = status
+        game.start_time = datetime.now()
         game.save()
 
     @database_sync_to_async
@@ -486,8 +501,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     if time_game.get(i) is None:
                         time_game[i] = time.time()
                     if time_game[i] < now and (now -  time_game[i]) % 3600 // 60 >= max_time:
-                        tab[i]['game'].game_status = "canceled"
-                        await database_sync_to_async(tab[i]['game'].save)()
+                        await self.cancel_current_game(tab[i]['game'].id, "canceled")
                         await self.set_winner_rand(tab[i], tab[i]['game'].tournamentRound, tab[i]['game'].roundGame)
                 elif tab[i]['game'].game_status == "finished":
                     await self.set_winner(tab[i], tab[i]['game'].tournamentRound, tab[i]['game'].roundGame)
@@ -503,10 +517,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                     count += 1
             await asyncio.sleep(2)
             if count == len(tab):
-                ic("loop ended")
                 if await self.is_last_game_canceled(tab, int(self.room_id), participants) == False:
                     await self.finish_tournament(int(self.room_id))
-                ic("tournament set as finished")
                 loop = False
 
     async def is_last_game_canceled(self, tab, tournament_id, participants):
@@ -619,6 +631,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         """ Function that send state of the curent game. """
         state = event['state']
         await self.send(text_data=json.dumps(state))
+
+    @database_sync_to_async
+    def cancel_current_game(self, game_id, status):
+        game = Game.objects.get(pk=game_id)
+        game.game_status = status
+        game.save()
 
     @database_sync_to_async
     def start_tournament(self, tournament_id):

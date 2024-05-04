@@ -111,8 +111,13 @@ class TournamentSerializer(serializers.ModelSerializer):
         participants_data = validated_data.pop('participants')
         with transaction.atomic():
             tournament = Tournament.objects.create(**validated_data)
+            first = True  # Flag to check if the participant is the first one
             for user in participants_data:
-                Participation.objects.create(user=user, tournament=tournament)
+                if first:
+                    Participation.objects.create(user=user, tournament=tournament, status='accepted')  # Set status for the first participant
+                    first = False
+                else:
+                    Participation.objects.create(user=user, tournament=tournament)  # Default status for other participants
         return tournament
 
     def to_representation(self, instance):

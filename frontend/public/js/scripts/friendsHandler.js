@@ -2,6 +2,7 @@ import { dataSave, pageRefreshRate } from "../../changeContent.js";
 import { getFriends, getInvites, sendFriendInvitation, removeFriend, respondFriendInvitation } from "../fetchers/friendsFetcher.js";
 import { getUserInfo, getUsers } from "../fetchers/usersFetcher.js";
 import { isLoggedIn } from "../utils/isLoggedIn.js";
+import { getLang } from "../utils/getLang.js";
 
 let friends = [];
 let users = [];
@@ -32,6 +33,30 @@ async function friendsHandler() {
 }
 
 function mapFriends() {
+  const lang = getLang();
+
+  let langdict = JSON.parse(`
+    {
+      "FR": {
+        "ingame": "En jeu",
+        "online": "En ligne",
+        "offline": "Hors ligne",
+        "removebutton": "Supprimer"
+      },
+      "EN": {
+        "ingame": "In-Game",
+        "online": "Online",
+        "offline": "Offline",
+        "removebutton": "Remove"
+      },
+      "PT": {
+        "ingame": "Em jogo",
+        "online": "Em linha",
+        "offline": "Fora de linha",
+        "removebutton": "Retirar"
+      }
+  }`);
+
   let friendList = document.getElementById("friend-list");
   friendList.innerHTML = "";
   const search = document.getElementById("friend-search").value.toLowerCase();
@@ -54,14 +79,14 @@ function mapFriends() {
     console.log(friend.last_active)
     if(friend.is_playing) {
       badge.className = "badge bg-primary rounded-pill";
-      badge.innerText = "In-Game";
+      badge.innerText = `${langdict[lang]["ingame"]}`;
     } else {
       if(isFriendConnected(friend)) {
         badge.className = "badge bg-success rounded-pill";
-        badge.innerText = "Online";
+        badge.innerText = `${langdict[lang]["online"]}`;
       } else {
         badge.className = "badge bg-danger rounded-pill";
-        badge.innerText = "Offline";
+        badge.innerText = `${langdict[lang]["offline"]}`;
       }
     }
 
@@ -72,7 +97,7 @@ function mapFriends() {
 
     const addButton = document.createElement('button');
     addButton.className = 'btn btn-danger btn-sm';
-    addButton.textContent = 'Remove';
+    addButton.textContent = `${langdict[lang]["removebutton"]}`;
     addButton.addEventListener('click', () => {
       deleteFriend(friend.id);
       console.log(`Removed ${friend.email} from friend`);
@@ -95,6 +120,27 @@ function isFriendConnected(friend) {
 }
 
 function mapInvites() {
+  const lang = getLang();
+
+  let langdict = JSON.parse(`
+    {
+      "FR": {
+        "pendingbutton": "En cours",
+        "acceptbutton": "Accepter",
+        "denybutton": "Refuser"
+      },
+      "EN": {
+        "pendingbutton": "Pending",
+        "acceptbutton": "Accept",
+        "denybutton": "Deny"
+      },
+      "PT": {
+        "denybutton": "Negar",
+        "acceptbutton": "Aceitar",
+        "pendingbutton": "Pendente"
+      }
+  }`);
+
   let invitesList = document.getElementById("pending-list");
   invitesList.innerHTML = "";
   const search = document.getElementById("pending-search").value.toLowerCase();
@@ -111,7 +157,7 @@ function mapInvites() {
     optionsContainer.classList.add("d-flex");
     if (invite.user1.id == currentUser.id) {
       item.innerText = invite.user2.email;
-      optionsContainer.innerText = "Pending";
+      optionsContainer.innerText = `${langdict[lang]["pendingbutton"]}`;
       li.appendChild(item);
       li.appendChild(optionsContainer);
     } else {
@@ -120,7 +166,7 @@ function mapInvites() {
       // Create a button element for adding friend
       const addButton = document.createElement('button');
       addButton.className = 'btn btn-primary btn-sm';
-      addButton.textContent = 'Accept';
+      addButton.textContent = `${langdict[lang]["acceptbutton"]}`;
       addButton.addEventListener('click', () => {
         acceptInvitation(invite);
         console.log(`Accepted ${invite.user1.email} as friend`);
@@ -129,7 +175,7 @@ function mapInvites() {
       // Create a button element for adding friend
       const denyButton = document.createElement('button');
       denyButton.className = 'btn btn-danger btn-sm';
-      denyButton.textContent = 'Deny';
+      denyButton.textContent = `${langdict[lang]["denybutton"]}`;
       denyButton.addEventListener('click', () => {
         refuseInvitation(invite);
         console.log(`Denied ${invite.user1.email} as friend`);
@@ -172,6 +218,20 @@ function getInvitesAndFriendsEmails() {
 }
 
 function mapUsers() {
+  const lang = getLang();
+
+  let langdict = JSON.parse(`
+    {
+      "FR": {
+        "addbutton": "Ajouter"
+      },
+      "EN": {
+        "addbutton": "Add"
+      },
+      "PT": {
+          "addbutton": "Adicionar"
+      }
+  }`);
   let userList = document.getElementById("user-list");
   userList.innerHTML = "";
   const search = document.getElementById("user-search").value.toLowerCase();
@@ -192,7 +252,7 @@ function mapUsers() {
     // Create a button element for adding friend
     const addButton = document.createElement('button');
     addButton.className = 'btn btn-primary btn-sm';
-    addButton.textContent = 'Add';
+    addButton.textContent = `${langdict[lang]["addbutton"]}`;
     addButton.addEventListener('click', () => {
       addFriend(user.id);
       console.log(`Added ${user.email} as friend`);

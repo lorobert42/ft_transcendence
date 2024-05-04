@@ -3,6 +3,7 @@ import { getFriends } from '../fetchers/friendsFetcher.js';
 import { createTournament } from '../fetchers/tournamentsFetcher.js';
 import { getUsers } from '../fetchers/usersFetcher.js';
 import { printError, printSuccess } from '../utils/toastMessage.js';
+import { getLang } from "../utils/getLang.js";
 
 export async function tournamentCreationHandler(dataDict = {}) {
   //fetch all friends
@@ -19,9 +20,23 @@ export async function tournamentCreationHandler(dataDict = {}) {
   // let playerSelect = document.getElementById("tournamentPlayerSelect");
 
   availablePlayers.addEventListener('click', function (event) {
-    if (event.target.tagName === 'LI') {
+    const lang = getLang();
+
+    let langdict = JSON.parse(`
+      {
+        "FR": {
+          "maxselect": "Vous ne pouvez sélectionner qu'un maximum de 7 joueurs"
+        },
+        "EN": {
+          "maxselect": "You can only select a maximum of 7 players"
+        },
+        "PT": {
+          "maxselect": "Só é possível selecionar um máximo de 7 jogadores"
+        }
+    }`);
+  if (event.target.tagName === 'LI') {
       if (selected.length === 7) {
-        printError("You can only select a maximum of 7 players", "error");
+        printError(`${langdict[lang]["maxselect"]}`, "error");
         return;
       }
       selected.push(available.splice(available.findIndex((user) => user.name === event.target.textContent), 1)[0]);
@@ -68,6 +83,27 @@ export async function tournamentCreationHandler(dataDict = {}) {
     firstTenFriends(filteredFriends);
   }
 
+  const lang = getLang();
+
+  let langdict = JSON.parse(`
+    {
+      "FR": {
+        "maxselect": "Vous devez sélectionner entre 2 et 7 joueurs pour créer un tournoi.",
+        "success": "Tournoi créé avec succès avec",
+        "players": "joueurs"
+     },
+      "EN": {
+        "maxselect": "You must select between 2 and 7 players to create a tournament",
+        "success": "Tournament created successfully with",
+        "players": "players"
+      },
+      "PT": {
+        "maxselect": "É necessário selecionar entre 2 e 7 jogadores para criar um torneio",
+        "success": "Torneio criado com sucesso com",
+        "players": "jogadores"
+     }
+  }`);
+
   function initAvailable() {
     const search = document.getElementById("available-search").value.toLowerCase();
     console.log(friends);
@@ -85,7 +121,7 @@ export async function tournamentCreationHandler(dataDict = {}) {
     e.preventDefault();
 
     if (selectedPlayers.childNodes.length < 2 || selectedPlayers.childNodes.length > 7) {
-      printError("You must select between 2 and 7 players to create a tournament", "error");
+      printError(`${langdict[lang]["maxselect"]}`, "error");
       return;
     }
 
@@ -96,9 +132,8 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
     let tournamentName = document.getElementById("tournament-name").value;
     console.log(dataDict.user);
-    selectedPlayersList.unshift(dataDict.user.user_id);
-    let tournamentInfo = await createTournament(tournamentName, dataDict.user.name, selectedPlayersList);
-    printSuccess(`Tournament created successfully with ${selectedPlayersList.length} players`, "success");
+    let tournamentInfo = await createTournament(tournamentName, dataDict.user.name, selectedPlayersList.concat(dataDict.user.user_id));
+    printSuccess(`${langdict[lang]["success"]} ${selectedPlayersList.length} ${langdict[lang]["players"]}`, "success");
     history.pushState(null, '', "/tournament");
     pageRouting({ tournamentId: tournamentInfo.id });
   });

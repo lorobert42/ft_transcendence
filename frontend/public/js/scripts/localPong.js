@@ -334,7 +334,24 @@ export function initPongGame(routerData = {}) {
     }
 
     function eventClear() {
-        document.removeEventListener('keydown', eventKeyDown);
+        const lang = getLang();
+
+        let langdict = JSON.parse(`{
+            "FR": {
+                "wins": "a gagné",
+                "RestartGame": "Rejouer"    
+            },
+            "EN": {
+                "wins": "wins",
+                "RestartGame": "Restart Game"
+            },
+            "PT": {
+                "wins": "vitórias",
+                "RestartGame": "Reiniciar o jogo"    
+            }
+        }`);
+    
+         document.removeEventListener('keydown', eventKeyDown);
         document.removeEventListener('keyup', eventKeyUP);
         keyPressed = { "ArrowUp": false, "ArrowDown": false, "w": false, "s": false };
 
@@ -353,14 +370,14 @@ export function initPongGame(routerData = {}) {
 
         const winnerDiv = document.createElement('h1');
         winnerDiv.className = 'text-center m-5';
-        winnerDiv.textContent = `${winner} wins !`;
+        winnerDiv.textContent = `${winner} ${langdict[lang]["wins"]} !`;
 
         menu.appendChild(winnerDiv);
 
 
         const restartButton = document.createElement('button');
         restartButton.className = 'btn btn-primary m-5 btn-lg';
-        restartButton.textContent = 'Restart Game';
+        restartButton.textContent = `${langdict[lang]["RestartGame"]}`;
         restartButton.addEventListener('click', () => {
             history.pushState(null, '', '/localroom');
             pageRouting(routerData);
