@@ -183,7 +183,8 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.hit_ceiling = False
         """ Main loop that will run the Game. """
         self.start_time = time.time()
-        await self.countdown()
+        if self.game_type == "online":
+            await self.countdown()
         while GameRoomConsumer.game_tab[self.room_id].active:
             if self.reset_game == True or self.hit_paddle == True:
                 #print("hit paddle: ", self.hit_paddle)
