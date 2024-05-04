@@ -15,7 +15,14 @@ export default function profilePage() {
       "password": "Mot de passe",
       "passwordPlaceholder": "Entrez votre mot de passe",
       "enableOTPSubmit": "Activer",
-      "disableOTPSubmit": "Enlever"
+      "disableOTPSubmit": "Enlever",
+
+      "stats": "Statistiques",
+      "wins": "Victoires",
+      "loses": "Défaites",
+      "played": "Joués",
+      "searchadv": "Rechercher par nom d'adversaire..."
+
     },
     "EN": {
       "title": "Profile Page",
@@ -28,7 +35,13 @@ export default function profilePage() {
       "password": "Password",
       "passwordPlaceholder": "Enter your password",
       "enableOTPSubmit": "Enable",
-      "disableOTPSubmit": "Remove"
+      "disableOTPSubmit": "Remove",
+
+      "stats": "Stats",
+      "wins": "wins",
+      "loses": "Losses",
+      "played": "Played",
+      "searchadv": "Search by adversary name..."
     },
     "PT": {
       "title": "Pagina de perfil",
@@ -41,7 +54,12 @@ export default function profilePage() {
       "password": "Senha",
       "passwordPlaceholder": "Insira sua senha",
       "enableOTPSubmit": "Ativar",
-      "disableOTPSubmit": "TODO"
+      "disableOTPSubmit": "TODO",
+      "stats": "Estatísticas",
+      "wins": "Vitórias",
+      "loses": "Derrotas",
+      "played": "Jogados",
+      "searchadv": "Pesquisar pelo nome do adversário..."
     }
   }`);
 
@@ -100,25 +118,25 @@ export default function profilePage() {
         </div>
         <div class="col-sm text-center">
           <div>
-            <h2>Stats</h2>
+            <h2>${langdict[lang]['stats']}</h2>
             <div class="container">
               <div class="row">
                 <div class="col">
-                  <h3>Wins</h3>
+                  <h3>${langdict[lang]['wins']}</h3>
                   <p id="wins">0</p>
                 </div>
                 <div class="col">
-                  <h3>Losses</h3>
+                  <h3>${langdict[lang]['loses']}</h3>
                   <p id="losses">0</p>
                 </div>
                 <div class="col">
-                  <h3>Played</h3>
+                  <h3>${langdict[lang]['played']}</h3>
                   <p id="played">0</p>
               </div>
           </div>
           <div>
             <h2>History</h2>
-            <input type="text" id="historySearch" class="form-control" placeholder="Search by adversary name...">
+            <input type="text" id="historySearch" class="form-control" placeholder="${langdict[lang]['searchadv']}">
             <div class="mt-3" style="max-height: 400px; overflow-y: scroll;">
                 <ul id="historyList" class="list-group"></ul>
             </div>

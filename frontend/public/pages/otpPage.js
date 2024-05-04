@@ -7,15 +7,18 @@ export default function otpPage() {
   {
     "FR": {
       "otp": "Entrez votre OTP",
-      "submit": "Se connecter"
+      "submit": "Se connecter",
+      "disable": "Utiliser un code de secours"
     },
     "EN": {
       "otp": "Enter your OTP",
-      "submit": "Log in"
+      "submit": "Log in",
+      "disable": "Use a backup code"
     },
     "PT": {
       "otp": "Entrar OTP",
-      "submit": "Entrar"
+      "submit": "Entrar",
+      "disable": "Utilizar um código de reserva"
     }
 }`);
 
@@ -35,6 +38,9 @@ export default function otpPage() {
             <button type="submit" class="btn btn-primary">${langdict[lang]['submit']}</button>
           </div>
         </form>
+        <div class="form-group text-center">
+          <a href="/disable-otp">${langdict[lang]['disable']}</a>
+        </div>
       </div>
     </div>
   </div>

@@ -3,6 +3,7 @@ import loginPage from "./pages/loginPage.js";
 import otpPage from "./pages/otpPage.js";
 import profilePage from "./pages/profilePage.js";
 import enableOtpPage from "./pages/enableOtpPage.js";
+import otpDisablePage from "./pages/otpDisablePage.js";
 import registerPage from "./pages/registerPage.js";
 import localRoom from "./pages/localGameroom.js";
 import onlineRoom from "./pages/onlineGameroom.js";
@@ -132,6 +133,21 @@ export default async function pageRouting(data = {}) {
         })
         .catch((error) => {
           console.error("Failed to load the enable otp form module", error);
+        });
+      break;
+
+    case "/disable-otp":
+      if (isLogged) {
+        redirectPath('/profile');
+        return;
+      }
+      contentDiv.innerHTML = otpDisablePage();
+      import("/js/scripts/otpDisableForm.js")
+        .then((module) => {
+          module.otpDisableModule.init(data);
+        })
+        .catch((error) => {
+          console.error("Failed to load the disable otp form module", error);
         });
       break;
 

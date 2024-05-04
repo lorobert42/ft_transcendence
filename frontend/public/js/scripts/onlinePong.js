@@ -139,6 +139,7 @@ export async function initPongGame(dataDict = {}) {
 
     gameSocket.onmessage = function (e) {
         data = JSON.parse(e.data);
+        console.log(data)
     };
 
     console.log('About to fetch game state...');

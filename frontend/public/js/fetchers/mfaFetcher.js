@@ -53,13 +53,12 @@ export async function confirmMfaActivation(id, otp) {
 }
 
 export async function disableMfa(email, password, otp) {
-  fetch("/api/mfa/disable/", {
+  return fetch("/api/mfa/disable/", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${localStorage.getItem('authToken')}`,
     },
-    body: JSON.stringify({ 'password': password, 'otp': otp }),
+    body: JSON.stringify({ 'email': email, 'password': password, 'otp': otp }),
   })
     .then((response) => {
       if (response.status === 401) {
@@ -68,12 +67,8 @@ export async function disableMfa(email, password, otp) {
       return response.json()
     })
     .then(async (data) => {
-      console.log(data);
       if (Object.hasOwn(data, "success") && data.success === true) {
         printMessage('Two-Factor Authentication disabled');
-        await getRefreshToken();
-        history.pushState({}, '', '/profile');
-        pageRouting();
       } else {
         throw new Error('Unable to process your request, please retry.');
       }

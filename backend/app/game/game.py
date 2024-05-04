@@ -4,7 +4,7 @@ PADDLE_WIDTH, PADDLE_HEIGHT = 25, 125  # Paddle size
 D_BALL_RAD = 10  # Radius of the ball
 
 class GameClass():
-    def __init__(self, game_id, player1_type='human', player2_type='human'):
+    def __init__(self, game_id, lock, player1_type='human', player2_type='human'):
         self.id = game_id
         self.p1_type = player1_type
         self.p2_type = player2_type
@@ -25,6 +25,7 @@ class GameClass():
         self.score_p1 = 0
         self.score_p2 = 0
         self.max_score = 5
+        self.lock = lock
 
 class Ball():
     MAX_VEL = 10
@@ -34,7 +35,7 @@ class Ball():
         self.x = self.origin_x = x
         self.y = self.origin_y = y
         self.rad = rad
-        self.max_vel = 10
+        self.max_vel = 8
         self.max_vel_y = 15
         self.x_vel = self.max_vel
         self.y_vel = 0.1

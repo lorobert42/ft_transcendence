@@ -31,7 +31,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.room_id = self.scope['url_route']['kwargs']['id']
         self.game_room_group = 'game_%s' % self.room_id
         self.user = await self.get_user(self.scope['user'].id)
-        await self.update_player_state(self.user, True)
+        await self.update_player_status(self.user.id, True)
         try :
             room_id = int(self.room_id)
             self.game_type = "online"
@@ -48,12 +48,9 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, message):
         """ Comportement of the websocket when disconnect. """
-        ic("disconnect")
-        await self.update_player_state(self.user, False)
+        await self.update_player_status(self.user.id, False)
         if self.game_type == "online":
-            if self.game.tournament is None:
-                self.game.game_status = "canceled"
-                await database_sync_to_async(self.game.save)()
+            await self.game_canceled(self.game.id)
         if self.room_id in GameRoomConsumer.game_tab:
             """ Stop the task if still running"""
             if GameRoomConsumer.game_tab[self.room_id].task is not None:
@@ -95,7 +92,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             player_2_type = td_json.get('player_2_type', 'human')
             # If there's no game instance, create one with the specified player types
             if GameRoomConsumer.game_tab.get(self.room_id) == None:
-                GameRoomConsumer.game_tab[self.room_id] = GameClass(self.room_id, player_1_type, player_2_type)
+                GameRoomConsumer.game_tab[self.room_id] = GameClass(self.room_id, asyncio.Lock(), player_1_type, player_2_type)
             game_instance = GameRoomConsumer.game_tab[self.room_id]
             if game_instance.p1_type == 'bot':
                 GameRoomConsumer.game_tab[self.room_id].p1['name'] = "bot"
@@ -136,13 +133,11 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             if await self.get_current_player_pos(self.game.id, self.user.id) == 1:
                 GameRoomConsumer.game_tab[self.room_id].p1['name'] = self.user.email
                 GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
-                self.game.player1_status = "playing"
-                await database_sync_to_async(self.game.save)()
+                await self.update_player_status_in_game(1, "playing", self.room_id)
             else:
                 GameRoomConsumer.game_tab[self.room_id].p2['name'] = self.user.email
                 GameRoomConsumer.game_tab[self.room_id].p2['state'] = True
-                self.game.player2_status = "playing"
-                await database_sync_to_async(self.game.save)()
+                await self.update_player_status_in_game(2, "playing", self.room_id)
         else:
             GameRoomConsumer.game_tab[self.room_id].p1['name'] = self.user.email
             GameRoomConsumer.game_tab[self.room_id].p1['state'] = True
@@ -164,17 +159,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             if GameRoomConsumer.game_tab[self.room_id].p1['state'] == True and GameRoomConsumer.game_tab[self.room_id].p2['state'] == True:
                 GameRoomConsumer.game_tab[self.room_id].active = True
                 if self.game_type == "online":
-                    self.game.game_status = "running"
-                    self.game.start_time=datetime.now()
-                    await database_sync_to_async(self.game.save)()
-                GameRoomConsumer.game_tab[self.room_id].task = asyncio.create_task(self.loop(
-                GameRoomConsumer.game_tab[self.room_id].max_score
-                ))
-        elif message == "restart":
-            if GameRoomConsumer.game_tab[self.room_id].p1['state'] == True and GameRoomConsumer.game_tab[self.room_id].p2['state'] == True:
-                GameRoomConsumer.game_tab[self.room_id].active = True
-                GameRoomConsumer.game_tab[self.room_id].score_p1 = 0
-                GameRoomConsumer.game_tab[self.room_id].score_p2 = 0
+                    await self.update_game_running("running", self.game.id)
                 GameRoomConsumer.game_tab[self.room_id].task = asyncio.create_task(self.loop(
                 GameRoomConsumer.game_tab[self.room_id].max_score
                 ))
@@ -193,19 +178,20 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
             GameRoomConsumer.game_tab[self.room_id].paddle_r.move(up=False)
 
     async def loop(self, max_score):
-        if self.game_type == "online":
-            self.game.game_status = "running"
-            await database_sync_to_async(self.game.save)()
         self.hit_paddle = False
         self.reset_game = True
         self.hit_ceiling = False
         """ Main loop that will run the Game. """
-        start_time = time.time()
+        self.start_time = time.time()
+        await self.countdown()
         while GameRoomConsumer.game_tab[self.room_id].active:
             if self.reset_game == True or self.hit_paddle == True:
+                #print("hit paddle: ", self.hit_paddle)
+                #print("hit reset_game: ", self.reset_game)
                 end_time = time.time()
-                elapsed_time = end_time - start_time
-                start_time = time.time()
+                elapsed_time = end_time - self.start_time
+                #print("Time: ", elapsed_time)
+                self.start_time = time.time()
                 self.observation = self.get_observation()  # Update observation
                 self.reset_game = False
                 self.hit_paddle = False
@@ -276,10 +262,12 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                     GameRoomConsumer.game_tab[self.room_id].score_p2 += 1
                     GameRoomConsumer.game_tab[self.room_id].ball.reset()
                     self.reset_game = True
+                    self.start_time = time.time()
                 elif ball.x >= WIDTH: # left have scored so P1 won a point
                     GameRoomConsumer.game_tab[self.room_id].score_p1 += 1
                     GameRoomConsumer.game_tab[self.room_id].ball.reset()
                     self.reset_game = True
+                    self.start_time = time.time()
                 """ Getting data to send to the front """
                 data = {
                     "P1": GameRoomConsumer.game_tab[self.room_id].paddle_l.pos(),
@@ -297,13 +285,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 )
                 await asyncio.sleep(0.01)
             else:
-                if self.game_type == "online":
-                    self.game.score1 = GameRoomConsumer.game_tab[self.room_id].score_p1
-                    self.game.score2 = GameRoomConsumer.game_tab[self.room_id].score_p2
-                    self.game.game_status = "finished"
-                    await database_sync_to_async(self.game.save)()
-                ic(GameRoomConsumer.game_tab[self.room_id].score_p1)
-                ic(GameRoomConsumer.game_tab[self.room_id].score_p2)
                 await self.channel_layer.group_send(
                     self.game_room_group,
                     {
@@ -312,6 +293,14 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                     }
                 )
                 GameRoomConsumer.game_tab[self.room_id].active = False
+        if self.game_type == "online":
+            await self.update_game_finish(
+                GameRoomConsumer.game_tab[self.room_id].score_p1,
+                GameRoomConsumer.game_tab[self.room_id].score_p2,
+                "finished",
+                self.game.id
+            )
+            await self.update_player_status(self.user.id, False)
 
     def get_observation(self):
         self.save_ball_y = GameRoomConsumer.game_tab[self.room_id].ball.y
@@ -353,9 +342,23 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 return KEY_P1_DOWN
             return None
 
-    async def update_player_state(self, user, state):
-        user.is_playing = state
-        await database_sync_to_async(user.save)()
+    async def countdown(self):
+        for count in range(5, 0, -1):
+            await self.channel_layer.group_send(
+                self.game_room_group,
+                {
+                    "type": "send_countdown",
+                    "countdown": count,
+                }
+            )
+            await asyncio.sleep(1)
+            ic(f"sleep one sec: {count}")
+        pass
+
+    async def send_countdown(self, countdown):
+        """ Function that send state of the curent game. """
+        countdown = countdown['countdown']
+        await self.send(text_data=json.dumps(countdown))
 
     async def send_state(self, event):
         """ Function that send state of the curent game. """
@@ -366,6 +369,51 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         """ Function that a message to the front when the game haas ended. """
         message = event['message']
         await self.send(text_data=json.dumps(message))
+
+    @database_sync_to_async
+    def print_game(self, id, message):
+        game = Game.objects.get(pk=id)
+        ic(message)
+        ic(game.player1_status)
+        ic(game.player2_status)
+        ic(game.game_status)
+
+    @database_sync_to_async
+    def game_canceled(self, game_id):
+        game = Game.objects.get(pk=game_id)
+        if (game.player1_status == "pending" or game.player2_status == "pending") \
+        and game.tournament is None and game.game_status == "pending":
+            game.game_status = "canceled"
+            game.save()
+
+    @database_sync_to_async
+    def update_player_status(self, user_id, status):
+        user = User.objects.get(pk=user_id)
+        user.is_playing = status
+        user.save()
+
+    @database_sync_to_async
+    def update_game_running(self, status, id):
+        game = Game.objects.get(pk=id)
+        game.game_status = status
+        game.save()
+
+    @database_sync_to_async
+    def update_game_finish(self, score1, score2, status, game_id):
+        game = Game.objects.get(pk=game_id)
+        game.score1 = score1
+        game.score2 = score2
+        game.game_status = status
+        game.save()
+
+    @database_sync_to_async
+    def update_player_status_in_game(self, player, status, id):
+        game = Game.objects.get(pk=id)
+        if player == 1:
+            game.player1_status = status
+        elif player == 2:
+            game.player2_status = status
+        game.save()
 
     @database_sync_to_async
     def get_user(self, id):
