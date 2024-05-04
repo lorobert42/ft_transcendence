@@ -34,7 +34,7 @@ class Ball():
         self.x = self.origin_x = x
         self.y = self.origin_y = y
         self.rad = rad
-        self.max_vel = 8
+        self.max_vel = 10
         self.max_vel_y = 15
         self.x_vel = self.max_vel
         self.y_vel = 0.1

@@ -49,9 +49,10 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, message):
         """ Comportement of the websocket when disconnect. """
         await self.update_player_state(self.user, False)
-        if self.game.tournament is None:
-            self.game.game_status = "canceled"
-            await database_sync_to_async(self.game.save)()
+        if self.game_type == "online":
+            if self.game.tournament is None:
+                self.game.game_status = "canceled"
+                await database_sync_to_async(self.game.save)()
         if self.room_id in GameRoomConsumer.game_tab:
             """ Stop the task if still running"""
             if GameRoomConsumer.game_tab[self.room_id].task is not None:
@@ -199,16 +200,31 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.hit_ceiling = False
         """ Main loop that will run the Game. """
         self.start_time = time.time()
+        self.observation = None
         while GameRoomConsumer.game_tab[self.room_id].active:
-            if self.reset_game == True or self.hit_paddle == True:
-                print("hit paddle: ", self.hit_paddle)
+
+            if self.reset_game:
                 print("hit reset_game: ", self.reset_game)
-                end_time = time.time()
-                elapsed_time = end_time - start_time
-                print("Time: ", elapsed_time)
-                start_time = time.time()
-                self.observation = self.get_observation()  # Update observation
+                # Handle recentering or staying centered
+                if self.observation is None:
+                    print("obs is none")
+                    # Initial observation, keep the bot centered
+                    self.observation = [0.5, 0.5, 0, 0, 0.5, 0.5]
+                else:
+                    # Recenter after a point is scored
+                    self.observation = [0.5, 0.5, 0, 0, self.observation[4], self.observation[5]]
+                # Update ball position for future calculations
+                self.save_ball_x = self.observation[0] * WIDTH
+                self.save_ball_y = self.observation[1] * HEIGHT
                 self.reset_game = False
+
+            if self.hit_paddle:
+                print("hit paddle: ", self.hit_paddle)
+                self.end_time = time.time()
+                elapsed_time = self.end_time - self.start_time
+                print("Time: ", elapsed_time)
+                self.start_time = time.time()
+                self.observation = self.get_observation()  # Update observation
                 self.hit_paddle = False
             else:
                 self.observation[0] = (self.save_ball_x + self.observation[2]) / WIDTH
@@ -277,12 +293,12 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                     GameRoomConsumer.game_tab[self.room_id].score_p2 += 1
                     GameRoomConsumer.game_tab[self.room_id].ball.reset()
                     self.reset_game = True
-                    self.start_time = time.time()
+                    #self.start_time = time.time()
                 elif ball.x >= WIDTH: # left have scored so P1 won a point
                     GameRoomConsumer.game_tab[self.room_id].score_p1 += 1
                     GameRoomConsumer.game_tab[self.room_id].ball.reset()
                     self.reset_game = True
-                    self.start_time = time.time()
+                    #self.start_time = time.time()
                 """ Getting data to send to the front """
                 data = {
                     "P1": GameRoomConsumer.game_tab[self.room_id].paddle_l.pos(),
@@ -328,7 +344,7 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     def decide_bot_action(self, side, observation):
         random_number = random.uniform(0.03, 0.15)
         if (side == "right"):
-            if (observation[2] < 0): # Ball goes to the opposite side
+            if (observation[2] < 0): # Ball goes to the opposite side bbbbb
                 # recenter the paddle
                 if (observation[4] + random_number) * HEIGHT < HEIGHT / 2:
                     return KEY_P2_DOWN
