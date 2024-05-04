@@ -16,6 +16,8 @@ export default function profilePage() {
       "passwordPlaceholder": "Entrez votre mot de passe",
       "enableOTPSubmit": "Activer",
       "disableOTPSubmit": "Enlever",
+      "UpdateProfile": "Mettre à jour le profil",
+      "factorauth": "Authentification à deux facteurs",
 
       "stats": "Statistiques",
       "wins": "Victoires",
@@ -36,6 +38,8 @@ export default function profilePage() {
       "passwordPlaceholder": "Enter your password",
       "enableOTPSubmit": "Enable",
       "disableOTPSubmit": "Remove",
+      "UpdateProfile": "Update Profile",
+      "factorauth": "Two-Factor Authentication",
 
       "stats": "Stats",
       "wins": "wins",
@@ -55,10 +59,12 @@ export default function profilePage() {
       "passwordPlaceholder": "Insira sua senha",
       "enableOTPSubmit": "Ativar",
       "disableOTPSubmit": "TODO",
+      "UpdateProfile": "Atualizar perfil",
       "stats": "Estatísticas",
       "wins": "Vitórias",
       "loses": "Derrotas",
       "played": "Jogados",
+      "factorauth": "Autenticação de dois factores",
       "searchadv": "Pesquisar pelo nome do adversário..."
     }
   }`);
@@ -73,8 +79,8 @@ export default function profilePage() {
             <p class="py-4">${langdict[lang]['nameSpace']}<span id="userName">${langdict[lang]['nameLoad']}</span></p>
             <p>${langdict[lang]['mailSpace']}<span id="userEmail">${langdict[lang]['mailLoad']}</span></p>
           </div>
-          <button type="button" href="/profile" class="btn btn-primary" id="update-profile">Update Profile</button>
-          <h3>Two-Factor Authentication</h3>
+          <button type="button" href="/profile" class="btn btn-primary" id="update-profile">${langdict[lang]['UpdateProfile']}</button>
+          <h3>${langdict[lang]['factorauth']}</h3>
           <div id="otpEnable" class="container-fluid d-none">
             <div class="d-grid gap-2">
               <button id="otpBtn" type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#otpForm">

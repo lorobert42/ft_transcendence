@@ -1,10 +1,10 @@
 import { getLang } from "../js/utils/getLang.js";
 
 export default function loginPage() {
-      const lang = getLang();
+    const lang = getLang();
 
-  let langdict = JSON.parse(`
-    {
+    let langdict = JSON.parse(`
+      {
         "FR": {
             "login": "Connexion",
             "emailPlaceholder": "Entrez votre email",
