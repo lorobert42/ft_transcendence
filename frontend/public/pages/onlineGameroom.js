@@ -11,7 +11,7 @@ export default function onlineRoom() {
     let langdict = JSON.parse(`{
         "FR": {
             "title": "Jeu en Ligne",
-            "startgame": "Commencer le jeu",
+            "startgame": "Commencer le jeu"
         },
         "EN": {
             "title": "Online Room",
