@@ -13,5 +13,5 @@ export function isTokenExpired(token) {
     const expirationTime = decodedToken.exp;
     const currentTime = Math.floor(Date.now() / 1000);
 
-    return expirationTime <= currentTime - 30;
+    return expirationTime <= currentTime + 30;
 }
