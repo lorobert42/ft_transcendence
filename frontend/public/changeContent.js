@@ -22,7 +22,9 @@ import { decodeJWT } from "./js/utils/tokenHandler.js";
 import gameResults from "./pages/gameResults.js";
 import { getRefreshToken } from "./js/fetchers/usersFetcher.js";
 
-export let dataSave = { socketArrayCollector: [] };
+export let dataSave = { socketArrayCollector: [], intervalsList: []};
+
+export const pageRefreshRate = 5000;
 
 export default async function pageRouting(data = {}) {
   const path = window.location.pathname;
@@ -50,6 +52,12 @@ export default async function pageRouting(data = {}) {
         console.log("One socket closed");
       }});
     dataSave.socketArrayCollector = [];
+  }
+  if(dataSave.intervalsList.length > 0) {
+    dataSave.intervalsList.forEach((interval) => {
+      clearInterval(interval);
+    });
+    dataSave.intervalsList = [];
   }
 
   dataSave = {
@@ -326,12 +334,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
 
   document.querySelector("#friend-link").addEventListener("click", (e) => {
-    e.preventDefault();
-    history.pushState(null, '', e.target.href);
-    pageRouting();
-  });
-
-  document.querySelector("#tournament-link").addEventListener("click", (e) => {
     e.preventDefault();
     history.pushState(null, '', e.target.href);
     pageRouting();

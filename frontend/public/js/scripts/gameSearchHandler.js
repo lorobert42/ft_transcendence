@@ -1,7 +1,9 @@
-import pageRouting from "../../changeContent.js";
+import pageRouting, { dataSave } from "../../changeContent.js";
 import { getGames } from "../fetchers/gamesFetcher.js";
 import { getParticipations, getTournaments } from "../fetchers/tournamentsFetcher.js";
 import { getUsers } from "../fetchers/usersFetcher.js";
+import { pageRefreshRate } from "../../changeContent.js";
+import { isLoggedIn } from "../utils/isLoggedIn.js";
 
 export async function gameSearchHandler(dataDict = {}) {
     const gameList = document.getElementById("game-list");
@@ -31,7 +33,6 @@ export async function gameSearchHandler(dataDict = {}) {
 
         let count = 0;
 
-
         gameRooms.forEach((gameRoom) => {
             let type = "game";
             if (count >= 10)
@@ -48,6 +49,7 @@ export async function gameSearchHandler(dataDict = {}) {
                     return;
                 }
             } else if (type == "tournament") {
+                console.log(gameRoom);
                 if (gameRoom.status.toLowerCase() == "canceled" || gameRoom.status.toLowerCase() == "finished") {
                     return;
                 }
@@ -105,6 +107,22 @@ export async function gameSearchHandler(dataDict = {}) {
     document.getElementById("game-search").addEventListener("input", filterRooms);
 
     filterRooms();
+
+    //create an interval to update the rooms list every 5 seconds
+
+    dataSave.intervalsList.push(setInterval(async () => {
+        if(!isLoggedIn())
+            return ;
+        roomsList = await getGames();
+        roomsList = roomsList.filter((room) => room.player1 != null && room.player2 != null);
+        roomsList.forEach((room) => {
+            room.name = `Gameroom vs ${room.player1 === dataDict.user.user_id ? users.find((user) => user.id === room.player2).name : users.find((user) => user.id === room.player1).name}`;
+        });
+
+        roomsList = roomsList.filter((room) => room.game_status === "pending" || room.game_status === "running");
+
+        filterRooms();
+    }, pageRefreshRate));
 
 
     async function updateUsers() {

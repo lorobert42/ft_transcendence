@@ -99,7 +99,7 @@ export async function userProfileModule(dataDict = {}) {
     let filteredItems = items.filter((item) => { 
       return item.player1 != null && item.player2 != null;
     });
-    filteredItems = items.filter((item) => {
+    filteredItems = filteredItems.filter((item) => {
       return userList.filter((user) => user.id == item.player1)[0].name.toLowerCase().includes(historySearch.value.toLowerCase()) ||
         userList.filter((user) => user.id == item.player2)[0].name.toLowerCase().includes(historySearch.value.toLowerCase())
     });
@@ -149,6 +149,5 @@ export async function userProfileModule(dataDict = {}) {
       historyList.appendChild(card);
 
     });
-
   }
 }

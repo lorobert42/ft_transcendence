@@ -13,7 +13,7 @@ export default function gameSearch() {
             "search": "Chercher un Jeu"
         },
         "EN": {
-            "pendinggames": "Pending Games",
+            "pendinggames": "Pending Parties",
             "gamecreation": "Game Creation",
             "createlocal": "Create Local",
             "createremote": "Create Remote",
@@ -31,12 +31,12 @@ export default function gameSearch() {
     }`);
 
     return `<div class="row">
-        <div class="col-md-6">
+        <div class="col-md-6 text-center">
             <h1>${langdict[lang]['pendinggames']}</h1>
             <input type="text" id="game-search" class="form-control mb-3" placeholder="${langdict[lang]['search']}">
             <ul id="game-list" class="list-group"></ul>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6 text-center">
             <h2>${langdict[lang]['gamecreation']}</h2>
             <ul id="game-create" class="list-group">
             <li class="list-group-item d-flex justify-content-center align-items-center">
