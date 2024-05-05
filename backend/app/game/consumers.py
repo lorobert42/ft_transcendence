@@ -512,7 +512,6 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             await asyncio.sleep(2)
             if count == len(tab):
                 if await self.is_last_game_canceled(tab, int(self.room_id), participants) == False:
-                    print("WTF IT SHOULD QUIT")
                     await self.finish_tournament(int(self.room_id))
                 TournamentConsumer.tournament_tab.pop(self.room_id)
                 loop = False
