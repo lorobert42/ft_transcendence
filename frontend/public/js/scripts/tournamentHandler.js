@@ -166,23 +166,6 @@ export async function tournamentHandler(dataDict = {}) {
   let participation = await getParticipations();
   participation = participation.find((part) => part.tournament == dataDict.tournamentId);
 
-  dataSave.intervalsList.push(setInterval(async () => {
-    tournament = await getCurrentTournament();
-    if(tournament && tournament.has_started)
-    {
-      history.pushState(null, '', window.location.pathname);
-      pageRouting(dataDict);
-      return;
-    } else if (tournament == undefined || tournament.status.toLowerCase() == "canceled" || tournament.status.toLowerCase() == "finished") {
-      history.pushState(null, '', '/gamesearch');
-      pageRouting(dataDict);
-      printError("Tournament has been canceled or finished", "error");
-      return;
-    } else {
-      let participantCount = document.getElementById('participantCount');
-      participantCount.innerText = tournament.participants.filter((participant) => participant.status == "accepted").length;
-    }
-  }, pageRefreshRate));
   if(tournament.has_started) tournament.status = "running";
   else if (tournament.status.toLowerCase() == "canceled" || tournament.status.toLowerCase() == "finished") {
     history.pushState(null, '', '/gamesearch');
@@ -191,6 +174,24 @@ export async function tournamentHandler(dataDict = {}) {
     return;
   }
   if (tournament.status.toLowerCase() == "pending") {
+
+    dataSave.intervalsList.push(setInterval(async () => {
+      tournament = await getCurrentTournament();
+      if(tournament && tournament.has_started)
+      {
+        history.pushState(null, '', window.location.pathname);
+        pageRouting(dataDict);
+        return;
+      } else if (tournament == undefined || tournament.status.toLowerCase() == "canceled" || tournament.status.toLowerCase() == "finished") {
+        history.pushState(null, '', '/gamesearch');
+        pageRouting(dataDict);
+        printError("Tournament has been canceled or finished", "error");
+        return;
+      } else {
+        let participantCount = document.getElementById('participantCount');
+        participantCount.innerText = tournament.participants.filter((participant) => participant.status == "accepted").length;
+      }
+    }, pageRefreshRate));
 
     let lang = getLang();
 
@@ -294,6 +295,17 @@ export async function tournamentHandler(dataDict = {}) {
 
     
   } else if (tournament.status == "running") {
+
+    dataSave.intervalsList.push(setInterval(async () => {
+      tournament = await getCurrentTournament();
+      if (tournament == undefined || tournament.status.toLowerCase() == "canceled" || tournament.status.toLowerCase() == "finished") {
+        history.pushState(null, '', '/gamesearch');
+        pageRouting(dataDict);
+        printError("Tournament has been canceled or finished", "error");
+        return;
+      }
+    }, pageRefreshRate));
+
     container.innerHTML = `
     <h1>${langdict[lang]['tournament']}</h1>
     <div class="row">
