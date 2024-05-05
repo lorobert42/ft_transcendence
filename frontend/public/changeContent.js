@@ -30,7 +30,6 @@ let pathRegex = new RegExp("^\/[^\/]*$");
 
 export default async function pageRouting(data = {}) {
 	const path = window.location.pathname;
-  console.log(path, pathRegex.test(path));
   if(!pathRegex.test(path)) {
     history.pushState(null, '', '/');
     location.reload();

@@ -113,13 +113,17 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
   initAvailable();
 
-  document.getElementById("create-tournament").addEventListener("click", async (e) => {
+  let button = document.getElementById("create-tournament");
+  
+  button.addEventListener("click", async (e) => {
     e.preventDefault();
 
     if (selectedPlayers.childNodes.length < 2 || selectedPlayers.childNodes.length > 7) {
       printError(`${langdict[lang]["maxselect"]}`, "error");
       return;
     }
+
+    button.classList.add("disabled");
 
     let selectedPlayersList = [];
     selectedPlayers.childNodes.forEach((child) => {

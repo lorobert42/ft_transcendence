@@ -26,6 +26,8 @@ export async function gameSearchHandler(dataDict = {}) {
         roomsList = await getGames();
         tournaments = await getTournaments();
         participations = await getParticipations();
+        if(!roomsList || !tournaments || !participations)
+            return ;
         roomsList = roomsList.filter((room) => room.player1 != null && room.player2 != null);
         roomsList.forEach((room) => {
             room.name = `Gameroom vs ${room.player1 === dataDict.user.user_id ? users.find((user) => user.id === room.player2).name : users.find((user) => user.id === room.player1).name}`;

@@ -136,7 +136,7 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField()
 
     def validate(self, attrs: dict):
-        email = attrs.get("email").lower().strip()
+        email = attrs.get("email")
         user = authenticate(
             request=self.context.get("request"),
             email=email,
