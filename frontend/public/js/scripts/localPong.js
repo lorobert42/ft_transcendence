@@ -55,7 +55,7 @@ export function initPongGame(routerData = {}) {
         const buttonStartHuman = document.createElement('button');
         buttonStartHuman.id = 'button-start-human';
         buttonStartHuman.className = 'btn btn-primary btn-lg';
-        buttonStartHuman.textContent = 'Play with Friend';
+        buttonStartHuman.textContent = langdict[lang]['playfriend'];
 
         buttonStartHuman.addEventListener('click', () => {
             routerData.localSelection = 'friend';
@@ -74,7 +74,7 @@ export function initPongGame(routerData = {}) {
         buttonStartBot.setAttribute('type', 'button');
         buttonStartBot.setAttribute('data-bs-toggle', 'dropdown');
         buttonStartBot.setAttribute('aria-expanded', 'false');
-        buttonStartBot.textContent = 'Play against Bot';
+        buttonStartBot.textContent = langdict[lang]['playbot'];
 
         const dropMenu= document.createElement('div');
         dropMenu.className = 'dropdown-menu justify-content-center';
