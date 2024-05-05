@@ -192,17 +192,48 @@ export async function tournamentHandler(dataDict = {}) {
   }
   if (tournament.status.toLowerCase() == "pending") {
 
+    let lang = getLang();
+
+    let langdict = JSON.parse(`
+    {
+      "FR": {
+        "card-title": "Rejoignez le tournoi!",
+        "card-text": "Cliquez sur le bouton ci-dessous pour participer au tournoi. (Minimum 3 participants pour commencer le tournoi)",
+        "participants": "Participants: ",
+        "accept": "Accepter pour participer",
+        "optout": "Refuser la participation",
+        "start": "Commencer le tournoi"
+      },
+      "EN": {
+        "card-title": "Join The Tournament!",
+        "card-text": "Click the button below to participate in the tournament. (Minimum 3 participants to start the tournament)",
+        "participants": "Participants: ",
+        "accept": "Accept to Participate",
+        "optout": "Opt Out Participation",
+        "start": "Start Tournament"
+      },
+      "PT": {
+        "card-title": "Junte-se ao torneio!",
+        "card-text": "Clique no botão abaixo para participar do torneio. (Mínimo de 3 participantes para iniciar o torneio)",
+        "participants": "Participantes: ",
+        "accept": "Aceitar para participar",
+        "optout": "Optar por não participar",
+        "start": "Iniciar torneio"
+      }
+    }`);
+
+
 
 
     container.innerHTML = `
     <div class="row">
        <div class="card">
         <div class="card-body">
-            <h4 class="card-title">Join The Tournament!</h4>
-            <p class="card-text">Click the button below to participate in the tournament.</p>
+            <h4 class="card-title">${langdict[lang]['card-title']}</h4>
+            <p class="card-text">${langdict[lang]['card-text']}</p>
             <div id="button-participation-div"></div>
             <div id="counter" class="mt-3">
-                <h5>Participants: <span id="participantCount">0</span></h5>
+                <h5>${langdict[lang]['participants']}<span id="participantCount">0</span></h5>
             </div>
         </div>
       </div>
@@ -212,7 +243,7 @@ export async function tournamentHandler(dataDict = {}) {
       let buttonDiv = document.getElementById('button-participation-div');
       let participateButton = document.createElement('participateButton');
       participateButton.className = 'btn btn-primary';
-      participateButton.innerText = 'Accept to Participate';
+      participateButton.innerText = langdict[lang]['accept'];
   
       participateButton.addEventListener('click', async () => {
         await checkForTournament();
@@ -224,7 +255,7 @@ export async function tournamentHandler(dataDict = {}) {
       let buttonDiv = document.getElementById('button-participation-div');
       let optOutParticipationButton = document.createElement('optOutParticipationButton');
       optOutParticipationButton.className = 'btn btn-danger me-2';
-      optOutParticipationButton.innerText = 'Opt Out Participation';
+      optOutParticipationButton.innerText = langdict[lang]['optout'];
 
       optOutParticipationButton.addEventListener('click', async () => {
         await checkForTournament();
@@ -241,7 +272,7 @@ export async function tournamentHandler(dataDict = {}) {
       }
       let startTournamentButton = document.createElement('startTournamentButton');
       startTournamentButton.className = 'btn btn-success';
-      startTournamentButton.innerText = 'Start Tournament';
+      startTournamentButton.innerText = langdict[lang]['start'];
 
       startTournamentButton.addEventListener('click', async () => {
         await checkForTournament();

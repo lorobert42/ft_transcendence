@@ -76,13 +76,13 @@ export default function profilePage() {
           <div id="profileContainer">
             <h1 class="text-centered text-nowrap">${langdict[lang]['title']}</h1>
             <img id="avatar" src="/media/user_avatars/default-avatar.png" alt="User Avatar" style="width: 100px; height: 100px;">
-            <p class="py-4">${langdict[lang]['nameSpace']}<span id="userName">${langdict[lang]['nameLoad']}</span></p>
+            <p class="pt-4">${langdict[lang]['nameSpace']}<span id="userName">${langdict[lang]['nameLoad']}</span></p>
             <p>${langdict[lang]['mailSpace']}<span id="userEmail">${langdict[lang]['mailLoad']}</span></p>
           </div>
           <button type="button" href="/profile" class="btn btn-primary" id="update-profile">${langdict[lang]['UpdateProfile']}</button>
-          <h3>${langdict[lang]['factorauth']}</h3>
+          <h3 class="pt-5">${langdict[lang]['factorauth']}</h3>
           <div id="otpEnable" class="container-fluid d-none">
-            <div class="d-grid gap-2">
+            <div class="d-grid py-3">
               <button id="otpBtn" type="button" class="btn btn-primary" data-bs-toggle="collapse" data-bs-target="#otpForm">
                 ${langdict[lang]['enableOTP']}
               </button>
