@@ -27,8 +27,8 @@ export let dataSave = { socketArrayCollector: [], intervalsList: []};
 export const pageRefreshRate = 5000;
 
 export default async function pageRouting(data = {}) {
-  const path = window.location.pathname;
-  rootPageTraduction();
+	const path = window.location.pathname;
+	rootPageTraduction();
 
   let isLogged = await isLoggedIn();
   setNavbar(isLogged);
@@ -356,11 +356,23 @@ document.addEventListener("DOMContentLoaded", (event) => {
       pageRouting(dataSave);
     });
   });
+  const lang = getLang();
+  const langdict = {
+	  "FR": {
+		  "succlogout": "Déconnexion réussie"
+	  },
+	  "EN": {
+		  "succlogout": "Logout Successful"
+	  },
+	  "PT": {
+		  "succlogout": "Terminar sessão com êxito"
+	  }
+  };
 
   document.getElementById("logout-button").addEventListener("click", (e) => {
     e.preventDefault();
     localStorage.clear();
-    printMessage("Logout Successful");
+    printMessage(langdict[lang]['succlogout']);
     history.pushState(null, '', '/');
     pageRouting();
   });

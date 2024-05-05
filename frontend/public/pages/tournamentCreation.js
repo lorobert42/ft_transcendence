@@ -11,7 +11,7 @@ export default function tournamentCreation() {
             "searchplayers": "Rechercher des joueurs...",
             "tourname": "Nom du tournoi",
             "selectedplayers": "Joueurs",
-            "tourncreate": "Créer tournoi",
+            "tourncreate": "Créer tournoi"
         },
         "EN": {
             "createTournament": "Create Your Tournament",
@@ -20,7 +20,7 @@ export default function tournamentCreation() {
             "searchplayers": "Search for players...",
             "tourname": "Tournament Name",
             "selectedplayers": "Selected Players",
-            "tourncreate": "Create Tournament",
+            "tourncreate": "Create Tournament"
         },
         "PT": {
             "createTournament": "Criar o seu torneio",
@@ -29,7 +29,7 @@ export default function tournamentCreation() {
             "searchplayers": "Procurar jogadores...",
             "tourname": "Nome do torneio",
             "selectedplayers": "Jogadores seleccionados",
-            "tourncreate": "Criar Torneio",
+            "tourncreate": "Criar Torneio"
         }
     };
 
