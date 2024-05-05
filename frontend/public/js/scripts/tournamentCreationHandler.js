@@ -127,7 +127,8 @@ export async function tournamentCreationHandler(dataDict = {}) {
     });
 
     let tournamentName = document.getElementById("tournament-name").value;
-
+    
+    
     selectedPlayersList.unshift(dataDict.user.user_id);
     let tournamentInfo = await createTournament(tournamentName, dataDict.user.name, selectedPlayersList);
     printSuccess(`${langdict[lang]["success"]} ${selectedPlayersList.length} ${langdict[lang]["players"]}`, "success");

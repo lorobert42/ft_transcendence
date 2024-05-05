@@ -52,6 +52,7 @@ export const registerFormModule = (() => {
         event.preventDefault();
         const formData = new FormData(registerForm);
         registerUser(formData);
+        registerForm.reset();
       });
     } else {
       console.error("register form not found at init time.");
