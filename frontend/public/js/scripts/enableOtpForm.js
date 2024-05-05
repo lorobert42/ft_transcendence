@@ -20,10 +20,8 @@ export const enableOtpFormModule = (() => {
 		}
 	}`);
 	const otpCheck = async (id, otp) => {
-    console.log("otpCheck");
     let data = await confirmMfaActivation(id, otp);
     if (Object.hasOwn(data, "success") && data.success === true) {
-      console.log("otpCheck has data");
       const form = document.getElementById("otpForm");
       form.classList.add("d-none");
       const backupList = document.getElementById("backupList");
@@ -42,7 +40,6 @@ export const enableOtpFormModule = (() => {
   };
 
   const init = (data) => {
-    console.log("initOTP");
     let src;
     if (Object.hasOwn(data, "qr_code")) {
       src = data.qr_code;

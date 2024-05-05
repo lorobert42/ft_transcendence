@@ -48,7 +48,6 @@ export async function userProfileModule(dataDict = {}) {
           const otp = document.getElementById("otp").value;
           await otpDisableRequest(user, password, otp);
           await getRefreshToken();
-          console.log("2");
           history.pushState({}, '', '/profile');
           pageRouting();
         });

@@ -41,7 +41,6 @@ export async function requestMfaActivation(email, password) {
     .then((data) => {
       if (Object.hasOwn(data, "success") && data.success === true) {
         dataSave.user_has_otp = true;
-        console.log("UPDATED DATA: ", dataSave);
         history.pushState({}, '', '/enable-otp');
         pageRouting({ 'qr_code': data.qr_code });
       } else {

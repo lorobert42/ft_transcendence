@@ -65,7 +65,6 @@ export default async function pageRouting(data = {}) {
     ...dataSave,
     ...data,
   };
-  console.log(dataSave);
   switch (path) {
     case "/":
       contentDiv.innerHTML = homePage();
