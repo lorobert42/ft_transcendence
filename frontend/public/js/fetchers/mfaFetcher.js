@@ -18,7 +18,6 @@ export async function requestMfaActivation(email, password) {
       return response.json()
     })
     .then((data) => {
-      console.log(data);
       if (Object.hasOwn(data, "success") && data.success === true) {
         history.pushState({}, '', '/enable-otp');
         pageRouting({ 'qr_code': data.qr_code });

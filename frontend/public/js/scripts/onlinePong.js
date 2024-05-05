@@ -14,10 +14,7 @@ export async function initPongGame(dataDict = {}) {
     const menu = document.getElementById('buttons-container');
 
     if (!canvas) {
-        console.error('Canvas element not found!');
         return;
-    } else {
-        console.log('Canvas element found!');
     }
 
     let gameId = dataDict.gameId;
@@ -43,7 +40,6 @@ export async function initPongGame(dataDict = {}) {
         LeftName.textContent = opponent.name;
     LeftName.className = "text-center col-3";
 
-    console.log(LeftName.textContent);
     
     const RightName = document.createElement('h4');
     if(gameData.player2 == dataDict.user.user_id)
@@ -52,7 +48,6 @@ export async function initPongGame(dataDict = {}) {
         RightName.textContent = opponent.name;
     RightName.className = "text-center col-3";
 
-    console.log(RightName.textContent);
 
     const LeftScore = document.createElement('div');
     LeftScore.textContent = '0';
@@ -157,16 +152,17 @@ export async function initPongGame(dataDict = {}) {
     let scoreLeft = document.getElementById('scoreLeft');
     let scoreRight = document.getElementById('scoreRight');
 
-    console.log(scoreLeft);
-    console.log(scoreRight);
-    
     function UpdateGameState() {
         if (data == "Game Ended") {
-            console.log("Game CLEAR");
             clearInterval(intervalId);
             gamePatch();
             return;
         }
+        if(data != undefined && data != null &&
+            data["P1"] != undefined && data["P1"] != null &&
+            data["P2"] != undefined && data["P2"] != null &&
+            data["Ball"] != undefined && data["Ball"] != null &&
+            data["P1"]["x"] && data["P2"]["x"] && data["Ball"]["x"]) {
 
         try {
             player1.x = data["P1"]["x"];
@@ -194,10 +190,10 @@ export async function initPongGame(dataDict = {}) {
                     }));
                 }
             }
-
         } catch (error) {
-            // console.error('Failed to fetch coordinates:', error);
+            console.error('Failed to fetch coordinates:', error);
         }
+    }
         if (window.location.pathname !== "/online") {
             clearInterval(intervalId);
             eventClear();
@@ -227,9 +223,7 @@ export async function initPongGame(dataDict = {}) {
             return;
         }
     }
-    console.log('About to fetch game state...');
     function eventClear() {
-        console.log('Closing game socket...');
         //stop events
         document.removeEventListener('keydown', eventKeyDown);
         

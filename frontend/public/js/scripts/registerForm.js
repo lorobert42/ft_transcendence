@@ -76,7 +76,6 @@ function validatePassword(password) {
   return true;
 }
 function validateName(name) {
-  console.log(name);
   let regex = new RegExp("^[1-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð]{1,25}$", "u");
   if(!regex.test(name)) {
     const lang = getLang();

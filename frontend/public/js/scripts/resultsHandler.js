@@ -25,12 +25,11 @@ export async function resultsHandler(dataDict = {}) {
     let player1Score = document.getElementById('res-player1score');
     let player2Score = document.getElementById('res-player2score');
 
-    console.log("DataDict: ", dataDict);
     let u1name = users.find(user => user.id == game.player1).name;
     let u2name = users.find(user => user.id == game.player2).name;
 
     let winnerName = game.score1 > game.score2 ? u1name : u2name;
-    winner.textContent += `${winnerName} wins!`;
+    winner.textContent += `${winnerName}`;
     player1Score.textContent = `${u1name} : ${game.score1}`;
     player2Score.textContent = `${u2name} : ${game.score2}`;
   

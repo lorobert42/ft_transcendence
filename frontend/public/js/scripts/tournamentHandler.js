@@ -140,17 +140,14 @@ export async function tournamentHandler(dataDict = {}) {
     return tournaments
   }
   let container = document.getElementById('tournament-container');
-  console.log("getTOurnament")
   tournament = await getCurrentTournament();
   if (tournament == undefined) {
     history.pushState(null, '', '/gamesearch');
     pageRouting(dataDict);
     return;
   }
-  console.log("Tournament: ", tournament);
   let participation = await getParticipations();
   participation = participation.find((part) => part.tournament == dataDict.tournamentId);
-  console.log("Participation: ", participation);
   if(tournament.has_started) tournament.status = "running";
   if (tournament.status.toLowerCase() == "pending") {
 
@@ -255,7 +252,6 @@ export async function tournamentHandler(dataDict = {}) {
     container.appendChild(loader);
   
     let usersData = await getUsers();
-    console.log(dataDict.tournamentId);
     tournamentSocket = new WebSocket(
       'wss://' + location.host + `/ws/tournament/${dataDict.tournamentId}/?token=` + localStorage.getItem('authToken')
     );
@@ -269,7 +265,6 @@ export async function tournamentHandler(dataDict = {}) {
       setTimeout(function () {
         if (tournamentSocket.readyState === 1 && tournamentSocket.OPEN === 1) {
           // Function to disable start button
-          console.log("Connected to socket");
           return;
 
         } else {
@@ -277,7 +272,6 @@ export async function tournamentHandler(dataDict = {}) {
             disconnect = true;
             return;
           }
-          console.log("waiting to connect");
           waitConnection();
         }
       }, 5);
@@ -297,7 +291,6 @@ export async function tournamentHandler(dataDict = {}) {
     const round3Bracket = document.getElementById('round3-list');
     const roundBrackets = [round1Bracket, round2Bracket, round3Bracket];
 
-    console.log(data);
 
 
     let games = [];
@@ -331,7 +324,6 @@ export async function tournamentHandler(dataDict = {}) {
     }
 
     function getData(dataContent, round, game) {
-      console.log(round, game)
       if (!dataContent[`${round},${game}`])
         return null;
       return dataContent[`${round},${game}`];
@@ -344,7 +336,6 @@ export async function tournamentHandler(dataDict = {}) {
     }
 
 
-    console.log(matrix);
 
     let headRound = 0;
     for (let i in data) {
@@ -354,14 +345,12 @@ export async function tournamentHandler(dataDict = {}) {
         headRound++;
     }
     headRound = headRound > 4 ? 3 : 2;
-    console.log("rounds", headRound);
 
     function generateUsingTree(matrixContent) {
       for (let i = 0; i < 3; i++) {
         roundBrackets[i].innerHTML = "";
         for (let j = 0; j < 14; j++) {
           let matLi = matrixContent[i][j].template();
-          // console.log(matLi);
           roundBrackets[i].appendChild(matLi);
         }
       }
@@ -371,14 +360,12 @@ export async function tournamentHandler(dataDict = {}) {
     matrix = fillMatrix(matrix);
     tournamentSocket.onmessage = function (e) {
       data = JSON.parse(e.data);
-      console.log("Socket data: ", data);
       if(!hasLoaded)
       {
         loader.style.display = "none";
         hasLoaded = true;
       }
       updateMatrix();
-      console.log(matrix);
       matrix = generateUsingTree(matrix);
     }
 
