@@ -2,11 +2,9 @@ import { checkOTP } from "../fetchers/mfaFetcher.js";
 
 export const otpFormModule = (() => {
   const otpCheck = async (data, otp) => {
-    console.log("in otp check");
     let user_id;
     if (Object.hasOwn(data, "user_id")) {
       user_id = data.user_id;
-      console.log('user_id: ' + user_id);
     }
     await checkOTP(user_id, otp);
   };

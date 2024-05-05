@@ -106,9 +106,7 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
   function initAvailable() {
     const search = document.getElementById("available-search").value.toLowerCase();
-    console.log(friends);
     let filteredFriends = friends.filter((friend) => friend.email.toLowerCase().includes(search));
-    console.log(filterFriends);
     available = filteredFriends;
     firstTenFriends(filteredFriends);
   }
@@ -131,8 +129,9 @@ export async function tournamentCreationHandler(dataDict = {}) {
     });
 
     let tournamentName = document.getElementById("tournament-name").value;
-    console.log(dataDict.user);
-    let tournamentInfo = await createTournament(tournamentName, dataDict.user.name, selectedPlayersList.concat(dataDict.user.user_id));
+
+    selectedPlayersList.unshift(dataDict.user.user_id);
+    let tournamentInfo = await createTournament(tournamentName, dataDict.user.name, selectedPlayersList);
     printSuccess(`${langdict[lang]["success"]} ${selectedPlayersList.length} ${langdict[lang]["players"]}`, "success");
     history.pushState(null, '', "/tournament");
     pageRouting({ tournamentId: tournamentInfo.id });

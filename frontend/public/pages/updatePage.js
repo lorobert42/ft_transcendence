@@ -41,7 +41,7 @@ export default function updatePage() {
     }`);
 
   return `
-    <div class="row justify-content-center"> 
+    <div class="row justify-content-center text-center"> 
       <div class="col">
         <h1>${langdict[lang]['title']}</h1>
       </div>

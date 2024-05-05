@@ -84,7 +84,6 @@ function validatePassword(password) {
   return true;
 }
 function validateName(name) {
-  console.log(name);
   let regex = new RegExp("^[1-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð]{1,25}$", "u");
   if(!regex.test(name)) {
     const lang = getLang();
@@ -96,7 +95,6 @@ function validateName(name) {
 
 function validateFile(){
   let file = document.getElementById("avatar").value;
-  console.log(file);
   if(!file.endsWith(".png") && !file.endsWith(".jpg")){
     const lang = getLang();
     printError(langdict[lang]['fileError'], "error");

@@ -41,7 +41,6 @@ export async function gameSearchHandler(dataDict = {}) {
                 type = "tournament";
             }
             if (type == "game") {
-                console.log(gameRoom);
                 if (gameRoom.game_status == "finished" ||
                     (gameRoom.player1 != dataDict.user.user_id &&
                         gameRoom.player2 != dataDict.user.user_id) ||
@@ -49,7 +48,6 @@ export async function gameSearchHandler(dataDict = {}) {
                     return;
                 }
             } else if (type == "tournament") {
-                console.log(gameRoom);
                 if (gameRoom.status.toLowerCase() == "canceled" || gameRoom.status.toLowerCase() == "finished") {
                     return;
                 }
@@ -77,7 +75,6 @@ export async function gameSearchHandler(dataDict = {}) {
             joinButton.textContent = 'Join';
             joinButton.addEventListener('click', () => {
                 if (type == "game") {
-                    console.log(`Joining ${gameRoom.name}`);
                     history.pushState(null, '', '/online');
                     pageRouting({
                         gameId: gameRoom.id,
@@ -86,7 +83,6 @@ export async function gameSearchHandler(dataDict = {}) {
                     });
                     filterRooms();
                 } else {
-                    console.log(`Joining ${gameRoom.name}`);
                     history.pushState(null, '', '/tournament');
                     pageRouting({
                         tournamentId: gameRoom.id,
