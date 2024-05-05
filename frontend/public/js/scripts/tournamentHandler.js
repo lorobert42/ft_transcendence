@@ -150,7 +150,6 @@ export async function tournamentHandler(dataDict = {}) {
   participation = participation.find((part) => part.tournament == dataDict.tournamentId);
   if(tournament.has_started) tournament.status = "running";
   if (tournament.status.toLowerCase() == "pending") {
-
     container.innerHTML = `
     <div class="row">
        <div class="card">
@@ -327,10 +326,11 @@ export async function tournamentHandler(dataDict = {}) {
       return dataContent[`${round},${game}`];
     }
 
-    function getPlayerDataFromName(name) {
-      if (!name)
+    function getPlayerDataFromId(id) {
+      console.log(id);
+      if (!id)
         return null;
-      return usersData.find((user) => user.name === name);
+      return usersData.find((user) => user.id === id);
     }
 
 
@@ -358,6 +358,7 @@ export async function tournamentHandler(dataDict = {}) {
     matrix = fillMatrix(matrix);
     tournamentSocket.onmessage = function (e) {
       data = JSON.parse(e.data);
+      console.log(data);
       if(!hasLoaded)
       {
         loader.style.display = "none";
@@ -372,15 +373,17 @@ export async function tournamentHandler(dataDict = {}) {
         let round = parseInt(gameKey.split(",")[0]);
         let game = parseInt(gameKey.split(",")[1]);
         let dataPlayer1 = data[gameKey].player1;
+        console.log(dataPlayer1);
         let dataPlayer2 = data[gameKey].player2;
+        console.log(dataPlayer2);
         let dataScore1 = data[gameKey].score1;
         let dataScore2 = data[gameKey].score2;
         let dataStatus = data[gameKey].status;
         let currentGameId = data[gameKey].game_id;
 
         let pos = getPositionTranslation(round, game);
-        matrix[pos[0]][pos[1]] = matrix[pos[0]][pos[1]].updateSlot(dataPlayer1 ? getPlayerDataFromName(dataPlayer1) : null,
-          dataPlayer2 ? getPlayerDataFromName(dataPlayer2) : null,
+        matrix[pos[0]][pos[1]] = matrix[pos[0]][pos[1]].updateSlot(dataPlayer1 ? getPlayerDataFromId(dataPlayer1) : null,
+          dataPlayer2 ? getPlayerDataFromId(dataPlayer2) : null,
           dataScore1, dataScore2, round, game, currentGameId, dataStatus);
       }
     }

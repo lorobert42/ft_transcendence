@@ -27,18 +27,18 @@ export const loginFormModule = (() => {
 
 let langdict = JSON.parse(`{
     "FR": {
-      "Error": "Identifiant ou mot de passe incorrect"
+      "Error": "Identifiants invalides"
     },
     "EN": {
-      "Error": "Incorrect email or password"
+      "Error": "Invalid credentials"
     },
     "PT": {
-      "Error": "E-mail ou senha incorretos"
+      "Error": "Credenciais inválidas"
     }
 }`);
 
 function validateEmail(email) {
-  let regex = new RegExp("^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$");
+  let regex = new RegExp("^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$");
   if (!regex.test(email)) {
     const lang = getLang();
     printError(langdict[lang]['Error'], "error");
@@ -49,7 +49,7 @@ function validateEmail(email) {
 
 
 function validatePassword(password) {
-  let regex = new RegExp("^(?=.*[A-Z])(?=.*[0-9]).{8,}$");
+  let regex = new RegExp("^(?=.*[A-Z])(?=.*[0-9]).{5,}$");
   if (!regex.test(password)) {
     const lang = getLang();
     printError(langdict[lang]['Error'], "error");

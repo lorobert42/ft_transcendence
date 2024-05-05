@@ -284,23 +284,23 @@ export function initPongGame(routerData = {}) {
     let intervalId = setInterval(UpdateGameState, 16);
 
     function UpdateGameState() {
+        if (data == "Game Ended") {
+            clearInterval(intervalId);
+
+            if(routerData.localSelection === undefined || routerData.localSelection === null) {
+                history.pushState(null, '', '/localroom');
+                pageRouting(routerData);
+            }
+            eventClear();
+            return;
+        }
         if(data != undefined && data != null &&
              data["P1"] != undefined && data["P1"] != null &&
              data["P2"] != undefined && data["P2"] != null &&
              data["Ball"] != undefined && data["Ball"] != null &&
              data["P1"]["x"] && data["P2"]["x"] && data["Ball"]["x"]) {
             try {
-                if (data == "Game Ended") {
-                    clearInterval(intervalId);
 
-                    if(routerData.localSelection === undefined || routerData.localSelection === null) {
-                        history.pushState(null, '', '/localroom');
-                        pageRouting(routerData);
-                    }
-
-                    eventClear();
-                    return;
-                }
                 player1.x = data["P1"]["x"];
                 player2.x = data["P2"]["x"];
                 player1.y = data["P1"]["y"];
@@ -361,7 +361,7 @@ export function initPongGame(routerData = {}) {
             }
         }`);
     
-         document.removeEventListener('keydown', eventKeyDown);
+        document.removeEventListener('keydown', eventKeyDown);
         document.removeEventListener('keyup', eventKeyUP);
         keyPressed = { "ArrowUp": false, "ArrowDown": false, "w": false, "s": false };
 
@@ -382,7 +382,6 @@ export function initPongGame(routerData = {}) {
         winnerDiv.textContent = `${winner} ${langdict[lang]["wins"]} !`;
 
         menu.appendChild(winnerDiv);
-
 
         const restartButton = document.createElement('button');
         restartButton.className = 'btn btn-primary m-5 btn-lg';
