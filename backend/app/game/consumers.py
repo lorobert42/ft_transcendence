@@ -186,10 +186,8 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
         self.start_time = time.time()
         while GameRoomConsumer.game_tab[self.room_id].active:
             if self.reset_game:
-                print("hit reset_game: ", self.reset_game)
                 # Handle recentering or staying centered
                 if self.observation is None:
-                    print("obs is none")
                     # Initial observation, keep the bot centered
                     self.observation = [0.5, 0.5, 0, 0, 0.5, 0.5]
                 else:
@@ -201,10 +199,8 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 self.reset_game = False
 
             if self.hit_paddle:
-                print("hit paddle: ", self.hit_paddle)
                 self.end_time = time.time()
                 elapsed_time = self.end_time - self.start_time
-                print("Time: ", elapsed_time)
                 self.start_time = time.time()
                 self.observation = self.get_observation()  # Update observation
                 self.hit_paddle = False
@@ -469,12 +465,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, message):
-        if TournamentConsumer.tournament_tab[self.room_id].task.done():
-            try:
-                await TournamentConsumer.tournament_tab[self.room_id].task
-            except CancelledError:
-                print("task waiting error")
-            TournamentConsumer.tournament_tab.pop(self.room_id)
+        if TournamentConsumer.tournament_tab.get(self.room_id) is not None:
+            if TournamentConsumer.tournament_tab[self.room_id].task.done():
+                try:
+                    await TournamentConsumer.tournament_tab[self.room_id].task
+                except CancelledError:
+                    print("task waiting error")
         await self.channel_layer.group_discard(
             self.tournament_group,
             self.channel_name,
@@ -496,9 +492,9 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             for i in range(0, len(tab)):
                 if tab[i]['player1'] is not None and tab[i]['player2'] is not None \
                 and tab[i]['game'].game_status == "pending":
-                    if time_game.get(i) is None:
-                        time_game[i] = time.time()
-                    if time_game[i] < now and (now -  time_game[i]) % 3600 // 60 >= max_time:
+                    if time_game.get(tab[i]['game'].id) is None:
+                        time_game[tab[i]['game'].id] = time.time()
+                    elif time_game[tab[i]['game'].id] < now and (now -  time_game[tab[i]['game'].id]) % 3600 // 60 >= max_time:
                         await self.cancel_current_game(tab[i]['game'].id, "canceled")
                         await self.set_winner_rand(tab[i], tab[i]['game'].tournamentRound, tab[i]['game'].roundGame)
                 elif tab[i]['game'].game_status == "finished":
@@ -518,6 +514,7 @@ class TournamentConsumer(AsyncWebsocketConsumer):
                 if await self.is_last_game_canceled(tab, int(self.room_id), participants) == False:
                     await self.finish_tournament(int(self.room_id))
                 loop = False
+                TournamentConsumer.tournament_tab.pop(self.room_id)
 
     async def is_last_game_canceled(self, tab, tournament_id, participants):
         for i in range(0, len(tab)):
