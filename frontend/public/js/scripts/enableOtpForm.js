@@ -2,6 +2,7 @@ import { confirmMfaActivation } from "../fetchers/mfaFetcher.js";
 import { getRefreshToken } from "../fetchers/usersFetcher.js";
 import { printError } from "../utils/toastMessage.js";
 import { getLang } from "../utils/getLang.js";
+import pageRouting from "../../changeContent.js";
 
 export const enableOtpFormModule = (() => {
 	const lang = getLang();
@@ -19,8 +20,10 @@ export const enableOtpFormModule = (() => {
 		}
 	}`);
 	const otpCheck = async (id, otp) => {
+    console.log("otpCheck");
     let data = await confirmMfaActivation(id, otp);
     if (Object.hasOwn(data, "success") && data.success === true) {
+      console.log("otpCheck has data");
       const form = document.getElementById("otpForm");
       form.classList.add("d-none");
       const backupList = document.getElementById("backupList");
@@ -39,9 +42,13 @@ export const enableOtpFormModule = (() => {
   };
 
   const init = (data) => {
+    console.log("initOTP");
     let src;
     if (Object.hasOwn(data, "qr_code")) {
       src = data.qr_code;
+    } else {
+      history.pushState({}, "", "/profile");
+      pageRouting(data);
     }
     const qr_code = document.getElementById("qrCode");
     qr_code.src = src;

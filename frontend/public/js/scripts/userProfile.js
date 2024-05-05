@@ -1,7 +1,8 @@
-import pageRouting from '../../changeContent.js'
+import pageRouting, { dataSave } from '../../changeContent.js'
 import { getGames } from '../fetchers/gamesFetcher.js';
 import { disableMfa, requestMfaActivation } from '../fetchers/mfaFetcher.js';
-import { getRefreshToken, getUsers } from '../fetchers/usersFetcher.js';
+import { getRefreshToken, getUserInfo, getUsers } from '../fetchers/usersFetcher.js';
+import { decodeJWT } from '../utils/tokenHandler.js';
 
 export async function userProfileModule(dataDict = {}) {
   const setUserProfile = (user) => {
@@ -19,12 +20,13 @@ export async function userProfileModule(dataDict = {}) {
     await disableMfa(user.email, password, otp);
   };
 
-  const showOtpOption = (user) => {
+  const showOtpOption = async (user) => {
     const otpEnable = document.getElementById("otpEnable");
     otpEnable.classList.add("d-none");
     const otpDisable = document.getElementById("otpDisable");
     otpDisable.classList.add("d-none");
-    if (user.otp_enabled === false) {
+
+    if (user.otp_enabled === false || dataSave.user_has_otp === false) {
       otpEnable.classList.remove("d-none");
       const otpForm = document.getElementById("otpForm");
       if (otpForm) {
@@ -36,7 +38,7 @@ export async function userProfileModule(dataDict = {}) {
       } else {
         console.error("Enable form not found at init time.");
       }
-    } else {
+    } else if (user.otp_enabled === true && dataSave.user_has_otp === true){
       otpDisable.classList.remove("d-none");
       const otpDisableForm = document.getElementById("otpDisableForm");
       if (otpDisableForm) {
@@ -44,8 +46,9 @@ export async function userProfileModule(dataDict = {}) {
           event.preventDefault();
           const password = document.getElementById("otpDisablePassword").value;
           const otp = document.getElementById("otp").value;
-          otpDisableRequest(user, password, otp);
+          await otpDisableRequest(user, password, otp);
           await getRefreshToken();
+          console.log("2");
           history.pushState({}, '', '/profile');
           pageRouting();
         });
