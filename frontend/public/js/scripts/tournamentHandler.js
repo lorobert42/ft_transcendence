@@ -245,7 +245,6 @@ export async function tournamentHandler(dataDict = {}) {
       </div>
     </div>`;
 
-    //try to connect to websocket
     let loader = document.createElement('div');
     loader.className = "spinner-border text-primary";
     let hasLoaded = false;
@@ -264,7 +263,6 @@ export async function tournamentHandler(dataDict = {}) {
     async function waitConnection() {
       setTimeout(function () {
         if (tournamentSocket.readyState === 1 && tournamentSocket.OPEN === 1) {
-          // Function to disable start button
           return;
 
         } else {

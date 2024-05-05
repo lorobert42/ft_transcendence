@@ -37,7 +37,6 @@ export const registerFormModule = (() => {
   return { init };
 })();
 
-//name error: max 25 characters and no special characters
 let langdict = JSON.parse(`{
   "FR": {
     "emailError": "Veuillez entrer une adresse email valide",

@@ -23,7 +23,6 @@ export async function initPongGame(dataDict = {}) {
     let users = await getUsers();
     let opponent = users.find(user => user.id == (gameData.player1 == dataDict.user.user_id ? gameData.player2 : gameData.player1));
 
-    // ### Need to change the 0 in the path by the id of the game
     const gameSocket = new WebSocket(
         'wss://' + location.host + `/ws/game/${gameId}/?token=` + localStorage.getItem('authToken')
     );
@@ -224,7 +223,6 @@ export async function initPongGame(dataDict = {}) {
         }
     }
     function eventClear() {
-        //stop events
         document.removeEventListener('keydown', eventKeyDown);
         
         document.removeEventListener('keyup', eventKeyUP);

@@ -6,7 +6,6 @@ import { printError, printSuccess } from '../utils/toastMessage.js';
 import { getLang } from "../utils/getLang.js";
 
 export async function tournamentCreationHandler(dataDict = {}) {
-  //fetch all friends
   let friends = [];
   let users = [];
   let available = [];
@@ -17,7 +16,6 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
   const availablePlayers = document.getElementById('availablePlayers');
   const selectedPlayers = document.getElementById('selectedPlayers');
-  // let playerSelect = document.getElementById("tournamentPlayerSelect");
 
   availablePlayers.addEventListener('click', function (event) {
     const lang = getLang();

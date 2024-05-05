@@ -69,7 +69,6 @@ export async function gameSearchHandler(dataDict = {}) {
             const buttonContainer = document.createElement("div");
             buttonContainer.classList.add("d-flex");
 
-            // Create a button element for joining game
             const joinButton = document.createElement('button');
             joinButton.className = 'btn btn-primary btn-sm';
             joinButton.textContent = 'Join';
@@ -104,7 +103,6 @@ export async function gameSearchHandler(dataDict = {}) {
 
     filterRooms();
 
-    //create an interval to update the rooms list every 5 seconds
 
     dataSave.intervalsList.push(setInterval(async () => {
         if(!isLoggedIn())
