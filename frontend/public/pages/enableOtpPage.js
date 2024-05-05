@@ -7,18 +7,28 @@ export default function enableOtpPage() {
   {
     "FR": {
       "otp": "Entrez votre OTP",
-      "submit": "Se connecter",
-      "instructions": "Scannez le QR-code avec votre application d'authentification puis entrez le code généré ci-dessous"
+	  "submit": "Se connecter",
+	  "activationSuccess": "Activation réussie",
+	  "text1": "L'authentification à deux facteurs est désormais activée pour votre compte",
+	  "text2": "Pour éviter que votre compte ne soit verrouillé en cas de perte de votre téléphone, veuillez sauvegarder ces codes de secours",		
+	  "instructions": "Scannez le QR-code avec votre application d'authentification puis entrez le code généré ci-dessous"
     },
     "EN": {
       "otp": "Enter your OTP",
       "submit": "Log in",
-      "instructions": "Scan the QR-code with your favorite authenticator app then put the generated code below"
+	  "activationSuccess": "Activation Succesful",
+	  "text1": "Two-Factor Authentiication is now enabled for your account",
+	  "text2": "To avoid your account being locked in case of loss of your phone, please save these backup codes",
+	  "instructions": "Scan the QR-code with your favorite authenticator app then put the generated code below"
     },
     "PT": {
       "otp": "Entrar",
-      "submit": "Entrar"
-    }
+      "submit": "Entrar",
+	  "activationSuccess": "Ativação bem-sucedida",
+	  "text1": "A autenticação de dois fatores está agora ativada para a sua conta",
+	  "text2": "Para evitar que sua conta seja bloqueada em caso de perda do seu telefone, por favor, salve estes códigos de backup",
+	  "instructions": "Escanee o QR-code com o seu aplicativo de autenticação e, em seguida, insira o código gerado abaixo"
+	}
 }`);
 
 return `
@@ -40,9 +50,9 @@ return `
           </div>
         </form>
         <div id="backup" class="text-center d-none">
-          <h1>Activation Succesful</h1>
-          <p class="text-start">Two-Factor Authentiication is now enabled for your account.
-            To avoid your account being locked in case of loss of your phone, please save these backup codes.
+          <h1>${langdict[lang]['activationSuccess']}</h1>
+          <p class="text-start">${langdict[lang]['text1']}.
+		  ${langdict[lang]['text2']}.
           </p>
           <ul id="backupList" class="list-group">
           </ul>
