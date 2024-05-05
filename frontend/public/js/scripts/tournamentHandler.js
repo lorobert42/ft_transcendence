@@ -327,7 +327,6 @@ export async function tournamentHandler(dataDict = {}) {
     }
 
     function getPlayerDataFromId(id) {
-      console.log(id);
       if (!id)
         return null;
       return usersData.find((user) => user.id === id);
@@ -358,7 +357,6 @@ export async function tournamentHandler(dataDict = {}) {
     matrix = fillMatrix(matrix);
     tournamentSocket.onmessage = function (e) {
       data = JSON.parse(e.data);
-      console.log(data);
       if(!hasLoaded)
       {
         loader.style.display = "none";
@@ -373,9 +371,7 @@ export async function tournamentHandler(dataDict = {}) {
         let round = parseInt(gameKey.split(",")[0]);
         let game = parseInt(gameKey.split(",")[1]);
         let dataPlayer1 = data[gameKey].player1;
-        console.log(dataPlayer1);
         let dataPlayer2 = data[gameKey].player2;
-        console.log(dataPlayer2);
         let dataScore1 = data[gameKey].score1;
         let dataScore2 = data[gameKey].score2;
         let dataStatus = data[gameKey].status;

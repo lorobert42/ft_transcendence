@@ -20,10 +20,26 @@ export async function gameSearchHandler(dataDict = {}) {
 
     roomsList = roomsList.filter((room) => room.game_status === "pending" || room.game_status === "running");
 
-    function filterRooms() {
+    dataSave.intervalsList.push(setInterval(async () => {
+        if(!isLoggedIn())
+            return ;
+        roomsList = await getGames();
+        tournaments = await getTournaments();
+        participations = await getParticipations();
+        roomsList = roomsList.filter((room) => room.player1 != null && room.player2 != null);
+        roomsList.forEach((room) => {
+            room.name = `Gameroom vs ${room.player1 === dataDict.user.user_id ? users.find((user) => user.id === room.player2).name : users.find((user) => user.id === room.player1).name}`;
+        });
+
+        roomsList = roomsList.filter((room) => room.game_status === "pending" || room.game_status === "running");
+
+        filterRooms(tournaments, roomsList);
+    }, pageRefreshRate));
+
+    function filterRooms(tournamentContent, roomsContent) {
         const input = document.getElementById("game-search").value;
-        let filteredRooms = roomsList.filter((room) => room.name.toLowerCase().includes(input.toLowerCase()));
-        let filteredTournaments = tournaments.filter((tournament) => tournament.name.toLowerCase().includes(input.toLowerCase()));
+        let filteredRooms = roomsContent.filter((room) => room.name.toLowerCase().includes(input.toLowerCase()));
+        let filteredTournaments = tournamentContent.filter((tournament) => tournament.name.toLowerCase().includes(input.toLowerCase()));
         filteredRooms = filteredRooms.concat(filteredTournaments);
         generateTenGameRooms(filteredRooms);
     }
@@ -80,13 +96,13 @@ export async function gameSearchHandler(dataDict = {}) {
                         player1: gameRoom.player1,
                         player2: gameRoom.player2,
                     });
-                    filterRooms();
+                    filterRooms(tournaments, roomsList);
                 } else {
                     history.pushState(null, '', '/tournament');
                     pageRouting({
                         tournamentId: gameRoom.id,
                     });
-                    filterRooms();
+                    filterRooms(tournaments, roomsList);
                 }
             });
 
@@ -99,24 +115,11 @@ export async function gameSearchHandler(dataDict = {}) {
         });
     }
 
-    document.getElementById("game-search").addEventListener("input", filterRooms);
+    document.getElementById("game-search").addEventListener("input", ()=>{
+        filterRooms(tournaments, roomsList);
+    });
 
-    filterRooms();
-
-
-    dataSave.intervalsList.push(setInterval(async () => {
-        if(!isLoggedIn())
-            return ;
-        roomsList = await getGames();
-        roomsList = roomsList.filter((room) => room.player1 != null && room.player2 != null);
-        roomsList.forEach((room) => {
-            room.name = `Gameroom vs ${room.player1 === dataDict.user.user_id ? users.find((user) => user.id === room.player2).name : users.find((user) => user.id === room.player1).name}`;
-        });
-
-        roomsList = roomsList.filter((room) => room.game_status === "pending" || room.game_status === "running");
-
-        filterRooms();
-    }, pageRefreshRate));
+    filterRooms(tournaments, roomsList);
 
 
     async function updateUsers() {
