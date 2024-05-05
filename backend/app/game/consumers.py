@@ -513,8 +513,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             if count == len(tab):
                 if await self.is_last_game_canceled(tab, int(self.room_id), participants) == False:
                     await self.finish_tournament(int(self.room_id))
-                loop = False
                 TournamentConsumer.tournament_tab.pop(self.room_id)
+                loop = False
 
     async def is_last_game_canceled(self, tab, tournament_id, participants):
         for i in range(0, len(tab)):

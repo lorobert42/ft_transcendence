@@ -7,7 +7,7 @@ function login() {
         \"email\": \"${email}\",
         \"password\": \"${password}\"
     }"
-    local response=$(curl --location --insecure --request POST "https://${host}:8080/api/user/login/" \
+    local response=$(curl --location --insecure --request POST "https://${host}:8080/api/users/login/" \
     --header 'Content-Type: application/json' \
     --data "${data}")
     local access=$(jq -r '.access' <<< "${response}")
@@ -16,7 +16,7 @@ function login() {
 
 function get_user_id() {
     local access="$1"
-    local response=$(curl --location --insecure --request GET "https://${host}:8080/api/user/me/" \
+    local response=$(curl --location --insecure --request GET "https://${host}:8080/api/users/me/" \
     --header "Authorization: Bearer ${access}")
     local id=$(jq -r '.id' <<< "${response}")
     echo "${id}"
