@@ -542,8 +542,8 @@ class TournamentConsumer(AsyncWebsocketConsumer):
             data.update({
                 key: {
                 'game_id': tab[i]['game'].id,
-                'player1': tab[i]['player1'].name if tab[i]['player1'] is not None else None,
-                'player2': tab[i]['player2'].name if tab[i]['player2'] is not None else None,
+                'player1': tab[i]['player1'].id if tab[i]['player1'] is not None else None,
+                'player2': tab[i]['player2'].id if tab[i]['player2'] is not None else None,
                 'score1': tab[i]['game'].score1,
                 'score2': tab[i]['game'].score2,
                 'status': tab[i]['game'].game_status,

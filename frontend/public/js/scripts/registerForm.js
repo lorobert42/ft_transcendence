@@ -56,7 +56,7 @@ let langdict = JSON.parse(`{
 }`);
 
 function validateEmail(email) {
-  let regex = new RegExp("^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$");
+  let regex = new RegExp("^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})$");
   if (!regex.test(email)) {
     const lang = getLang();
     printError(langdict[lang]['emailError'], "error");
@@ -66,7 +66,7 @@ function validateEmail(email) {
 }
 
 function validatePassword(password) {
-  let regex = new RegExp("^(?=.*[A-Z])(?=.*[0-9]).{8,}$");
+  let regex = new RegExp("^(?=.*[A-Z])(?=.*[0-9]).{5,}$");
   if (!regex.test(password)) {
     const lang = getLang();
     printError(langdict[lang]['passwordError'], "error");
@@ -75,7 +75,7 @@ function validatePassword(password) {
   return true;
 }
 function validateName(name) {
-  let regex = new RegExp("^[1-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð]{1,25}$", "u");
+  let regex = new RegExp("^[0-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð]{1,25}$", "u");
   if(!regex.test(name)) {
     const lang = getLang();
     printError(langdict[lang]['nameError'], "error");
