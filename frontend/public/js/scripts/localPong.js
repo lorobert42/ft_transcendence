@@ -193,7 +193,6 @@ export function initPongGame(routerData = {}) {
                     document.addEventListener('keydown', eventKeyDown);
 
                     document.addEventListener('keyup', eventKeyUP);
-                    // Attach event listeners to buttons for starting the game
                     if(routerData.localSelection === 'friend') {
                         startGame('human', 'human');
                     } else if (routerData.localSelection === 'leftBot') {
