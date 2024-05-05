@@ -26,8 +26,16 @@ export let dataSave = { socketArrayCollector: [], intervalsList: [], user_has_ot
 let hasLoadedOtp = false;
 export const pageRefreshRate = 5000;
 
+let pathRegex = new RegExp("^\/[^\/]*$");
+
 export default async function pageRouting(data = {}) {
 	const path = window.location.pathname;
+  console.log(path, pathRegex.test(path));
+  if(!pathRegex.test(path)) {
+    history.pushState(null, '', '/');
+    location.reload();
+    return;
+  }
 	rootPageTraduction();
 
   let isLogged = await isLoggedIn();

@@ -7,20 +7,20 @@ import { printError } from "../utils/toastMessage.js";
 let langdict = JSON.parse(`{
 	"FR": {
 	  "emailError": "Veuillez entrer une adresse email valide",
-	  "passwordError": "Le mot de passe doit contenir au moins 8 caractères, 1 lettre majuscule et 1 chiffre",
-	  "nameError": "Le nom doit contenir au maximum 25 caractères et aucun caractère spécial",
+	  "passwordError": "Le mot de passe doit contenir au moins 5 caractères, 1 lettre majuscule et 1 chiffre",
+	  "nameError": "Le nom doit contenir au maximum 25 caractères (espaces et tirets autorisés)",
 	  "matchPwd": "Les champs du mot de passe ne correspondent pas"
 	},
 	"EN": {
 	  "emailError": "Please enter a valid email address",
-	  "passwordError": "Password must contain at least 8 characters, 1 uppercase letter, and 1 number",
-	  "nameError": "Name must contain at most 25 characters and no special characters",
+	  "passwordError": "Password must contain at least 5 characters, 1 uppercase letter, and 1 number",
+	  "nameError": "Name must contain at most 25 characters (spaces and hyphens allowed)",
 	  "matchPwd": "Password fields do not match"
 	},
 	"PT": {
 	  "emailError": "Por favor, insira um endereço de e-mail válido",
-	  "passwordError": "A senha deve conter pelo menos 8 caracteres, 1 letra maiúscula e 1 número",
-	  "nameError": "O nome deve conter no máximo 25 caracteres e nenhum caractere especial",
+	  "passwordError": "A senha deve conter pelo menos 5 caracteres, 1 letra maiúscula e 1 número",
+	  "nameError": "O nome deve conter no máximo 25 caracteres (espaços e hífens permitidos)",
 	  "matchPwd": "Os campos de senha não correspondem"
 	}
 }`);
