@@ -11,7 +11,6 @@ from channels.db import database_sync_to_async
 from asgiref.sync import async_to_sync
 from .game import GameClass, Ball, Paddle
 from .tournament import TournamentClass
-from icecream import ic
 
 """ Define for move of the paddle. """
 KEY_P1_UP, KEY_P1_DOWN, KEY_P2_UP, KEY_P2_DOWN = 1, 2, 3, 4
@@ -366,7 +365,6 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
                 }
             )
             await asyncio.sleep(1)
-            ic(f"sleep one sec: {count}")
         pass
 
     async def send_countdown(self, countdown):
@@ -387,10 +385,10 @@ class GameRoomConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def print_game(self, id, message):
         game = Game.objects.get(pk=id)
-        ic(message)
-        ic(game.player1_status)
-        ic(game.player2_status)
-        ic(game.game_status)
+        print(message)
+        print(game.player1_status)
+        print(game.player2_status)
+        print(game.game_status)
 
     @database_sync_to_async
     def game_canceled(self, game_id):
@@ -558,12 +556,12 @@ class TournamentConsumer(AsyncWebsocketConsumer):
         )
 
     async def ic_winer(self):
-        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g1)
-        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g2)
-        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g3)
-        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r1g4)
-        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r2g1)
-        ic(TournamentConsumer.tournament_tab[self.room_id].winner_r2g2)
+        print(TournamentConsumer.tournament_tab[self.room_id].winner_r1g1)
+        print(TournamentConsumer.tournament_tab[self.room_id].winner_r1g2)
+        print(TournamentConsumer.tournament_tab[self.room_id].winner_r1g3)
+        print(TournamentConsumer.tournament_tab[self.room_id].winner_r1g4)
+        print(TournamentConsumer.tournament_tab[self.room_id].winner_r2g1)
+        print(TournamentConsumer.tournament_tab[self.room_id].winner_r2g2)
 
     async def get_winner(self, player, round, game, participants):
         if player == 1 and round == 2 and game == 1:

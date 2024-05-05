@@ -6,10 +6,7 @@ export function initPongGame(routerData = {}) {
     const canvas = document.getElementById('pongCanvas');
     const menu = document.getElementById('buttons-container');
     if (!canvas) {
-        console.error('Canvas element not found!');
         return;
-    } else {
-        console.log('Canvas element found!');
     }
 
 
@@ -46,7 +43,6 @@ export function initPongGame(routerData = {}) {
 		}
     }`);
 
-    console.log(routerData.localSelection);
 
     if(routerData.localSelection === undefined || routerData.localSelection === null) {
 
@@ -150,7 +146,6 @@ export function initPongGame(routerData = {}) {
 
         LeftName.className = "text-center col-3";
 
-        console.log(LeftName.textContent);
         
         const RightName = document.createElement('h4');
         if(routerData.localSelection === 'friend') {
@@ -163,7 +158,6 @@ export function initPongGame(routerData = {}) {
 
         RightName.className = "text-center col-3";
 
-        console.log(RightName.textContent);
     
         const LeftScore = document.createElement('div');
         LeftScore.textContent = '0';
@@ -199,7 +193,6 @@ export function initPongGame(routerData = {}) {
                     document.addEventListener('keydown', eventKeyDown);
 
                     document.addEventListener('keyup', eventKeyUP);
-                    // Attach event listeners to buttons for starting the game
                     if(routerData.localSelection === 'friend') {
                         startGame('human', 'human');
                     } else if (routerData.localSelection === 'leftBot') {
@@ -220,7 +213,6 @@ export function initPongGame(routerData = {}) {
                     eventClear();
                     return;
                 }
-                console.log("waiting to connect");
                 waitConnection();
             }
         }, 5);
@@ -236,7 +228,6 @@ export function initPongGame(routerData = {}) {
             'start': 'start',
         }));
     }
-    console.log("Connected");
     waitConnection();
 
     if (disconnect)
@@ -275,49 +266,58 @@ export function initPongGame(routerData = {}) {
     gameSocket.onmessage = function (e) {
         data = JSON.parse(e.data);
         if (data["P1 Score"])
+        {
+            if(data["P1 Score"] > player1.score && scoreLeft) {
+                scoreLeft.textContent = data["P1 Score"];
+            }
             player1.score = data["P1 Score"];
-        if (data["P2 Score"])
+        }
+        if (data["P2 Score"]){
+            if(data["P2 Score"] > player2.score && scoreRight) {
+                scoreRight.textContent = data["P2 Score"];
+            }
             player2.score = data["P2 Score"];
+        }
     }
 
-    console.log("Initializing Pong game");
 
     let intervalId = setInterval(UpdateGameState, 16);
 
     function UpdateGameState() {
-        try {
-            if (data == "Game Ended") {
-                console.log("Game CLEAR");
-                clearInterval(intervalId);
+        if(data != undefined && data != null &&
+             data["P1"] != undefined && data["P1"] != null &&
+             data["P2"] != undefined && data["P2"] != null &&
+             data["Ball"] != undefined && data["Ball"] != null &&
+             data["P1"]["x"] && data["P2"]["x"] && data["Ball"]["x"]) {
+            try {
+                if (data == "Game Ended") {
+                    clearInterval(intervalId);
 
-                if(routerData.localSelection === undefined || routerData.localSelection === null) {
-                    history.pushState(null, '', '/localroom');
-                    pageRouting(routerData);
+                    if(routerData.localSelection === undefined || routerData.localSelection === null) {
+                        history.pushState(null, '', '/localroom');
+                        pageRouting(routerData);
+                    }
+
+                    eventClear();
+                    return;
                 }
+                player1.x = data["P1"]["x"];
+                player2.x = data["P2"]["x"];
+                player1.y = data["P1"]["y"];
+                player2.y = data["P2"]["y"];
+                ball.x = data["Ball"]["x"];
+                ball.y = data["Ball"]["y"];
 
-                eventClear();
-                return;
-            }
-            player1.x = data["P1"]["x"];
-            player2.x = data["P2"]["x"];
-            player1.y = data["P1"]["y"];
-            player2.y = data["P2"]["y"];
-            ball.x = data["Ball"]["x"];
-            ball.y = data["Ball"]["y"];
-
-            if(scoreLeft)
-                scoreLeft.textContent = player1.score;
-            if(scoreRight)
-                scoreRight.textContent = player2.score;
-            for (const key in keyPressed) {
-                if (keyPressed[key]) {
-                    gameSocket.send(JSON.stringify({
-                        'local': keyMessage[key],
-                    }));
+                for (const key in keyPressed) {
+                    if (keyPressed[key]) {
+                        gameSocket.send(JSON.stringify({
+                            'local': keyMessage[key],
+                        }));
+                    }
                 }
+            } catch (error) {
+                console.error('Failed to fetch coordinates:', error);
             }
-        } catch (error) {
-            // console.error('Failed to fetch coordinates:', error);
         }
         if (window.location.pathname !== "/localroom") {
             clearInterval(intervalId);
@@ -369,7 +369,6 @@ export function initPongGame(routerData = {}) {
 
         let winner;
 
-        console.log(routerData.localSelection)
         if(routerData.localSelection === 'friend') {
             winner = player1.score > player2.score ? 'Player 1' : 'Player 2';
         } else if (routerData.localSelection === 'leftBot') {

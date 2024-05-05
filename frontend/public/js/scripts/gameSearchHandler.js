@@ -41,7 +41,6 @@ export async function gameSearchHandler(dataDict = {}) {
                 type = "tournament";
             }
             if (type == "game") {
-                console.log(gameRoom);
                 if (gameRoom.game_status == "finished" ||
                     (gameRoom.player1 != dataDict.user.user_id &&
                         gameRoom.player2 != dataDict.user.user_id) ||
@@ -49,7 +48,6 @@ export async function gameSearchHandler(dataDict = {}) {
                     return;
                 }
             } else if (type == "tournament") {
-                console.log(gameRoom);
                 if (gameRoom.status.toLowerCase() == "canceled" || gameRoom.status.toLowerCase() == "finished") {
                     return;
                 }
@@ -71,13 +69,11 @@ export async function gameSearchHandler(dataDict = {}) {
             const buttonContainer = document.createElement("div");
             buttonContainer.classList.add("d-flex");
 
-            // Create a button element for joining game
             const joinButton = document.createElement('button');
             joinButton.className = 'btn btn-primary btn-sm';
             joinButton.textContent = 'Join';
             joinButton.addEventListener('click', () => {
                 if (type == "game") {
-                    console.log(`Joining ${gameRoom.name}`);
                     history.pushState(null, '', '/online');
                     pageRouting({
                         gameId: gameRoom.id,
@@ -86,7 +82,6 @@ export async function gameSearchHandler(dataDict = {}) {
                     });
                     filterRooms();
                 } else {
-                    console.log(`Joining ${gameRoom.name}`);
                     history.pushState(null, '', '/tournament');
                     pageRouting({
                         tournamentId: gameRoom.id,
@@ -108,7 +103,6 @@ export async function gameSearchHandler(dataDict = {}) {
 
     filterRooms();
 
-    //create an interval to update the rooms list every 5 seconds
 
     dataSave.intervalsList.push(setInterval(async () => {
         if(!isLoggedIn())

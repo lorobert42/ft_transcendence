@@ -61,7 +61,6 @@ export const registerFormModule = (() => {
   return { init };
 })();
 
-
 function validateEmail(email) {
   let regex = new RegExp("^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$");
   if (!regex.test(email)) {
@@ -82,7 +81,6 @@ function validatePassword(password) {
   return true;
 }
 function validateName(name) {
-  console.log(name);
   let regex = new RegExp("^[1-9a-zA-ZàáâäãåąčćęèéêëėįìíîïłńòóôöõøùúûüųūÿýżźñçčšžÀÁÂÄÃÅĄĆČĖĘÈÉÊËÌÍÎÏĮŁŃÒÓÔÖÕØÙÚÛÜŲŪŸÝŻŹÑßÇŒÆČŠŽ∂ð]{1,25}$", "u");
   if(!regex.test(name)) {
     const lang = getLang();
