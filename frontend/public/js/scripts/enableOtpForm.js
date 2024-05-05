@@ -2,6 +2,7 @@ import { confirmMfaActivation } from "../fetchers/mfaFetcher.js";
 import { getRefreshToken } from "../fetchers/usersFetcher.js";
 import { printError } from "../utils/toastMessage.js";
 import { getLang } from "../utils/getLang.js";
+import pageRouting from "../../changeContent.js";
 
 export const enableOtpFormModule = (() => {
 	const lang = getLang();
@@ -42,6 +43,9 @@ export const enableOtpFormModule = (() => {
     let src;
     if (Object.hasOwn(data, "qr_code")) {
       src = data.qr_code;
+    } else {
+      history.pushState({}, "", "/profile");
+      pageRouting(data);
     }
     const qr_code = document.getElementById("qrCode");
     qr_code.src = src;

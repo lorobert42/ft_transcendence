@@ -1,6 +1,7 @@
 import { printMessage, printError, printSuccess } from '../utils/toastMessage.js'
 import pageRouting from '../../changeContent.js'
 import { getLang } from "../utils/getLang.js";
+import { decodeJWT } from '../utils/tokenHandler.js';
 
 export async function getUsers() {
   const lang = getLang();

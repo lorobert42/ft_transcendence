@@ -22,8 +22,8 @@ import { decodeJWT } from "./js/utils/tokenHandler.js";
 import gameResults from "./pages/gameResults.js";
 import { getRefreshToken } from "./js/fetchers/usersFetcher.js";
 
-export let dataSave = { socketArrayCollector: [], intervalsList: []};
-
+export let dataSave = { socketArrayCollector: [], intervalsList: [], user_has_otp: false};
+let hasLoadedOtp = false;
 export const pageRefreshRate = 5000;
 
 export default async function pageRouting(data = {}) {
@@ -34,6 +34,9 @@ export default async function pageRouting(data = {}) {
   setNavbar(isLogged);
   if (isLogged) {
     data.user = decodeJWT(localStorage.getItem("authToken"));
+    if(!hasLoadedOtp) {
+      dataSave.user_has_otp = data.user.otp_enabled;
+    }
   }
 
   function redirectPath(path) {

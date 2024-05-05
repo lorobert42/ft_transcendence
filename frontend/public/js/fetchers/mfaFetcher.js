@@ -1,4 +1,4 @@
-import pageRouting from "../../changeContent.js";
+import pageRouting, { dataSave } from "../../changeContent.js";
 import { printError, printMessage, printSuccess } from "../utils/toastMessage.js";
 import { getRefreshToken } from "./usersFetcher.js";
 import { getLang } from "../utils/getLang.js";
@@ -40,6 +40,7 @@ export async function requestMfaActivation(email, password) {
     })
     .then((data) => {
       if (Object.hasOwn(data, "success") && data.success === true) {
+        dataSave.user_has_otp = true;
         history.pushState({}, '', '/enable-otp');
         pageRouting({ 'qr_code': data.qr_code });
       } else {
@@ -132,9 +133,11 @@ export async function disableMfa(email, password, otp) {
     .then(async (data) => {
       if (Object.hasOwn(data, "success") && data.success === true) {
         printMessage(`${langdict[lang]["diableauth"]}`);
+        dataSave.user_has_otp = false;
       } else {
         throw new Error(`${langdict[lang]["Unable"]}`);
       }
+      return data;
     })
     .catch((error) => {
       printError(error);

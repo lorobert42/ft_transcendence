@@ -26,7 +26,7 @@ let langdict = JSON.parse(`{
 }`);
 
 export const registerFormModule = (() => {
-  const registerUser = async (formData) => {
+  const registerUser = async (formData, registerForumlar) => {
     localStorage.clear();
     if (formData.get("password") !== formData.get("password2")) {
 		const lang = getLang();
@@ -42,6 +42,8 @@ export const registerFormModule = (() => {
     if(validateName(formData.get("name")) == false)
       return;
 
+      registerForumlar.reset();
+
     await createUser(formData);
   };
 
@@ -51,8 +53,7 @@ export const registerFormModule = (() => {
       registerForm.addEventListener("submit", function (event) {
         event.preventDefault();
         const formData = new FormData(registerForm);
-        registerUser(formData);
-        registerForm.reset();
+        registerUser(formData, registerForm);
       });
     } else {
       console.error("register form not found at init time.");
