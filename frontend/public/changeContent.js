@@ -22,18 +22,28 @@ import { decodeJWT } from "./js/utils/tokenHandler.js";
 import gameResults from "./pages/gameResults.js";
 import { getRefreshToken } from "./js/fetchers/usersFetcher.js";
 
-export let dataSave = { socketArrayCollector: [], intervalsList: []};
-
+export let dataSave = { socketArrayCollector: [], intervalsList: [], user_has_otp: false};
+let hasLoadedOtp = false;
 export const pageRefreshRate = 5000;
 
+let pathRegex = new RegExp("^\/[^\/]*$");
+
 export default async function pageRouting(data = {}) {
-  const path = window.location.pathname;
-  rootPageTraduction();
+	const path = window.location.pathname;
+  if(!pathRegex.test(path)) {
+    history.pushState(null, '', '/');
+    location.reload();
+    return;
+  }
+	rootPageTraduction();
 
   let isLogged = await isLoggedIn();
   setNavbar(isLogged);
   if (isLogged) {
     data.user = decodeJWT(localStorage.getItem("authToken"));
+    if(!hasLoadedOtp) {
+      dataSave.user_has_otp = data.user.otp_enabled;
+    }
   }
 
   function redirectPath(path) {
@@ -42,14 +52,12 @@ export default async function pageRouting(data = {}) {
   }
 
 
-  // if path is /home, send load content with function
   let contentDiv = document.getElementById("content");
 
   if(dataSave.socketArrayCollector.length > 0) {
     dataSave.socketArrayCollector.forEach((socket) => {
       if(socket.readyState === 1 || socket.OPEN === 1) {
         socket.close();
-        console.log("One socket closed");
       }});
     dataSave.socketArrayCollector = [];
   }
@@ -298,7 +306,6 @@ export default async function pageRouting(data = {}) {
 
 window.addEventListener('popstate', pageRouting);
 window.addEventListener('pushstate', pageRouting);
-// Adding event listeners when the DOM content has fully loaded
 document.addEventListener("DOMContentLoaded", (event) => {
   event.preventDefault();
   let mainContent = document.getElementById("root");
@@ -313,8 +320,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   document.querySelector("#login-link").addEventListener("click", (e) => {
     e.preventDefault();
-    console.log("login link clicked");
-    console.log(e.target.href);
     history.pushState(null, '', e.target.href);
     pageRouting();
   });
@@ -351,23 +356,33 @@ document.addEventListener("DOMContentLoaded", (event) => {
     document.querySelector(".dropdown-toggle").innerText = lang;
   }
 
-  // change dropdown text value depending on selected option
   document.querySelectorAll(".dropdown a").forEach((item) => {
     item.addEventListener("click", (e) => {
       e.preventDefault();
       document.querySelector(".dropdown-toggle").innerText = item.innerText;
-      //add a cookie to store the selected value with the value samesite=strict
-      document.cookie = `lang=${item.innerText}; samesite=strict`;
+      document.cookie = `lang=${item.innerText}; samesite=strict; expires=Fri, 31 Dec 9999 23:59:59 GMT`;
       dropDownLanguage();
       history.pushState(null, '', window.location.href);
       pageRouting(dataSave);
     });
   });
+  const lang = getLang();
+  const langdict = {
+	  "FR": {
+		  "succlogout": "Déconnexion réussie"
+	  },
+	  "EN": {
+		  "succlogout": "Logout Successful"
+	  },
+	  "PT": {
+		  "succlogout": "Terminar sessão com êxito"
+	  }
+  };
 
   document.getElementById("logout-button").addEventListener("click", (e) => {
     e.preventDefault();
     localStorage.clear();
-    printMessage("Logout Successful");
+    printMessage(langdict[lang]['succlogout']);
     history.pushState(null, '', '/');
     pageRouting();
   });

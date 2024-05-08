@@ -1,9 +1,25 @@
 import { confirmMfaActivation } from "../fetchers/mfaFetcher.js";
 import { getRefreshToken } from "../fetchers/usersFetcher.js";
 import { printError } from "../utils/toastMessage.js";
+import { getLang } from "../utils/getLang.js";
+import pageRouting from "../../changeContent.js";
 
 export const enableOtpFormModule = (() => {
-  const otpCheck = async (id, otp) => {
+	const lang = getLang();
+
+	let langdict = JSON.parse(`
+	  {
+		"FR": {
+		  "Unable": "Impossible de traiter votre demande, veuillez réessayer."
+		 },
+		"EN": {
+		  "Unable": "Unable to process your request, please retry."
+		},
+		"PT": {
+		  "Unable": "Incapaz de processar sua solicitação, por favor, tente novamente."
+		}
+	}`);
+	const otpCheck = async (id, otp) => {
     let data = await confirmMfaActivation(id, otp);
     if (Object.hasOwn(data, "success") && data.success === true) {
       const form = document.getElementById("otpForm");
@@ -19,7 +35,7 @@ export const enableOtpFormModule = (() => {
       backupDiv.classList.remove("d-none");
       await getRefreshToken();
     } else {
-      printError('Unable to process your request, please retry.');
+      printError(`${langdict[lang]["Unable"]}`);
     }
   };
 
@@ -27,6 +43,9 @@ export const enableOtpFormModule = (() => {
     let src;
     if (Object.hasOwn(data, "qr_code")) {
       src = data.qr_code;
+    } else {
+      history.pushState({}, "", "/profile");
+      pageRouting(data);
     }
     const qr_code = document.getElementById("qrCode");
     qr_code.src = src;

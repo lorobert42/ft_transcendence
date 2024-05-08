@@ -6,7 +6,6 @@ import { printError, printSuccess } from '../utils/toastMessage.js';
 import { getLang } from "../utils/getLang.js";
 
 export async function tournamentCreationHandler(dataDict = {}) {
-  //fetch all friends
   let friends = [];
   let users = [];
   let available = [];
@@ -17,7 +16,6 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
   const availablePlayers = document.getElementById('availablePlayers');
   const selectedPlayers = document.getElementById('selectedPlayers');
-  // let playerSelect = document.getElementById("tournamentPlayerSelect");
 
   availablePlayers.addEventListener('click', function (event) {
     const lang = getLang();
@@ -106,9 +104,7 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
   function initAvailable() {
     const search = document.getElementById("available-search").value.toLowerCase();
-    console.log(friends);
     let filteredFriends = friends.filter((friend) => friend.email.toLowerCase().includes(search));
-    console.log(filterFriends);
     available = filteredFriends;
     firstTenFriends(filteredFriends);
   }
@@ -117,7 +113,9 @@ export async function tournamentCreationHandler(dataDict = {}) {
 
   initAvailable();
 
-  document.getElementById("create-tournament").addEventListener("click", async (e) => {
+  let button = document.getElementById("create-tournament");
+  
+  button.addEventListener("click", async (e) => {
     e.preventDefault();
 
     if (selectedPlayers.childNodes.length < 2 || selectedPlayers.childNodes.length > 7) {
@@ -125,14 +123,18 @@ export async function tournamentCreationHandler(dataDict = {}) {
       return;
     }
 
+    button.classList.add("disabled");
+
     let selectedPlayersList = [];
     selectedPlayers.childNodes.forEach((child) => {
       selectedPlayersList.push(friends.find((user) => user.name === child.textContent).id);
     });
 
     let tournamentName = document.getElementById("tournament-name").value;
-    console.log(dataDict.user);
-    let tournamentInfo = await createTournament(tournamentName, dataDict.user.name, selectedPlayersList.concat(dataDict.user.user_id));
+    
+    
+    selectedPlayersList.unshift(dataDict.user.user_id);
+    let tournamentInfo = await createTournament(tournamentName, dataDict.user.name, selectedPlayersList);
     printSuccess(`${langdict[lang]["success"]} ${selectedPlayersList.length} ${langdict[lang]["players"]}`, "success");
     history.pushState(null, '', "/tournament");
     pageRouting({ tournamentId: tournamentInfo.id });

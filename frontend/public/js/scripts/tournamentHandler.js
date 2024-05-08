@@ -3,6 +3,7 @@ import { getUsers } from "../fetchers/usersFetcher.js";
 import pageRouting, { dataSave, pageRefreshRate } from "../../changeContent.js";
 import { getParticipations, getTournaments, joinTournament, startTournament } from "../fetchers/tournamentsFetcher.js";
 import { getLang } from "../utils/getLang.js";
+import { printError } from "../utils/toastMessage.js";
 
 
 export async function tournamentHandler(dataDict = {}) {
@@ -136,33 +137,104 @@ export async function tournamentHandler(dataDict = {}) {
   let tournament;
   async function getCurrentTournament() {
     let tournaments = await getTournaments();
+    if(!tournaments) {
+      history.pushState(null, '', '/gamesearch');
+      pageRouting(dataDict);
+      return;
+    }
     tournaments = tournaments.find((tour) => tour.id == dataDict.tournamentId);
     return tournaments
   }
+
+  async function checkForTournament() {
+    const tour = await getCurrentTournament();
+    if(tour == undefined || tour == null || tour.status.toLowerCase() == "canceled" || tour.status.toLowerCase() == "finished") {
+      history.pushState(null, '', '/gamesearch');
+      pageRouting(dataDict);
+      printError("Tournament has been canceled or finished", "error");
+      return;
+    }
+  }
+
   let container = document.getElementById('tournament-container');
-  console.log("getTOurnament")
   tournament = await getCurrentTournament();
   if (tournament == undefined) {
     history.pushState(null, '', '/gamesearch');
     pageRouting(dataDict);
     return;
   }
-  console.log("Tournament: ", tournament);
   let participation = await getParticipations();
   participation = participation.find((part) => part.tournament == dataDict.tournamentId);
-  console.log("Participation: ", participation);
+
   if(tournament.has_started) tournament.status = "running";
+  else if (tournament.status.toLowerCase() == "canceled" || tournament.status.toLowerCase() == "finished") {
+    history.pushState(null, '', '/gamesearch');
+    pageRouting(dataDict);
+    printError("Tournament has been canceled or finished", "error");
+    return;
+  }
   if (tournament.status.toLowerCase() == "pending") {
+
+    dataSave.intervalsList.push(setInterval(async () => {
+      tournament = await getCurrentTournament();
+      if(tournament && tournament.has_started)
+      {
+        history.pushState(null, '', window.location.pathname);
+        pageRouting(dataDict);
+        return;
+      } else if (tournament == undefined || tournament.status.toLowerCase() == "canceled" || tournament.status.toLowerCase() == "finished") {
+        history.pushState(null, '', '/gamesearch');
+        pageRouting(dataDict);
+        printError("Tournament has been canceled or finished", "error");
+        return;
+      } else {
+        let participantCount = document.getElementById('participantCount');
+        participantCount.innerText = tournament.participants.filter((participant) => participant.status == "accepted").length;
+      }
+    }, pageRefreshRate));
+
+    let lang = getLang();
+
+    let langdict = JSON.parse(`
+    {
+      "FR": {
+        "card-title": "Rejoignez le tournoi!",
+        "card-text": "Cliquez sur le bouton ci-dessous pour participer au tournoi. (Minimum 3 participants pour commencer le tournoi)",
+        "participants": "Participants: ",
+        "accept": "Accepter pour participer",
+        "optout": "Refuser la participation",
+        "start": "Commencer le tournoi"
+      },
+      "EN": {
+        "card-title": "Join The Tournament!",
+        "card-text": "Click the button below to participate in the tournament. (Minimum 3 participants to start the tournament)",
+        "participants": "Participants: ",
+        "accept": "Accept to Participate",
+        "optout": "Opt Out Participation",
+        "start": "Start Tournament"
+      },
+      "PT": {
+        "card-title": "Junte-se ao torneio!",
+        "card-text": "Clique no botão abaixo para participar do torneio. (Mínimo de 3 participantes para iniciar o torneio)",
+        "participants": "Participantes: ",
+        "accept": "Aceitar para participar",
+        "optout": "Optar por não participar",
+        "start": "Iniciar torneio"
+      }
+    }`);
+
+
+
 
     container.innerHTML = `
     <div class="row">
        <div class="card">
         <div class="card-body">
-            <h4 class="card-title">Join The Tournament!</h4>
-            <p class="card-text">Click the button below to participate in the tournament.</p>
+            <h4 class="card-title">${langdict[lang]['card-title']}</h4>
+            <p class="card-text">${langdict[lang]['card-text']}</p>
             <div id="button-participation-div"></div>
             <div id="counter" class="mt-3">
-                <h5>Participants: <span id="participantCount">0</span></h5>
+                <h5>${langdict[lang]['participants']}<span id="participantCount">0</span></h5>
             </div>
         </div>
       </div>
@@ -172,9 +244,10 @@ export async function tournamentHandler(dataDict = {}) {
       let buttonDiv = document.getElementById('button-participation-div');
       let participateButton = document.createElement('participateButton');
       participateButton.className = 'btn btn-primary';
-      participateButton.innerText = 'Accept to Participate';
+      participateButton.innerText = langdict[lang]['accept'];
   
       participateButton.addEventListener('click', async () => {
+        await checkForTournament();
         await joinTournament(participation.id, "accepted");
         pageRouting(dataDict);
       });
@@ -183,19 +256,27 @@ export async function tournamentHandler(dataDict = {}) {
       let buttonDiv = document.getElementById('button-participation-div');
       let optOutParticipationButton = document.createElement('optOutParticipationButton');
       optOutParticipationButton.className = 'btn btn-danger me-2';
-      optOutParticipationButton.innerText = 'Opt Out Participation';
+      optOutParticipationButton.innerText = langdict[lang]['optout'];
 
       optOutParticipationButton.addEventListener('click', async () => {
+        await checkForTournament();
         await joinTournament(participation.id, "pending");
         pageRouting(dataDict);
       });
 
       buttonDiv.appendChild(optOutParticipationButton);
+      if(!buttonDiv) 
+      {
+        history.pushState(null, '', '/gamesearch');
+        pageRouting(dataDict);
+        return;
+      }
       let startTournamentButton = document.createElement('startTournamentButton');
       startTournamentButton.className = 'btn btn-success';
-      startTournamentButton.innerText = 'Start Tournament';
+      startTournamentButton.innerText = langdict[lang]['start'];
 
       startTournamentButton.addEventListener('click', async () => {
+        await checkForTournament();
         await startTournament(dataDict.tournamentId);
         pageRouting(dataDict);
       });
@@ -212,24 +293,19 @@ export async function tournamentHandler(dataDict = {}) {
 
     participantCount.innerText = tournament.participants.filter((participant) => participant.status == "accepted").length;
 
-    dataSave.intervalsList.push(setInterval(async () => {
-      tournament = await getCurrentTournament();
-      if(tournament.has_started)
-      {
-        history.pushState(null, '', window.location.pathname);
-        pageRouting(dataDict);
-        return;
-      }
-      if (tournament == undefined || tournament.status == "cancelled" || tournament.status == "finished") {
-        history.pushState(null, '', '/gamesearch');
-        pageRouting(dataDict);
-        return;
-      } else {
-        participantCount.innerText = tournament.participants.filter((participant) => participant.status == "accepted").length;
-      }
-    }, pageRefreshRate));
     
   } else if (tournament.status == "running") {
+
+    dataSave.intervalsList.push(setInterval(async () => {
+      tournament = await getCurrentTournament();
+      if (tournament == undefined || tournament.status.toLowerCase() == "canceled" || tournament.status.toLowerCase() == "finished") {
+        history.pushState(null, '', '/gamesearch');
+        pageRouting(dataDict);
+        printError("Tournament has been canceled or finished", "error");
+        return;
+      }
+    }, pageRefreshRate));
+
     container.innerHTML = `
     <h1>${langdict[lang]['tournament']}</h1>
     <div class="row">
@@ -248,14 +324,12 @@ export async function tournamentHandler(dataDict = {}) {
       </div>
     </div>`;
 
-    //try to connect to websocket
     let loader = document.createElement('div');
     loader.className = "spinner-border text-primary";
     let hasLoaded = false;
     container.appendChild(loader);
   
     let usersData = await getUsers();
-    console.log(dataDict.tournamentId);
     tournamentSocket = new WebSocket(
       'wss://' + location.host + `/ws/tournament/${dataDict.tournamentId}/?token=` + localStorage.getItem('authToken')
     );
@@ -268,8 +342,6 @@ export async function tournamentHandler(dataDict = {}) {
     async function waitConnection() {
       setTimeout(function () {
         if (tournamentSocket.readyState === 1 && tournamentSocket.OPEN === 1) {
-          // Function to disable start button
-          console.log("Connected to socket");
           return;
 
         } else {
@@ -277,7 +349,6 @@ export async function tournamentHandler(dataDict = {}) {
             disconnect = true;
             return;
           }
-          console.log("waiting to connect");
           waitConnection();
         }
       }, 5);
@@ -297,7 +368,6 @@ export async function tournamentHandler(dataDict = {}) {
     const round3Bracket = document.getElementById('round3-list');
     const roundBrackets = [round1Bracket, round2Bracket, round3Bracket];
 
-    console.log(data);
 
 
     let games = [];
@@ -331,20 +401,18 @@ export async function tournamentHandler(dataDict = {}) {
     }
 
     function getData(dataContent, round, game) {
-      console.log(round, game)
       if (!dataContent[`${round},${game}`])
         return null;
       return dataContent[`${round},${game}`];
     }
 
-    function getPlayerDataFromName(name) {
-      if (!name)
+    function getPlayerDataFromId(id) {
+      if (!id)
         return null;
-      return usersData.find((user) => user.name === name);
+      return usersData.find((user) => user.id === id);
     }
 
 
-    console.log(matrix);
 
     let headRound = 0;
     for (let i in data) {
@@ -354,14 +422,12 @@ export async function tournamentHandler(dataDict = {}) {
         headRound++;
     }
     headRound = headRound > 4 ? 3 : 2;
-    console.log("rounds", headRound);
 
     function generateUsingTree(matrixContent) {
       for (let i = 0; i < 3; i++) {
         roundBrackets[i].innerHTML = "";
         for (let j = 0; j < 14; j++) {
           let matLi = matrixContent[i][j].template();
-          // console.log(matLi);
           roundBrackets[i].appendChild(matLi);
         }
       }
@@ -371,14 +437,12 @@ export async function tournamentHandler(dataDict = {}) {
     matrix = fillMatrix(matrix);
     tournamentSocket.onmessage = function (e) {
       data = JSON.parse(e.data);
-      console.log("Socket data: ", data);
       if(!hasLoaded)
       {
         loader.style.display = "none";
         hasLoaded = true;
       }
       updateMatrix();
-      console.log(matrix);
       matrix = generateUsingTree(matrix);
     }
 
@@ -394,8 +458,8 @@ export async function tournamentHandler(dataDict = {}) {
         let currentGameId = data[gameKey].game_id;
 
         let pos = getPositionTranslation(round, game);
-        matrix[pos[0]][pos[1]] = matrix[pos[0]][pos[1]].updateSlot(dataPlayer1 ? getPlayerDataFromName(dataPlayer1) : null,
-          dataPlayer2 ? getPlayerDataFromName(dataPlayer2) : null,
+        matrix[pos[0]][pos[1]] = matrix[pos[0]][pos[1]].updateSlot(dataPlayer1 ? getPlayerDataFromId(dataPlayer1) : null,
+          dataPlayer2 ? getPlayerDataFromId(dataPlayer2) : null,
           dataScore1, dataScore2, round, game, currentGameId, dataStatus);
       }
     }

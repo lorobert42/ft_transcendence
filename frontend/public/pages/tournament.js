@@ -1,4 +1,4 @@
 export default function tournament() {
   return `
-  <div id="tournament-container"></div>`;
+  <div id="tournament-container" class="text-center"></div>`;
 }

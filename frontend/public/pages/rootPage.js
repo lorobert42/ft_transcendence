@@ -23,7 +23,7 @@ export function rootPageTraduction() {
       },
       "PT": {
           "home": "Início",
-          "login": "Conecte-se",
+          "login": "Iniciar sessão",
           "register": "Registrar",
           "profile": "Perfil",
           "friend": "Amigos",

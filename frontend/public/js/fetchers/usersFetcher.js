@@ -1,6 +1,7 @@
 import { printMessage, printError, printSuccess } from '../utils/toastMessage.js'
 import pageRouting from '../../changeContent.js'
 import { getLang } from "../utils/getLang.js";
+import { decodeJWT } from '../utils/tokenHandler.js';
 
 export async function getUsers() {
   const lang = getLang();
@@ -131,7 +132,24 @@ export async function loginUser(email, password) {
 }
 
 export async function editUser(formData) {
-  fetch("/api/users/me/", {
+	const lang = getLang();
+
+	let langdict = JSON.parse(`
+	  {
+		"FR": {
+			"succupdate": "Mise à jour réussie",
+			"errupdate": "Impossible de mettre à jour"
+				 },
+		"EN": {
+			"succupdate": "Update successful",
+			"errupdate": "Cannot update"
+		},
+		"PT": {
+			"succupdate": "Atualização bem-sucedida",
+			"errupdate": "Não é possível atualizar"
+				}
+	}`);
+   fetch("/api/users/me/", {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${localStorage.getItem('authToken')}`,
@@ -139,11 +157,11 @@ export async function editUser(formData) {
     body: formData,
   }).then((response) => {
     if (!response.ok) {
-      throw new Error("Cannot update");
+      throw new Error(`${langdict[lang]["errupdate"]}`);
     }
     return response.json();
   }).then(async () => {
-    printMessage("Update successful");
+    printMessage(`${langdict[lang]["succupdate"]}`);
     await getRefreshToken();
     history.pushState({}, '', '/profile');
     pageRouting();

@@ -2,7 +2,6 @@ import { getLang } from "../js/utils/getLang.js";
 
 export default function homePage() {
   const lang = getLang();
-  console.log(location.host)
 
   let langdict = JSON.parse(`{
       "FR": {
@@ -10,11 +9,11 @@ export default function homePage() {
           "description": "Bienvenue sur Transcendence, le jeu de pong en ligne. Jouez contre vos amis ou contre l'IA."
       },
       "EN": {
-          "title": "Profile Page",
+          "title": "Welcome to Transcendence",
           "description": "Welcome to Transcendence, the online pong game. Play against your friends or against the AI."
       },
       "PT": {
-          "title": "Pagina de perfil",
+          "title": "Bem-vindo ao Transcendence",
           "description": "Bem-vindo ao Transcendence, o jogo de pong online. Jogue contra seus amigos ou contra a IA."
       }
   }`);

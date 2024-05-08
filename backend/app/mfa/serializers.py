@@ -33,7 +33,7 @@ class MfaEnableRequestSerializer(serializers.Serializer):
         user.login_otp_used = False
         user.otp_base32 = pyotp.random_base32()
         user.otp_auth_url = pyotp.totp.TOTP(user.otp_base32).provisioning_uri(
-            name=user.email.lower(), issuer_name="ft_transcendence"
+            name=user.email, issuer_name="ft_transcendence"
         )
         stream = BytesIO()
         image = qrcode.make(f"{user.otp_auth_url}")

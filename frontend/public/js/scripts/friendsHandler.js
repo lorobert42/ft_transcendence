@@ -73,10 +73,8 @@ function mapFriends() {
     
     const statusDiv = document.createElement("div");
     statusDiv.className = "d-flex align-items-center justify-content-center mx-2";
-    //create a badge for the friend status : Online offline or in-game
     const badge = document.createElement("span");
     
-    console.log(friend.last_active)
     if(friend.is_playing) {
       badge.className = "badge bg-primary rounded-pill";
       badge.innerText = `${langdict[lang]["ingame"]}`;
@@ -100,7 +98,6 @@ function mapFriends() {
     addButton.textContent = `${langdict[lang]["removebutton"]}`;
     addButton.addEventListener('click', () => {
       deleteFriend(friend.id);
-      console.log(`Removed ${friend.email} from friend`);
     });
 
     buttonContainer.appendChild(addButton);
@@ -163,22 +160,18 @@ function mapInvites() {
     } else {
       item.innerText = invite.user1.email;
 
-      // Create a button element for adding friend
       const addButton = document.createElement('button');
       addButton.className = 'btn btn-primary btn-sm';
       addButton.textContent = `${langdict[lang]["acceptbutton"]}`;
       addButton.addEventListener('click', () => {
         acceptInvitation(invite);
-        console.log(`Accepted ${invite.user1.email} as friend`);
       });
 
-      // Create a button element for adding friend
       const denyButton = document.createElement('button');
       denyButton.className = 'btn btn-danger btn-sm';
       denyButton.textContent = `${langdict[lang]["denybutton"]}`;
       denyButton.addEventListener('click', () => {
         refuseInvitation(invite);
-        console.log(`Denied ${invite.user1.email} as friend`);
       });
 
       optionsContainer.appendChild(denyButton);
@@ -249,13 +242,11 @@ function mapUsers() {
     const buttonContainer = document.createElement("div");
     buttonContainer.classList.add("d-flex");
 
-    // Create a button element for adding friend
     const addButton = document.createElement('button');
     addButton.className = 'btn btn-primary btn-sm';
     addButton.textContent = `${langdict[lang]["addbutton"]}`;
     addButton.addEventListener('click', () => {
       addFriend(user.id);
-      console.log(`Added ${user.email} as friend`);
     });
 
     buttonContainer.appendChild(addButton);

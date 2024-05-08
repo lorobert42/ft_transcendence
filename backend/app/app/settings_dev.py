@@ -11,8 +11,6 @@ SIMPLE_JWT = {
 
 ALLOWED_HOSTS = [
     'localhost',
-    '10.11.8.1',
-    '10.11.8.4',
 ]
 
 # SECURITY WARNING: don't run with debug turned on in production!

@@ -19,7 +19,6 @@
 # COMMAND BACKEND
 run all commands through docker compose docker-compose run --rm backend sh -c "python manage.py connectstatic"
 
-1. lint files docker compose run --rm backend sh -c "flake8"
 3. create django project via docker ?? a bit strange docker compose run --rm backend sh -c "django-admin startproject app ."
 4. create super users docker compose run --rm backend sh -c "python manage.py createsuperuser"
 5. create a new project within the app docker compose run --rm backend sh -c "python manage.py startapp recipe"

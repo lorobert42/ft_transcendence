@@ -9,7 +9,6 @@ export async function isLoggedIn() {
   ) {
     return true;
   }
-  console.log('invalid access token, checking refresh token');
   const refreshToken = localStorage.getItem('refreshToken');
   if (refreshToken !== null &&
     refreshToken !== undefined &&
@@ -17,6 +16,5 @@ export async function isLoggedIn() {
   ) {
     return getRefreshToken();
   }
-  console.log('invalid refresh token, not logged in');
   return false;
 }
