@@ -1,9 +1,24 @@
 # FT_TRANSCENDENCE
+This project is about creating a website for the mighty Pong contest!
+
+## CHOSEN MODULES
+- Use a Framework as backend. (Django)
+- Use a front-end framework or toolkit. (Bootstrap)
+- Use a database for the backend. (postgresql)
+- Standard user management, authentication, users across tournaments.
+- Remote players.
+- Introduce an AI Opponent.
+- Implement Two-Factor Authentication (2FA) and JWT.
+- Expanding Browser Compatibility. (Firefox)
+- Multiple language supports. (English, French & Portuguese)
+- Replacing Basic Pong with Server-Side Pong and Implementing an API.
+
+## HOW-TO
 1. Fill the information needed in [.env_example](.env_example)
 2. Copy it as `.env`
 3. Start with `make`
 
-# COMMAND 
+## COMMANDS 
 1. make         -> build and start
 2. make mac     -> start without hot reloading, when not admin
 3. make prod    -> deploy in production mode
@@ -16,7 +31,7 @@
 10. make logs    -> print containers logs
 11. make ls     -> show the images, containers and volumes
 
-# COMMAND BACKEND
+## COMMAND BACKEND
 run all commands through docker compose docker-compose run --rm backend sh -c "python manage.py connectstatic"
 
 3. create django project via docker ?? a bit strange docker compose run --rm backend sh -c "django-admin startproject app ."
@@ -28,5 +43,5 @@ run all commands through docker compose docker-compose run --rm backend sh -c "p
    async_to_sync(channel_layer.receive)('test_channel')
 9. docker compose run --rm backend sh -c 'python manage.py shell -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"'
 
-# Board Miro
+## Board Miro
 https://miro.com/app/board/uXjVN3xjpxg=/
